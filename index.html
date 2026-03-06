@@ -3,799 +3,2195 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta
-    name="description"
-    content="CATalyst Academy — ENGL465 interactive learning platform for Computer-Assisted Translation."
-  />
-  <title>CATalyst Academy — ENGL465 Interactive CAT Platform</title>
-  <link rel="preload" href="./fonts/Kermit-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css" />
+  <meta name="description" content="CATalyst Academy — ENGL465 Interactive CAT Learning Platform" />
+  <title>CATalyst Academy</title>
+  <style>
+    /* ── Variables ── */
+    :root {
+      --bg: #f7fcfb;
+      --surface: #ffffff;
+      --accent: #17b59c;
+      --accent2: #0e8a76;
+      --ok: #15975a;
+      --warn: #c68000;
+      --danger: #d74a4a;
+      --text: #1a2b2a;
+      --muted: #5a7472;
+      --border: #d0e8e4;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 2px 12px rgba(23,181,156,.13);
+      --shadow-lg: 0 6px 32px rgba(23,181,156,.18);
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --transition: .2s ease;
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas ── */
+    #catalystCanvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .5;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .grid   { display: grid; gap: 1.25rem; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+    .hidden { display: none !important; }
+    .flex   { display: flex; }
+    .flex-center { display: flex; align-items: center; justify-content: center; }
+    .gap-1  { gap: .5rem; }
+    .gap-2  { gap: 1rem; }
+
+    /* ── Welcome Screen ── */
+    #welcomeScreen {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #0e2a26 0%, #17b59c 60%, #0e8a76 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; flex-direction: column; text-align: center; padding: 2rem;
+    }
+    #welcomeScreen h1 { font-size: clamp(2rem,5vw,3.5rem); color: #fff; margin-bottom: .5rem; }
+    #welcomeScreen .tagline { color: rgba(255,255,255,.85); font-size: 1.1rem; margin-bottom: 2rem; }
+    #welcomeScreen .feature-list {
+      list-style: none; display: flex; flex-wrap: wrap;
+      justify-content: center; gap: .75rem; margin-bottom: 2rem;
+    }
+    #welcomeScreen .feature-list li {
+      background: rgba(255,255,255,.15); color: #fff;
+      padding: .45rem 1rem; border-radius: 20px; font-size: .9rem;
+    }
+    #startBtn {
+      background: #fff; color: var(--accent2);
+      border: none; padding: .9rem 3rem;
+      border-radius: 30px; font-size: 1.2rem; font-weight: 700;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+    }
+    #startBtn:hover { transform: scale(1.06); box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+
+    /* ── Site Header ── */
+    .site-header {
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      padding: .6rem 0;
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .brand { font-size: 1.4rem; font-weight: 800; color: var(--accent2); white-space: nowrap; }
+    .brand span { color: var(--accent); }
+    .header-controls { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    #globalSearch {
+      padding: .45rem .9rem; border: 1.5px solid var(--border);
+      border-radius: 20px; font-size: .9rem; width: 220px;
+      outline: none; transition: border-color var(--transition);
+    }
+    #globalSearch:focus { border-color: var(--accent); }
+    #statusLine { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+
+    /* ── Nav ── */
+    .site-nav { background: var(--accent2); overflow-x: auto; }
+    .nav-inner { display: flex; gap: 0; }
+    .nav-tab {
+      background: none; border: none; color: rgba(255,255,255,.8);
+      padding: .7rem 1.1rem; font-size: .88rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .nav-tab:hover { color: #fff; background: rgba(255,255,255,.1); }
+    .nav-tab.active { color: #fff; border-bottom-color: #fff; background: rgba(255,255,255,.15); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: .4rem; padding: .55rem 1.2rem;
+      border: none; border-radius: var(--radius-sm);
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      transition: filter var(--transition), transform var(--transition);
+      text-decoration: none;
+    }
+    .btn:hover   { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn:active  { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--surface); color: var(--accent2); border: 1.5px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); }
+    .btn-gold    { background: #e6a000; color: #fff; }
+    .btn-danger  { background: var(--danger); color: #fff; }
+    .btn-ghost   { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+    .btn-sm      { padding: .35rem .8rem; font-size: .8rem; }
+    .btn-xs      { padding: .2rem .5rem; font-size: .75rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface); border-radius: var(--radius);
+      border: 1.5px solid var(--border); padding: 1.4rem;
+      box-shadow: var(--shadow); transition: box-shadow var(--transition);
+    }
+    .card:hover { box-shadow: var(--shadow-lg); }
+    .card h3 { margin-bottom: .5rem; color: var(--accent2); }
+    .card p  { color: var(--muted); font-size: .93rem; line-height: 1.6; }
+
+    /* ── Section wrapper ── */
+    .section-wrap { padding: 2rem 0; }
+    .section-title {
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--accent2); margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+
+    /* ── Stats grid ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .stat-card {
+      background: var(--surface); border-radius: var(--radius);
+      border: 1.5px solid var(--border); padding: 1rem 1.2rem;
+      text-align: center; box-shadow: var(--shadow);
+    }
+    .stat-card .stat-val { font-size: 2rem; font-weight: 800; color: var(--accent); }
+    .stat-card .stat-lbl { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── Meter ── */
+    .meter-wrap {
+      background: var(--border); border-radius: 20px;
+      height: 18px; overflow: hidden; margin: .4rem 0;
+    }
+    .meter {
+      height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 20px; min-width: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; color: #fff; font-weight: 700;
+      transition: width .5s ease;
+    }
+
+    /* ── Badges ── */
+    .badges-wrap { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+    .badge {
+      padding: .3rem .8rem; border-radius: 20px; font-size: .8rem; font-weight: 600;
+    }
+    .badge-earned { background: linear-gradient(90deg,#e6f9f2,#d0f4e8); color: var(--ok); border: 1px solid #b0e8cc; }
+    .badge-locked { background: #f0f0f0; color: #aaa; border: 1px solid #ddd; }
+
+    /* ── Topic cards ── */
+    .topic-code {
+      font-size: .75rem; font-weight: 700;
+      color: var(--accent); letter-spacing: .05em;
+      text-transform: uppercase; margin-bottom: .3rem; display: block;
+    }
+    .topic-card h3 { font-size: 1rem; margin-bottom: .4rem; }
+
+    /* ── Lesson view ── */
+    #lessonView {
+      background: var(--surface); border-radius: var(--radius);
+      border: 1.5px solid var(--border); padding: 2rem;
+      margin-top: 1.5rem; box-shadow: var(--shadow-lg);
+    }
+    #lessonContent h2 { color: var(--accent2); margin-bottom: 1rem; }
+    #lessonContent h3 { color: var(--accent); margin: 1.2rem 0 .5rem; }
+    #lessonContent ul, #lessonContent ol { padding-left: 1.4rem; color: var(--text); line-height: 1.75; }
+    #lessonContent li { margin-bottom: .3rem; }
+    #lessonContent p  { line-height: 1.7; color: var(--text); margin-bottom: .6rem; }
+    .example-block {
+      background: #f0fbf8; border-left: 4px solid var(--accent);
+      padding: .7rem 1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: .5rem 0;
+    }
+    .exam-tips li { color: var(--warn); }
+    .citations li { font-size: .85rem; color: var(--muted); }
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin-top: .5rem;
+    }
+    .compare-table th, .compare-table td {
+      border: 1px solid var(--border); padding: .6rem .9rem; font-size: .9rem;
+    }
+    .compare-table th { background: var(--accent); color: #fff; }
+    .compare-table tr:nth-child(even) td { background: #f5fdfb; }
+
+    /* ── Quick topic ── */
+    .quick-topic-btn {
+      display: block; width: 100%; text-align: left;
+      background: none; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: .5rem .8rem;
+      font-size: .85rem; cursor: pointer; color: var(--text);
+      transition: background var(--transition), color var(--transition);
+    }
+    .quick-topic-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ── Flashcards ── */
+    .fc-controls { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .fc-meta { color: var(--muted); font-size: .88rem; margin-bottom: .75rem; }
+    .flashcard-scene { perspective: 1000px; width: 100%; max-width: 600px; height: 220px; margin: 0 auto; }
+    .flashcard {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d; transition: transform .5s;
+      cursor: pointer;
+    }
+    .flashcard.flipped { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      background: var(--surface); border-radius: var(--radius);
+      border: 2px solid var(--accent); box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem; text-align: center; font-size: 1.05rem;
+    }
+    .flashcard-back { transform: rotateY(180deg); background: #f0fbf8; }
+    .fc-actions { display: flex; gap: .75rem; justify-content: center; margin-top: 1rem; }
+    .fc-nav { display: flex; gap: .75rem; justify-content: center; margin-top: .75rem; }
+
+    /* ── Quiz ── */
+    .quiz-controls { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .quiz-meta { color: var(--muted); font-size: .88rem; margin-bottom: .5rem; }
+    #quizQuestion { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.5; }
+    #quizOptions { display: flex; flex-direction: column; gap: .6rem; }
+    .quiz-option {
+      text-align: left; padding: .7rem 1rem; justify-content: flex-start;
+      border: 1.5px solid var(--border); transition: background var(--transition);
+    }
+    .quiz-option:hover:not(:disabled) { background: #e8f9f5; border-color: var(--accent); }
+    .quiz-correct { background: #d6f5e6 !important; border-color: var(--ok) !important; color: var(--ok) !important; }
+    .quiz-wrong   { background: #fde8e8 !important; border-color: var(--danger) !important; color: var(--danger) !important; }
+    .quiz-explanation { margin-top: .75rem; padding: .6rem 1rem; background: #fffbe6; border-left: 3px solid var(--warn); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: .9rem; }
+    #quizSummary { margin-top: 1.5rem; padding: 1.5rem; background: #f0fbf8; border-radius: var(--radius); border: 1.5px solid var(--border); }
+    #quizSummary h3 { color: var(--accent2); margin-bottom: .75rem; }
+    #quizSummary ul { padding-left: 1.2rem; }
+    #quizSummary li { margin-bottom: .4rem; font-size: .9rem; }
+
+    /* ── Mind Map ── */
+    .mm-controls { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    #mmSvg {
+      width: 100%; height: 520px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      background: #fafffd; overflow: hidden;
+    }
+
+    /* ── Rapid Match ── */
+    .rm-header { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    .rm-stat { text-align: center; }
+    .rm-stat .rm-val { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+    .rm-stat .rm-lbl { font-size: .75rem; color: var(--muted); }
+    #rmQuestion { font-size: 1.15rem; font-weight: 600; margin: 1rem 0; min-height: 2rem; }
+    #rmOptions  { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+    /* ── Achievements ── */
+    .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 1rem; margin-top: 1rem; }
+    .achievement-card {
+      background: var(--surface); border-radius: var(--radius);
+      border: 1.5px solid var(--border); padding: 1rem; text-align: center;
+    }
+    .achievement-card.earned { border-color: var(--ok); background: #f0fbf5; }
+    .achievement-card.locked { opacity: .6; }
+    .ach-icon { font-size: 2rem; display: block; margin-bottom: .4rem; }
+    .ach-badge { display: inline-block; margin-top: .5rem; font-size: .78rem; padding: .2rem .6rem; border-radius: 10px; }
+    .ach-badge.locked { background: #eee; color: #aaa; }
+    .ach-badge:not(.locked) { background: #d6f5e6; color: var(--ok); }
+
+    /* ── Term Lab / Glossary ── */
+    #tlText {
+      width: 100%; min-height: 140px; padding: .8rem;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: .9rem; resize: vertical;
+    }
+    #tlText:focus { outline: none; border-color: var(--accent); }
+    .term-chip {
+      display: inline-block; background: #e8f9f5;
+      border: 1px solid var(--accent); color: var(--accent2);
+      padding: .2rem .6rem; border-radius: 12px; font-size: .82rem; margin: .2rem;
+    }
+    .gloss-entry {
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+      padding: .55rem .75rem; border-bottom: 1px solid var(--border); font-size: .9rem;
+    }
+    .gloss-note { color: var(--muted); font-size: .82rem; }
+    .gloss-inputs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .75rem; }
+    .gloss-inputs input {
+      padding: .45rem .8rem; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); font-size: .88rem; flex: 1; min-width: 120px;
+    }
+    .gloss-inputs input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Sources ── */
+    .source-card h4 { color: var(--accent2); margin-bottom: .3rem; }
+    .source-card p  { font-size: .85rem; color: var(--muted); margin-bottom: .75rem; }
+    #citationsList { list-style: disc; padding-left: 1.4rem; }
+    #citationsList li { font-size: .85rem; color: var(--muted); margin-bottom: .35rem; }
+
+    /* ── Review ── */
+    .checklist-item {
+      display: flex; align-items: flex-start; gap: .6rem;
+      padding: .5rem 0; border-bottom: 1px solid var(--border);
+      font-size: .92rem; cursor: pointer;
+    }
+    .checklist-item input { margin-top: .1rem; accent-color: var(--accent); }
+    .revision-step h4 { color: var(--accent2); margin-bottom: .4rem; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 9000; padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 2rem; max-width: 560px; width: 100%;
+      box-shadow: var(--shadow-lg); position: relative;
+    }
+    .modal-card h3 { margin-bottom: 1rem; color: var(--accent2); }
+    #modalClose {
+      position: absolute; top: .8rem; right: .8rem;
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: var(--muted);
+    }
+    #modalClose:hover { color: var(--danger); }
+
+    /* ── Toast ── */
+    #toastStack {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      z-index: 9999; display: flex; flex-direction: column; gap: .5rem;
+    }
+    .toast {
+      padding: .7rem 1.2rem; border-radius: var(--radius-sm);
+      color: #fff; font-size: .9rem; font-weight: 600;
+      box-shadow: var(--shadow-lg); animation: toastIn .3s ease;
+      max-width: 300px;
+    }
+    .toast-success { background: var(--ok); }
+    .toast-warning { background: var(--warn); }
+    .toast-error   { background: var(--danger); }
+    @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── Footer ── */
+    .site-footer {
+      background: var(--accent2); color: rgba(255,255,255,.8);
+      text-align: center; padding: 1rem;
+      font-size: .85rem; margin-top: 3rem; position: relative; z-index: 1;
+    }
+
+    /* ── Snapshot list ── */
+    #snapshotList { list-style: none; padding: 0; }
+    #snapshotList li {
+      padding: .45rem 0; border-bottom: 1px solid var(--border);
+      font-size: .9rem; color: var(--text);
+    }
+    #snapshotList li::before { content: "▸ "; color: var(--accent); }
+
+    /* ── Search results ── */
+    .search-result-item {
+      padding: .5rem .75rem; border-bottom: 1px solid var(--border);
+      font-size: .9rem; transition: background var(--transition);
+    }
+    .search-result-item:hover { background: #f0fbf8; }
+
+    /* ── Filter buttons ── */
+    .filter-bar { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .topic-filter-btn {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: .35rem .9rem;
+      font-size: .85rem; cursor: pointer; transition: background var(--transition), color var(--transition);
+    }
+    .topic-filter-btn:hover, .topic-filter-btn.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .grid-3     { grid-template-columns: repeat(2,1fr); }
+      .grid-4     { grid-template-columns: repeat(2,1fr); }
+      #rmOptions  { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .grid-2     { grid-template-columns: 1fr; }
+      .grid-3     { grid-template-columns: 1fr; }
+      .header-inner { flex-direction: column; align-items: flex-start; }
+      #globalSearch { width: 100%; }
+      .flashcard-scene { height: 180px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Animated background canvas -->
-<canvas id="catalystCanvas" aria-hidden="true"></canvas>
+<!-- Background canvas -->
+<canvas id="catalystCanvas"></canvas>
 
-<!-- Background audio -->
-<audio id="bgAudio" preload="none"></audio>
-
-<!-- Toast notifications -->
-<div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+<!-- Toast stack -->
+<div id="toastStack"></div>
 
 <!-- Modal -->
-<div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-head">
-      <h3 id="modalTitle">Details</h3>
-      <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">✕</button>
-    </div>
-    <div id="modalBody" class="modal-body"></div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <button id="modalClose">✕</button>
+    <h3 id="modalTitle">Info</h3>
+    <div id="modalBody"></div>
   </div>
 </div>
 
-<!-- Welcome screen -->
-<section id="welcomeScreen" class="welcome-screen">
-  <div class="welcome-card">
-    <div class="welcome-badge">✦ ENGL465 / Computer-Assisted Translation</div>
-    <h1>CATalyst Academy</h1>
-    <p class="welcome-subtitle">
-      A comprehensive interactive platform built from your ENGL465 course topics:
-      study, revise, test, map concepts, build glossaries, and track your mastery.
-    </p>
-    <div class="welcome-points">
-      <span>11 interactive topic lessons</span>
-      <span>31 source-based flashcards</span>
-      <span>17 topic and mixed quizzes</span>
-      <span>Interactive mind maps</span>
-      <span>Gamified XP and badges</span>
-      <span>Glossary and term lab</span>
+<!-- ══════════════════════════════════════════════
+     WELCOME SCREEN
+══════════════════════════════════════════════ -->
+<div id="welcomeScreen">
+  <h1>🎓 CATalyst Academy</h1>
+  <p class="tagline">ENGL465 — Computer-Assisted Translation Interactive Platform</p>
+  <ul class="feature-list">
+    <li>📚 13 Topic Lessons</li>
+    <li>🃏 31+ Flashcards</li>
+    <li>❓ 30 Quizzes</li>
+    <li>🧠 Mind Maps</li>
+    <li>⚡ Rapid Match</li>
+    <li>🏆 Achievements</li>
+    <li>📝 Glossary Lab</li>
+    <li>🔍 Term Extraction</li>
+  </ul>
+  <button id="startBtn">🚀 Start Learning</button>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <div class="brand">CAT<span>alyst</span> Academy</div>
+      <div class="header-controls">
+        <input type="search" id="globalSearch" placeholder="🔍 Search topics, flashcards…" />
+        <button class="btn btn-gold btn-sm" id="dailyChallengeBtn">🎯 Daily Challenge</button>
+        <button class="btn btn-danger btn-sm" id="resetProgressBtn">↺ Reset</button>
+        <span id="statusLine">Ready.</span>
+      </div>
     </div>
-    <div class="welcome-actions">
-      <button id="enterWithMusicBtn" class="btn btn-primary">Enter with Music</button>
-      <button id="enterMutedBtn" class="btn btn-ghost">Enter Muted</button>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <div class="container">
+    <div class="nav-inner">
+      <button class="nav-tab" data-section="dashboard">🏠 Dashboard</button>
+      <button class="nav-tab" data-section="topics">📚 Topics</button>
+      <button class="nav-tab" data-section="flashcards">🃏 Flashcards</button>
+      <button class="nav-tab" data-section="quizzes">❓ Quizzes</button>
+      <button class="nav-tab" data-section="mindmaps">🧠 Mind Maps</button>
+      <button class="nav-tab" data-section="gamelab">⚡ Game Lab</button>
+      <button class="nav-tab" data-section="glossarylab">📝 Glossary Lab</button>
+      <button class="nav-tab" data-section="sources">📄 Sources</button>
+      <button class="nav-tab" data-section="review">📋 Review</button>
     </div>
-    <p class="mini-note">
-      Optional folders:
-      <code>/fonts</code>
-      <code>/audio</code>
-      <code>/pdf</code>
-    </p>
+  </div>
+</nav>
+
+<main>
+<div class="container">
+
+<!-- ══════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════ -->
+<section id="dashboard" class="section-wrap hidden">
+  <h2 class="section-title">🏠 Dashboard</h2>
+  <div class="stats-grid" style="margin-bottom:1.5rem">
+    <div class="stat-card"><div class="stat-val" id="statLevel">1</div><div class="stat-lbl">Level</div></div>
+    <div class="stat-card"><div class="stat-val" id="statXP">0</div><div class="stat-lbl">XP</div></div>
+    <div class="stat-card"><div class="stat-val" id="statCoins">0</div><div class="stat-lbl">Coins</div></div>
+    <div class="stat-card"><div class="stat-val" id="statStreak">0🔥</div><div class="stat-lbl">Day Streak</div></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:1.5rem">
+    <div class="card">
+      <h3>📈 Mastery</h3>
+      <p style="margin-bottom:.4rem">Flashcard mastery progress</p>
+      <div class="meter-wrap"><div class="meter" id="masteryMeter" style="width:0%">0%</div></div>
+    </div>
+    <div class="card">
+      <h3>✅ Completion</h3>
+      <p style="margin-bottom:.4rem">Topics opened</p>
+      <div class="meter-wrap"><div class="meter" id="completionMeter" style="width:0%">0%</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem">
+    <h3>🏅 Badges</h3>
+    <div class="badges-wrap" id="badgesArea"></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-bottom:1.5rem">
+    <div class="card" id="dailyChallengeCard"><p>Loading challenge…</p></div>
+    <div class="card">
+      <h3>📌 Course Snapshot</h3>
+      <ul id="snapshotList"></ul>
+    </div>
+  </div>
+
+  <div id="searchResultsSection" class="card hidden" style="margin-bottom:1.5rem">
+    <h3>🔍 Search Results</h3>
+    <div id="searchResults"></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════
-     HEADER
-═══════════════════════════════════════ -->
-<header class="site-header">
-  <div class="header-top container">
-
-    <div class="brand-wrap">
-      <div class="brand-logo" aria-hidden="true"></div>
-      <div class="brand-text">
-        <h1>CATalyst Academy</h1>
-        <p>ENGL465 — Interactive Computer-Assisted Translation Learning Platform</p>
-      </div>
-    </div>
-
-    <div class="header-tools">
-      <label class="search-box" aria-label="Search all content">
-        <span>⌕</span>
-        <input
-          id="globalSearchInput"
-          type="text"
-          placeholder="Search topics, flashcards, quizzes, citations..."
-        />
-      </label>
-      <button id="globalSearchBtn" class="btn btn-small">Search</button>
-
-      <div class="music-controls compact">
-        <button id="musicToggleBtn" class="btn btn-small">♪ Music</button>
-        <button id="prevTrackBtn"   class="btn btn-small" title="Previous track">⏮</button>
-        <button id="nextTrackBtn"   class="btn btn-small" title="Next track">⏭</button>
-        <label class="range-wrap" title="Volume">
-          <span>Vol</span>
-          <input id="musicVolume" type="range" min="0" max="100" value="35" />
-        </label>
-      </div>
-
-      <button id="dailyChallengeBtn" class="btn btn-small btn-gold">Daily Challenge</button>
-      <button id="resetProgressBtn"  class="btn btn-small">Reset Progress</button>
-    </div>
+<!-- ══════════════════════════════════════════════
+     TOPICS
+══════════════════════════════════════════════ -->
+<section id="topics" class="section-wrap hidden">
+  <h2 class="section-title">📚 Topics</h2>
+  <div class="filter-bar">
+    <button class="topic-filter-btn active" data-filter="all">All</button>
+    <button class="topic-filter-btn" data-filter="core">Core</button>
+    <button class="topic-filter-btn" data-filter="tools">Tools</button>
+    <button class="topic-filter-btn" data-filter="workflow">Workflow</button>
+    <button class="topic-filter-btn" data-filter="advanced">Advanced</button>
   </div>
 
-  <nav class="main-nav container" aria-label="Main navigation">
-    <button class="nav-tab active" data-target="dashboardSection">Dashboard</button>
-    <button class="nav-tab" data-target="topicsSection">Topics</button>
-    <button class="nav-tab" data-target="flashcardsSection">Flashcards</button>
-    <button class="nav-tab" data-target="quizzesSection">Quizzes</button>
-    <button class="nav-tab" data-target="mindmapsSection">Mind Maps</button>
-    <button class="nav-tab" data-target="gamesSection">Game Lab</button>
-    <button class="nav-tab" data-target="labSection">Glossary Lab</button>
-    <button class="nav-tab" data-target="sourcesSection">Sources</button>
-    <button class="nav-tab" data-target="reviewSection">Review</button>
-  </nav>
-</header>
-
-<!-- ═══════════════════════════════════════
-     MAIN
-═══════════════════════════════════════ -->
-<main class="container page-main">
-
-  <!-- ─────────────────────────────────────
-       DASHBOARD
-  ───────────────────────────────────── -->
-  <section id="dashboardSection" class="page-section active">
-
-    <div class="grid grid-hero">
-
-      <article class="card hero-card">
-        <div class="hero-card-inner">
-          <span class="eyebrow">Interactive revision + practice + gamified mastery</span>
-          <h2>Study CAT in a structured, visual, and active way.</h2>
-          <p>
-            This platform is built from the attached ENGL465 materials and turns them into a
-            comprehensive learning experience — topic lessons, interactive flashcards, quizzes,
-            mind maps, glossary building, and full progress tracking.
-          </p>
-          <div class="hero-actions">
-            <button id="startFlashcardsBtn" class="btn btn-primary">Start Flashcards</button>
-            <button id="startMixedQuizBtn"  class="btn btn-secondary">Start Mixed Quiz</button>
-            <button id="browseTopicsBtn"    class="btn btn-ghost">Browse Topics</button>
-          </div>
-          <div class="hero-highlights">
-            <div class="highlight-pill">11 topic modules</div>
-            <div class="highlight-pill">31 flashcards</div>
-            <div class="highlight-pill">17 quiz questions</div>
-            <div class="highlight-pill">XP / Levels / Streaks / Badges</div>
-          </div>
+  <div class="grid grid-2" style="gap:1.5rem">
+    <div>
+      <div class="topic-grid" id="topicGrid"></div>
+      <div id="lessonView" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="color:var(--accent2)">Lesson</h3>
+          <button class="btn btn-ghost btn-sm" id="closeLessonBtn">✕ Close</button>
         </div>
-      </article>
-
-      <aside class="card">
-        <div class="card-head">
-          <h3>Your Progress</h3>
-          <p>Stored locally in your browser.</p>
-        </div>
-        <div class="card-body">
-          <div class="stats-grid">
-            <div class="stat-box">
-              <div class="stat-label">Level</div>
-              <div class="stat-value" id="statLevel">1</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-label">XP</div>
-              <div class="stat-value" id="statXP">0</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-label">Coins</div>
-              <div class="stat-value" id="statCoins">0</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-label">Streak</div>
-              <div class="stat-value" id="statStreak">0</div>
-            </div>
-          </div>
-
-          <div class="meter-block">
-            <div class="meter-top">
-              <span>Flashcard Mastery</span>
-              <span id="masteryText">0%</span>
-            </div>
-            <div class="meter"><span id="masteryBar"></span></div>
-          </div>
-
-          <div class="meter-block">
-            <div class="meter-top">
-              <span>Course Completion</span>
-              <span id="completionText">0%</span>
-            </div>
-            <div class="meter meter-alt"><span id="completionBar"></span></div>
-          </div>
-
-          <div class="badges-area">
-            <h4>Badges</h4>
-            <div id="dashboardBadges" class="badge-wrap"></div>
-          </div>
-        </div>
-      </aside>
-
+        <div id="lessonContent"></div>
+      </div>
     </div>
-
-    <div class="grid grid-2">
-
-      <article class="card">
-        <div class="card-head">
-          <h3>Daily Challenge</h3>
-          <p>Complete the mission for bonus XP and coins.</p>
-        </div>
-        <div class="card-body">
-          <div id="dailyChallengeCard" class="challenge-card"></div>
-          <div class="toolbar" style="margin-top:12px">
-            <button id="openDailyChallengeBtn" class="btn btn-primary">Open Challenge</button>
-          </div>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-head">
-          <h3>Course Snapshot</h3>
-          <p>High-yield overview of all included ENGL465 material.</p>
-        </div>
-        <div class="card-body">
-          <div id="snapshotList" class="bullet-list"></div>
-        </div>
-      </article>
-
+    <div class="card" style="height:fit-content">
+      <h3>⚡ Quick Navigator</h3>
+      <div id="quickTopicList" style="display:flex;flex-direction:column;gap:.4rem;margin-top:.75rem"></div>
     </div>
+  </div>
+</section>
 
+<!-- ══════════════════════════════════════════════
+     FLASHCARDS
+══════════════════════════════════════════════ -->
+<section id="flashcards" class="section-wrap hidden">
+  <h2 class="section-title">🃏 Flashcards</h2>
+  <div class="fc-controls">
+    <select id="fcTopicSelect" class="btn btn-secondary"><option value="all">All Topics</option></select>
+    <select id="fcDiffSelect" class="btn btn-secondary">
+      <option value="all">All Difficulties</option>
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <button class="btn btn-primary" id="fcShuffleBtn">🔀 Shuffle</button>
+    <button class="btn btn-secondary" id="fcRestartBtn">↺ Restart</button>
+  </div>
+  <div class="fc-meta" id="fcMeta"></div>
+  <div class="flashcard-scene">
+    <div class="flashcard" id="flashcard">
+      <div class="flashcard-face flashcard-front" id="fcFront">Click to load flashcards…</div>
+      <div class="flashcard-face flashcard-back"  id="fcBack"></div>
+    </div>
+  </div>
+  <div class="fc-actions">
+    <button class="btn btn-danger"  id="fcHardBtn">😓 Hard</button>
+    <button class="btn btn-gold"    id="fcGoodBtn">👍 Good  +8 XP</button>
+    <button class="btn btn-primary" id="fcMasteredBtn">⭐ Mastered  +14 XP</button>
+  </div>
+  <div class="fc-nav">
+    <button class="btn btn-secondary" id="fcPrevBtn">◀ Prev</button>
+    <button class="btn btn-secondary" id="fcNextBtn">Next ▶</button>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     QUIZZES
+══════════════════════════════════════════════ -->
+<section id="quizzes" class="section-wrap hidden">
+  <h2 class="section-title">❓ Quizzes</h2>
+  <div class="quiz-controls">
+    <select id="quizTopicSelect" class="btn btn-secondary"><option value="all">All Topics</option></select>
+    <select id="quizModeSelect" class="btn btn-secondary">
+      <option value="mixed">Mixed</option>
+      <option value="topic">By Topic</option>
+      <option value="exam">Exam Mode</option>
+    </select>
+    <select id="quizLengthSelect" class="btn btn-secondary">
+      <option value="5">5 Questions</option>
+      <option value="10">10 Questions</option>
+      <option value="15">15 Questions</option>
+      <option value="20">20 Questions</option>
+      <option value="25">25 Questions</option>
+      <option value="30" selected>30 Questions</option>
+    </select>
+    <button class="btn btn-primary" id="generateQuizBtn">▶ Generate Quiz</button>
+  </div>
+  <div class="quiz-meta" id="quizMeta">Select options and click Generate Quiz.</div>
+  <div id="quizQuestion"></div>
+  <div id="quizOptions"></div>
+  <button class="btn btn-primary hidden" id="quizNextBtn" style="margin-top:1rem">Next Question ▶</button>
+  <div id="quizSummary" class="hidden"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     MIND MAPS
+══════════════════════════════════════════════ -->
+<section id="mindmaps" class="section-wrap hidden">
+  <h2 class="section-title">🧠 Mind Maps</h2>
+  <div class="mm-controls">
+    <select id="mmTopicSelect" class="btn btn-secondary"></select>
+    <button class="btn btn-primary" id="mmLoadBtn">Load Map</button>
+    <button class="btn btn-secondary" id="mmResetBtn">↺ Reset Zoom</button>
+    <button class="btn btn-secondary" id="mmZoomInBtn">🔍+</button>
+    <button class="btn btn-secondary" id="mmZoomOutBtn">🔍−</button>
+  </div>
+  <svg id="mmSvg" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+    <g id="mmNodesLayer"></g>
+  </svg>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     GAME LAB
+══════════════════════════════════════════════ -->
+<section id="gamelab" class="section-wrap hidden">
+  <h2 class="section-title">⚡ Game Lab</h2>
+  <div class="grid grid-2" style="gap:1.5rem">
     <div class="card">
-      <div class="card-head">
-        <h3>Search Results</h3>
-        <p>Use the global search bar to jump instantly across all content.</p>
+      <h3>⚡ Rapid Match</h3>
+      <p style="margin-bottom:1rem">Match the term to its definition before time runs out!</p>
+      <div class="rm-header">
+        <div class="rm-stat"><div class="rm-val" id="rmTimer">15</div><div class="rm-lbl">Seconds</div></div>
+        <div class="rm-stat"><div class="rm-val" id="rmStreak">0</div><div class="rm-lbl">Streak</div></div>
+        <div class="rm-stat"><div class="rm-val" id="rmBest">0</div><div class="rm-lbl">Best</div></div>
+        <button class="btn btn-primary" id="rmStartBtn">▶ Start</button>
       </div>
-      <div class="card-body">
-        <div id="searchResultsPanel" class="results-panel">
-          <p class="muted">No search yet — type above and press Search or Enter.</p>
-        </div>
-      </div>
+      <div id="rmQuestion" style="font-size:1.1rem;font-weight:600;min-height:2rem;margin-bottom:.75rem"></div>
+      <div id="rmOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem"></div>
     </div>
+    <div id="achievementsPanel" class="card"></div>
+  </div>
+  <div class="card" style="margin-top:1.5rem">
+    <h3>🏆 XP Reward Rules</h3>
+    <ul style="padding-left:1.4rem;line-height:2">
+      <li>👍 Good flashcard: <strong>+8 XP, +2 coins</strong></li>
+      <li>⭐ Mastered flashcard: <strong>+14 XP, +4 coins</strong></li>
+      <li>✅ Quiz correct answer: <strong>+20 XP, +5 coins</strong></li>
+      <li>⚡ Rapid Match win: <strong>+12 XP, +3 coins</strong></li>
+      <li>📝 Glossary entry: <strong>+6 XP, +2 coins</strong></li>
+      <li>🔍 Term extraction: <strong>+6 XP, +2 coins</strong></li>
+      <li>🎯 Daily challenge: <strong>+40 XP, +15 coins</strong></li>
+      <li>📖 Open lesson: <strong>+10 XP, +3 coins</strong></li>
+    </ul>
+  </div>
+</section>
 
-  </section>
-
-  <!-- ─────────────────────────────────────
-       TOPICS
-  ───────────────────────────────────── -->
-  <section id="topicsSection" class="page-section">
-
+<!-- ══════════════════════════════════════════════
+     GLOSSARY LAB
+══════════════════════════════════════════════ -->
+<section id="glossarylab" class="section-wrap hidden">
+  <h2 class="section-title">📝 Glossary Lab</h2>
+  <div class="grid grid-2" style="gap:1.5rem">
     <div class="card">
-      <div class="card-head">
-        <h2>Topic Explorer</h2>
-        <p>
-          All 11 ENGL465 topic modules with full lesson detail — definitions, key points,
-          examples, process timelines, comparison tables, exam tips, and citations.
-        </p>
+      <h3>🔬 Term Extraction Lab</h3>
+      <p style="margin-bottom:.75rem">Paste text below to extract CAT-related terms automatically.</p>
+      <textarea id="tlText" placeholder="Paste your text here…"></textarea>
+      <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+        <select id="tlModeSelect" class="btn btn-secondary">
+          <option value="pattern">Pattern-Based</option>
+          <option value="frequency">Frequency-Based</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+        <button class="btn btn-primary" id="tlExtractBtn">🔍 Extract Terms</button>
       </div>
-      <div class="card-body">
-        <div class="toolbar" style="margin-bottom:16px">
-          <button class="btn btn-small topic-filter active" data-filter="all">All</button>
-          <button class="btn btn-small topic-filter" data-filter="foundation">Foundation</button>
-          <button class="btn btn-small topic-filter" data-filter="tools">Tools</button>
-          <button class="btn btn-small topic-filter" data-filter="technology">Technology</button>
-          <button class="btn btn-small topic-filter" data-filter="practice">Practice</button>
-        </div>
-        <div id="topicCardGrid" class="topic-grid"></div>
-      </div>
+      <div id="tlResults" style="margin-top:1rem"></div>
     </div>
-
-    <div class="grid-topic-detail">
-
-      <article class="card">
-        <div class="card-head">
-          <h3>Selected Lesson</h3>
-          <p>Click any topic card above to load its full lesson here.</p>
-        </div>
-        <div class="card-body">
-
-          <div class="lesson-header">
-            <div>
-              <div id="lessonCode" class="topic-code">Topic</div>
-              <h2 id="lessonTitle">Select a topic</h2>
-              <p id="lessonMeta" class="muted">Source file and page range will appear here.</p>
-            </div>
-            <div class="lesson-actions">
-              <button id="lessonToFlashcardsBtn" class="btn btn-small btn-primary">Flashcards</button>
-              <button id="lessonToQuizBtn"       class="btn btn-small btn-secondary">Quiz</button>
-              <button id="lessonToMindmapBtn"    class="btn btn-small">Mind Map</button>
-            </div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Overview</h4>
-            <div id="lessonOverview" class="bullet-list"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Key Definitions</h4>
-            <div id="lessonDefinitions" class="definition-list"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Major Points</h4>
-            <div id="lessonKeyPoints" class="bullet-list"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Examples / Cases</h4>
-            <div id="lessonExamples" class="bullet-list"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Processes / Workflows</h4>
-            <div id="lessonProcess" class="timeline-list"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Compare / Distinguish</h4>
-            <div id="lessonCompare" class="compare-table-wrap"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Exam Tips</h4>
-            <div id="lessonExamTips" class="bullet-list"></div>
-          </div>
-
-          <div class="lesson-block">
-            <h4>Source Citations</h4>
-            <div id="lessonCitations" class="citation-list"></div>
-          </div>
-
-        </div>
-      </article>
-
-      <aside class="card">
-        <div class="card-head">
-          <h3>Quick Topic Navigator</h3>
-          <p>Jump directly to any of the 11 included topics.</p>
-        </div>
-        <div class="card-body">
-          <div id="topicQuickList" class="stack-list"></div>
-        </div>
-      </aside>
-
-    </div>
-
-  </section>
-
-  <!-- ─────────────────────────────────────
-       FLASHCARDS
-  ───────────────────────────────────── -->
-  <section id="flashcardsSection" class="page-section">
-
     <div class="card">
-      <div class="card-head">
-        <h2>Flashcards</h2>
-        <p>
-          31 source-based recall cards covering all 11 topics.
-          Rate each card to track mastery and focus on weak areas.
-        </p>
+      <h3>📖 Quick Glossary Builder</h3>
+      <div class="gloss-inputs">
+        <input type="text" id="glossTermInput"  placeholder="Source term" />
+        <input type="text" id="glossEquivInput" placeholder="Target equivalent" />
+        <input type="text" id="glossNoteInput"  placeholder="Note (optional)" />
       </div>
-      <div class="card-body">
-
-        <div class="toolbar" style="margin-bottom:14px">
-          <select id="flashTopicSelect"      class="input-select" style="max-width:280px"></select>
-          <select id="flashDifficultySelect" class="input-select" style="max-width:180px">
-            <option value="all">All Cards</option>
-            <option value="weak">Weak Only</option>
-            <option value="new">New Only</option>
-            <option value="mastered">Mastered Only</option>
-          </select>
-          <button id="shuffleFlashcardsBtn" class="btn btn-small">Shuffle</button>
-          <button id="resetFlashDeckBtn"    class="btn btn-small">Restart Deck</button>
-        </div>
-
-        <div class="flash-meta">
-          <span class="meta-pill" id="flashDeckLabel">Deck: All Topics</span>
-          <span class="meta-pill" id="flashPositionLabel">Card 1 / 1</span>
-          <span class="meta-pill" id="flashStatusLabel">Status: New</span>
-        </div>
-
-        <div class="flashcard-shell">
-          <div id="flashcard" class="flashcard">
-            <div class="flashcard-inner">
-
-              <div class="flash-face flash-front">
-                <div>
-                  <div class="flash-label">Question / Prompt</div>
-                  <div id="flashFrontText" class="flash-main-text">Loading...</div>
-                </div>
-                <div>
-                  <div id="flashFrontMeta" class="flash-meta-text"></div>
-                  <div class="toolbar">
-                    <button id="flipFlashcardBtn" class="btn btn-primary">Flip Card</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flash-face flash-back">
-                <div>
-                  <div class="flash-label">Answer / Explanation</div>
-                  <div id="flashBackText" class="flash-main-text">Loading...</div>
-                </div>
-                <div>
-                  <div id="flashBackMeta" class="flash-meta-text"></div>
-                  <div class="toolbar">
-                    <button id="flashHardBtn"     class="btn">Hard</button>
-                    <button id="flashGoodBtn"     class="btn btn-secondary">Good</button>
-                    <button id="flashMasteredBtn" class="btn btn-primary">Mastered</button>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <div class="toolbar">
-          <button id="prevFlashcardBtn" class="btn">◀ Previous</button>
-          <button id="nextFlashcardBtn" class="btn">Next ▶</button>
-        </div>
-
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="btn btn-primary" id="glossAddBtn">➕ Add</button>
+        <button class="btn btn-ghost"   id="glossExportBtn">📥 Export TSV</button>
+        <button class="btn btn-danger btn-sm" id="glossClearBtn">🗑 Clear All</button>
       </div>
+      <div id="glossList"></div>
     </div>
+  </div>
+</section>
 
-  </section>
+<!-- ══════════════════════════════════════════════
+     SOURCES
+══════════════════════════════════════════════ -->
+<section id="sources" class="section-wrap hidden">
+  <h2 class="section-title">📄 Sources</h2>
+  <p style="color:var(--muted);margin-bottom:1rem">Place PDF files in the <code>/pdf/</code> folder for direct links.</p>
+  <div class="topic-grid" id="sourceGrid" style="margin-bottom:2rem"></div>
+  <div class="card">
+    <h3>📚 All Citations</h3>
+    <ul id="citationsList" style="margin-top:.75rem"></ul>
+  </div>
+</section>
 
-  <!-- ─────────────────────────────────────
-       QUIZZES
-  ───────────────────────────────────── -->
-  <section id="quizzesSection" class="page-section">
-
+<!-- ══════════════════════════════════════════════
+     REVIEW
+══════════════════════════════════════════════ -->
+<section id="review" class="section-wrap hidden">
+  <h2 class="section-title">📋 Review</h2>
+  <div class="grid grid-2" style="gap:1.5rem">
     <div class="card">
-      <div class="card-head">
-        <h2>Quiz Arena</h2>
-        <p>
-          17 topic-based and mixed quiz questions with full explanations and source citations.
-          Choose topic, mode, and length then generate your quiz.
-        </p>
-      </div>
-      <div class="card-body">
-
-        <div class="toolbar" style="margin-bottom:14px">
-          <select id="quizTopicSelect"  class="input-select" style="max-width:280px"></select>
-          <select id="quizModeSelect"   class="input-select" style="max-width:180px">
-            <option value="topic">Topic Quiz</option>
-            <option value="mixed">Mixed Quiz</option>
-            <option value="exam">Exam Mode</option>
-          </select>
-          <select id="quizLengthSelect" class="input-select" style="max-width:160px">
-  <option value="5">5 Questions</option>
-  <option value="10">10 Questions</option>
-  <option value="15">15 Questions</option>
-  <option value="20">20 Questions</option>
-  <option value="25">25 Questions</option>
-  <option value="30">30 Questions</option>
-</select>
-
-          <button id="generateQuizBtn" class="btn btn-primary">Generate Quiz</button>
-        </div>
-
-        <div class="quiz-meta">
-          <span class="meta-pill" id="quizTopicLabel">Topic: —</span>
-          <span class="meta-pill" id="quizProgressLabel">Question 0 / 0</span>
-          <span class="meta-pill" id="quizScoreLabel">Score: 0</span>
-        </div>
-
-        <div class="quiz-layout">
-
-          <article class="quiz-main">
-            <div id="quizQuestionText" class="quiz-question">
-              Generate a quiz to begin.
-            </div>
-            <div id="quizOptions" class="quiz-options"></div>
-            <div class="toolbar">
-              <button id="submitQuizAnswerBtn" class="btn btn-secondary">Submit Answer</button>
-              <button id="nextQuizQuestionBtn" class="btn">Next Question</button>
-            </div>
-            <div id="quizFeedback" class="feedback-box" style="margin-top:14px">
-              Select an answer and press Submit to see feedback and explanation.
-            </div>
-          </article>
-
-          <aside class="quiz-side">
-            <div class="side-panel">
-              <h4>Quiz Summary</h4>
-              <div id="quizSummaryPanel" class="stack-list"></div>
-            </div>
-          </aside>
-
-        </div>
-
-      </div>
+      <h3>⚠️ Weak Areas</h3>
+      <ul id="weakAreasList" style="padding-left:1.2rem;margin-top:.5rem"></ul>
     </div>
-
-  </section>
-
-  <!-- ─────────────────────────────────────
-       MIND MAPS
-  ───────────────────────────────────── -->
-  <section id="mindmapsSection" class="page-section">
-
     <div class="card">
-      <div class="card-head">
-        <h2>Interactive Mind Maps</h2>
-        <p>
-          Click branch nodes to expand child ideas. Select any node to view
-          its explanation, connected ideas, and source citation.
-        </p>
-      </div>
-      <div class="card-body">
-
-        <div class="toolbar" style="margin-bottom:14px">
-          <select id="mindmapTopicSelect" class="input-select" style="max-width:280px"></select>
-          <button id="loadMindmapBtn"    class="btn btn-primary">Load Mind Map</button>
-          <button id="resetMindmapBtn"   class="btn btn-small">Reset View</button>
-          <button id="zoomInMindmapBtn"  class="btn btn-small">Zoom +</button>
-          <button id="zoomOutMindmapBtn" class="btn btn-small">Zoom −</button>
-        </div>
-
-        <div class="mindmap-layout">
-
-          <div class="mindmap-stage-wrap">
-            <div id="mindmapStage" class="mindmap-stage"
-                 aria-label="Interactive mind map stage">
-              <svg id="mindmapSvg" class="mindmap-svg" aria-hidden="true"></svg>
-              <div id="mindmapNodesLayer" class="mindmap-nodes-layer"></div>
-            </div>
-          </div>
-
-          <aside class="mindmap-sidebar">
-            <div class="side-panel">
-              <h4>Node Details</h4>
-              <div id="mindmapNodeDetails" class="details-panel">
-                Select a node to view its explanation, connected ideas, and citation.
-              </div>
-            </div>
-          </aside>
-
-        </div>
-
-      </div>
+      <h3>✅ High-Yield Checklist</h3>
+      <div id="reviewChecklist" style="margin-top:.5rem"></div>
     </div>
+  </div>
+  <div class="card" style="margin-top:1.5rem">
+    <h3>📅 7-Day Revision Planner</h3>
+    <div id="revisionPlan" class="grid grid-2" style="margin-top:1rem;gap:1rem"></div>
+  </div>
+</section>
 
-  </section>
-
-  <!-- ─────────────────────────────────────
-       GAME LAB
-  ───────────────────────────────────── -->
-  <section id="gamesSection" class="page-section">
-
-    <div class="grid grid-2">
-
-      <article class="card">
-        <div class="card-head">
-          <h2>Rapid Match</h2>
-          <p>
-            Fast-paced recall challenge. Match the term to its correct definition
-            before the 15-second timer runs out. Build your streak for bonus XP.
-          </p>
-        </div>
-        <div class="card-body">
-
-          <div class="toolbar">
-            <button id="startRapidMatchBtn" class="btn btn-primary">Start Challenge</button>
-          </div>
-
-          <div class="rapid-meta" style="margin-top:12px">
-            <span class="meta-pill" id="rapidStreakLabel">Streak: 0</span>
-            <span class="meta-pill" id="rapidBestLabel">Best: 0</span>
-            <span class="meta-pill" id="rapidTimerLabel">Time: —</span>
-          </div>
-
-          <div id="rapidPrompt" class="quiz-question" style="margin-top:14px">
-            Press "Start Challenge" to begin.
-          </div>
-          <div id="rapidOptions"  class="quiz-options"></div>
-          <div id="rapidFeedback" class="feedback-box">Challenge ready.</div>
-
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-head">
-          <h2>Achievements</h2>
-          <p>Your unlocked badges and study milestones.</p>
-        </div>
-        <div class="card-body">
-
-          <div id="achievementPanel" class="badge-wrap"></div>
-
-          <details class="info-box">
-            <summary><strong>XP Reward Rules</strong></summary>
-            <div class="details-content">
-              <ul>
-                <li>Good flashcard rating = +8 XP, +2 coins</li>
-                <li>Mastered flashcard = +14 XP, +4 coins</li>
-                <li>Correct quiz answer = +20 XP, +5 coins</li>
-                <li>Rapid Match win = +12 XP, +3 coins</li>
-                <li>Glossary entry added = +6 XP, +2 coins</li>
-                <li>Daily challenge completion = +40 XP, +15 coins</li>
-              </ul>
-            </div>
-          </details>
-
-        </div>
-      </article>
-
-    </div>
-
-  </section>
-
-  <!-- ─────────────────────────────────────
-       GLOSSARY LAB
-  ───────────────────────────────────── -->
-  <section id="labSection" class="page-section">
-
-    <div class="grid grid-2">
-
-      <article class="card">
-        <div class="card-head">
-          <h2>Term Extraction Lab</h2>
-          <p>
-            Paste any source text to extract candidate terms using
-            pattern-based, frequency-based, or hybrid methods.
-          </p>
-        </div>
-        <div class="card-body">
-
-          <textarea
-            id="termLabInput"
-            class="text-area"
-            placeholder="Paste source text here — try a paragraph from your ENGL465 materials..."
-          ></textarea>
-
-          <div class="toolbar" style="margin-top:10px">
-            <button id="extractPatternBtn" class="btn btn-primary">Pattern-Based</button>
-            <button id="extractStatBtn"    class="btn btn-secondary">Frequency-Based</button>
-            <button id="extractHybridBtn"  class="btn btn-gold">Hybrid</button>
-            <button id="clearTermLabBtn"   class="btn">Clear</button>
-          </div>
-
-          <div id="termLabOutput" class="results-panel" style="margin-top:14px">
-            Candidate terms will appear here.
-          </div>
-
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-head">
-          <h2>Quick Glossary Builder</h2>
-          <p>
-            Build a personal bilingual mini-termbase while studying.
-            Export as tab-separated text when ready.
-          </p>
-        </div>
-        <div class="card-body">
-
-          <div class="form-grid">
-            <input
-              id="glossaryTermInput"
-              type="text"
-              class="text-input"
-              placeholder="Source term (e.g. Translation Memory)"
-            />
-            <input
-              id="glossaryEquivalentInput"
-              type="text"
-              class="text-input"
-              placeholder="Target equivalent"
-            />
-            <input
-              id="glossaryNoteInput"
-              type="text"
-              class="text-input"
-              placeholder="Note / domain / usage context"
-            />
-          </div>
-
-          <div class="toolbar" style="margin-top:10px">
-            <button id="addGlossaryEntryBtn" class="btn btn-primary">Add Entry</button>
-            <button id="exportGlossaryBtn"   class="btn">Export TSV</button>
-            <button id="clearGlossaryBtn"    class="btn">Clear All</button>
-          </div>
-
-          <div id="glossaryOutput" class="results-panel" style="margin-top:14px">
-            No glossary entries yet.
-          </div>
-
-        </div>
-      </article>
-
-    </div>
-
-  </section>
-
-  <!-- ─────────────────────────────────────
-       SOURCES
-  ───────────────────────────────────── -->
-  <section id="sourcesSection" class="page-section">
-
-    <div class="card">
-      <div class="card-head">
-        <h2>Source Explorer</h2>
-        <p>
-          All 11 ENGL465 source files and every lesson citation used
-          to build the platform content.
-        </p>
-      </div>
-      <div class="card-body">
-
-        <div class="notice-box" style="margin-bottom:18px">
-          For PDF links to work, place the course PDF files inside the
-          <code>/pdf</code> folder and serve the project through a local
-          server such as VS Code Live Server or any HTTP server.
-        </div>
-
-        <div id="sourceFileGrid" class="topic-grid"></div>
-
-        <div style="margin-top:22px">
-          <h4 style="margin:0 0 12px">All Citations</h4>
-          <div id="allCitationsPanel" class="citation-list"></div>
-        </div>
-
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ─────────────────────────────────────
-       REVIEW
-  ───────────────────────────────────── -->
-  <section id="reviewSection" class="page-section">
-
-    <div class="grid grid-2">
-
-      <article class="card">
-        <div class="card-head">
-          <h2>Weak Areas</h2>
-          <p>
-            Flashcards rated Hard or not yet mastered — your priority revision list.
-          </p>
-        </div>
-        <div class="card-body">
-          <div id="weakAreasPanel" class="results-panel"></div>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-head">
-          <h2>High-Yield Review Checklist</h2>
-          <p>
-            Key revision points drawn from all 11 included topics —
-            ideal for final exam preparation.
-          </p>
-        </div>
-        <div class="card-body">
-          <div id="reviewChecklist" class="bullet-list"></div>
-        </div>
-      </article>
-
-    </div>
-
-    <div class="card" style="margin-top:18px">
-      <div class="card-head">
-        <h3>7-Day Revision Planner</h3>
-        <p>A structured day-by-day guide to cover all 11 topics efficiently.</p>
-      </div>
-      <div class="card-body">
-        <div id="revisionPlanPanel" class="timeline-list"></div>
-      </div>
-    </div>
-
-  </section>
-
+</div><!-- /.container -->
 </main>
 
-<!-- ═══════════════════════════════════════
-     FOOTER
-═══════════════════════════════════════ -->
 <footer class="site-footer">
-  <div class="container footer-inner">
-    <div>
-      <strong>CATalyst Academy</strong> —
-      ENGL465 Interactive CAT Learning Platform &nbsp;|&nbsp;
-      Developed by Halim Faroug A. Elhag (BA Hons, MA),
-      Lecturer of English Language, UHB / UofK
-    </div>
-    <div id="statusLine">Ready.</div>
-  </div>
+  <p>CATalyst Academy — ENGL465 Computer-Assisted Translation © 2025 | <span id="footerStatus">Ready.</span></p>
 </footer>
 
-<!-- ═══════════════════════════════════════
-     SCRIPTS — data first, then app
-═══════════════════════════════════════ -->
-<script src="./data.js"></script>
-<script src="./app.js"></script>
+Now Part 2 — the complete embedded <script> block (data + app logic). Paste this immediately after the closing </footer> tag and before </body></html>:
 
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+window.CATALYST_DATA = {
+  appMeta: { title:"CATalyst Academy", course:"ENGL465 — Computer-Assisted Translation", version:"2.0" },
+  musicPlaylist: [],
+  snapshotPoints: [
+    "CAT tools enhance translator productivity without replacing human judgment.",
+    "Translation memories store previously translated segments for reuse.",
+    "Term bases ensure consistent use of approved terminology.",
+    "Machine translation output requires careful post-editing.",
+    "Quality assurance tools catch errors before delivery.",
+    "Localization adapts content culturally, not just linguistically.",
+    "Alignment tools create TMs from existing bilingual documents.",
+    "Project management coordinates multi-translator workflows.",
+    "File format handling is critical for maintaining document structure."
+  ],
+  topics: [
+    {
+      id:"topic1", code:"T01", title:"Introduction to CAT Tools", category:"core",
+      sourcePdf:"./pdf/ENGL465-Topic1.pdf",
+      overview:"Computer-Assisted Translation (CAT) tools are software applications that support human translators by automating repetitive tasks, storing translations, and enforcing terminological consistency. Unlike machine translation, CAT tools keep the human translator in control.",
+      definitions:[
+        {term:"CAT Tool", def:"Software that assists human translators with memory, terminology, and workflow management."},
+        {term:"Translation Memory (TM)", def:"A database that stores source and target segment pairs for future reuse."},
+        {term:"Term Base", def:"A structured glossary of approved source and target terminology."}
+      ],
+      keyPoints:[
+        "CAT tools differ fundamentally from machine translation engines.",
+        "They improve consistency and speed without removing human agency.",
+        "Common tools include SDL Trados, memoQ, Wordfast, and OmegaT.",
+        "TM leverage reduces re-translation of repeated segments.",
+        "Term bases enforce approved vocabulary across projects."
+      ],
+      examples:[
+        {label:"SDL Trados Studio", text:"Industry-standard CAT tool with advanced TM and project management features."},
+        {label:"OmegaT", text:"Free, open-source CAT tool popular for its flexibility and plugin ecosystem."}
+      ],
+      examTips:[
+        "Know the difference between CAT tools and MT engines.",
+        "Be able to list at least four major CAT tools.",
+        "Understand TM leverage percentages."
+      ],
+      citations:["Kenny, D. (2017). CAT Tools in the Translator's Workplace. Routledge."]
+    },
+    {
+      id:"topic2", code:"T02", title:"Translation Memory Systems", category:"core",
+      sourcePdf:"./pdf/ENGL465-Topic2.pdf",
+      overview:"Translation Memory (TM) systems store bilingual segment pairs and retrieve them when similar or identical source text appears. They are the backbone of modern CAT tool workflows.",
+      definitions:[
+        {term:"Exact Match", def:"A TM segment that matches the new source text 100%."},
+        {term:"Fuzzy Match", def:"A TM segment with less than 100% but above threshold similarity."},
+        {term:"Concordance Search", def:"Searching the TM for specific words or phrases in context."}
+      ],
+      keyPoints:[
+        "TMs store segments (usually sentences) as translation units.",
+        "Exact matches (100%) can be inserted automatically.",
+        "Fuzzy matches require human review and editing.",
+        "Leveraged content reduces translation cost and time.",
+        "TMs can be exported as TMX files for interoperability."
+      ],
+      examples:[
+        {label:"TMX Format", text:"Translation Memory eXchange — the open standard format for sharing TMs across tools."}
+      ],
+      examTips:[
+        "Know the difference between exact and fuzzy matches.",
+        "Understand TMX as an interoperability standard.",
+        "Be able to explain TM leverage and its financial implications."
+      ],
+      citations:["Bowker, L. (2002). Computer-Aided Translation Technology. University of Ottawa Press."]
+    },
+    {
+      id:"topic3", code:"T03", title:"Terminology Management", category:"core",
+      sourcePdf:"./pdf/ENGL465-Topic3.pdf",
+      overview:"Terminology management involves creating, maintaining, and using structured glossaries (term bases) to ensure consistent and accurate use of domain-specific vocabulary across translation projects.",
+      definitions:[
+        {term:"Term Base (TB)", def:"A database of approved source and target terms with metadata."},
+        {term:"TBX", def:"TermBase eXchange — the open standard for sharing term bases."},
+        {term:"Termination", def:"The process of identifying and approving terms for a term base."}
+      ],
+      keyPoints:[
+        "Term bases differ from simple glossaries — they include metadata.",
+        "Consistent terminology improves quality and client satisfaction.",
+        "TBX is the standard format for exchanging term bases.",
+        "Active term recognition in CAT tools highlights terms during translation.",
+        "Term bases should be maintained throughout a project's lifecycle."
+      ],
+      examples:[
+        {label:"MultiTerm", text:"SDL's dedicated terminology management tool, integrated with Trados Studio."}
+      ],
+      examTips:[
+        "Distinguish term bases from translation memories.",
+        "Know TBX as the terminology exchange standard.",
+        "Explain how active term recognition works in CAT tools."
+      ],
+      citations:["Wright, S.E. & Budin, G. (1997). Handbook of Terminology Management. Benjamins."]
+    },
+    {
+      id:"topic4", code:"T04", title:"Machine Translation & Post-Editing", category:"tools",
+      sourcePdf:"./pdf/ENGL465-Topic4.pdf",
+      overview:"Machine Translation (MT) automatically generates translations using algorithms. Post-editing (PE) is the human process of correcting and improving MT output to meet quality standards.",
+      definitions:[
+        {term:"MTPE", def:"Machine Translation Post-Editing — human review and correction of MT output."},
+        {term:"Full Post-Editing", def:"Editing MT output to publishable quality."},
+        {term:"Light Post-Editing", def:"Minimal editing to make MT output comprehensible."},
+        {term:"Neural MT (NMT)", def:"MT systems using deep learning, e.g., DeepL, Google Translate."}
+      ],
+      keyPoints:[
+        "NMT produces more fluent output than older rule-based or statistical systems.",
+        "Full PE aims for publication quality; light PE aims for gist.",
+        "Post-editors must resist the 'over-editing' trap.",
+        "MT+PE can be faster than translating from scratch for suitable content.",
+        "Content suitability assessment is critical before applying MT."
+      ],
+      examples:[
+        {label:"DeepL", text:"NMT engine known for producing highly fluent output, widely used in professional workflows."}
+      ],
+      examTips:[
+        "Distinguish light vs. full post-editing.",
+        "Know which content types are suitable for MT.",
+        "Understand the risks of under- and over-editing."
+      ],
+      citations:["O'Brien, S. (2011). Towards predicting post-editing productivity. MT Summit XIII."]
+    },
+    {
+      id:"topic5", code:"T05", title:"Quality Assurance in Translation", category:"workflow",
+      sourcePdf:"./pdf/ENGL465-Topic5.pdf",
+      overview:"Quality Assurance (QA) in translation involves systematic checks to detect errors, inconsistencies, and omissions before the final translation is delivered to the client.",
+      definitions:[
+        {term:"QA Check", def:"Automated verification of translation quality parameters."},
+        {term:"Xbench", def:"A popular third-party QA tool for translation projects."},
+        {term:"Terminology Verification", def:"Checking that approved terms are used correctly and consistently."}
+      ],
+      keyPoints:[
+        "QA tools check for missing translations, tag errors, number mismatches, and terminology inconsistencies.",
+        "QA is not a replacement for human proofreading.",
+        "Most CAT tools have built-in QA modules.",
+        "QA checks should be run before final delivery.",
+        "Client-specific QA profiles can be configured."
+      ],
+      examples:[
+        {label:"Xbench", text:"Standalone QA and terminology management tool compatible with multiple file formats."}
+      ],
+      examTips:[
+        "Know common QA error categories.",
+        "Understand the difference between QA tools and proofreading.",
+        "Be able to describe a QA workflow."
+      ],
+      citations:["Morado Vázquez, L. (2015). Translator training and QA tools. JoSTrans 23."]
+    },
+    {
+      id:"topic6", code:"T06", title:"Localization", category:"advanced",
+      sourcePdf:"./pdf/ENGL465-Topic6.pdf",
+      overview:"Localization (L10n) adapts digital content — software, websites, games — for a specific locale, going beyond linguistic translation to address cultural, technical, and functional requirements.",
+      definitions:[
+        {term:"L10n", def:"Abbreviation for Localization (10 letters between L and n)."},
+        {term:"I18n", def:"Internationalization — designing products to be easily localized."},
+        {term:"Locale", def:"A set of parameters defining language, region, and formatting conventions."}
+      ],
+      keyPoints:[
+        "Localization involves text, images, date/number formats, and UI layout.",
+        "Internationalization (i18n) must precede localization (l10n).",
+        "String externalization separates translatable text from code.",
+        "Desktop publishing (DTP) handles layout adjustments post-translation.",
+        "Localization testing verifies functional correctness in the target locale."
+      ],
+      examples:[
+        {label:"Software Localization", text:"Translating UI strings, help files, and error messages for a new market."}
+      ],
+      examTips:[
+        "Know the i18n → l10n → testing pipeline.",
+        "Understand string externalization.",
+        "Be able to explain locale-specific formatting issues."
+      ],
+      citations:["Esselink, B. (2000). A Practical Guide to Localization. Benjamins."]
+    },
+    {
+      id:"topic7", code:"T07", title:"File Formats & Markup", category:"tools",
+      sourcePdf:"./pdf/ENGL465-Topic7.pdf",
+      overview:"Translators work with a wide variety of file formats. Understanding markup languages and file structures is essential for handling files correctly in CAT tools and avoiding tag errors.",
+      definitions:[
+        {term:"XLIFF", def:"XML Localization Interchange File Format — industry standard for exchanging translatable content."},
+        {term:"Tag", def:"A markup element (e.g., HTML <b>, XML <node>) that must be preserved in translation."},
+        {term:"Bilingual File", def:"A file containing both source and target text, used during translation."}
+      ],
+      keyPoints:[
+        "XLIFF is the most widely used bilingual format in the industry.",
+        "Tags must be preserved exactly — errors cause display or functional problems.",
+        "CAT tools filter file formats to extract only translatable text.",
+        "Common source formats: DOCX, XLSX, HTML, XML, JSON, DITA.",
+        "Round-trip conversion (filter → translate → generate) must be lossless."
+      ],
+      examples:[
+        {label:"XLIFF", text:"Standardized XML-based bilingual format used by most CAT tools and TMS platforms."}
+      ],
+      examTips:[
+        "Know XLIFF as the key interchange format.",
+        "Understand why tag preservation is critical.",
+        "Be able to list four common source file formats."
+      ],
+      citations:["OASIS XLIFF TC. (2014). XLIFF 2.0 Specification."]
+    },
+    {
+      id:"topic8", code:"T08", title:"Translation Project Management", category:"workflow",
+      sourcePdf:"./pdf/ENGL465-Topic8.pdf",
+      overview:"Translation Project Management (TPM) coordinates human resources, technology, and processes to deliver translation projects on time, within budget, and to the required quality standard.",
+      definitions:[
+        {term:"TMS", def:"Translation Management System — software for managing translation workflows."},
+        {term:"LSP", def:"Language Service Provider — a company offering translation and localization services."},
+        {term:"CAT Project Package", def:"A bundled file containing source, TMs, TBs, and settings for a translator."}
+      ],
+      keyPoints:[
+        "PMs coordinate translators, reviewers, editors, and DTP specialists.",
+        "TMS automates job assignment, delivery, and invoicing.",
+        "Project packages ensure all team members use the same resources.",
+        "Scope, timeline, and budget are the three pillars of TPM.",
+        "Risk management identifies and mitigates potential project failures."
+      ],
+      examples:[
+        {label:"SDL WorldServer", text:"Enterprise TMS enabling automated workflow routing and vendor management."}
+      ],
+      examTips:[
+        "Know the role of a PM in a translation workflow.",
+        "Understand what a project package contains.",
+        "Be able to describe a basic translation workflow."
+      ],
+      citations:["Dunne, K.J. (2006). Perspectives on Localization. Benjamins."]
+    },
+    {
+      id:"topic9", code:"T09", title:"Alignment & TM Building", category:"tools",
+      sourcePdf:"./pdf/ENGL465-Topic9.pdf",
+      overview:"Alignment is the process of pairing existing source and target documents to create a Translation Memory. It is essential for populating a TM from legacy translations.",
+      definitions:[
+        {term:"Alignment", def:"Pairing source and target sentences from existing bilingual documents."},
+        {term:"Legacy Translation", def:"Previously translated content not yet stored in a TM."},
+        {term:"WinAlign", def:"SDL Trados alignment tool for creating TMs from bilingual documents."}
+      ],
+      keyPoints:[
+        "Alignment turns legacy translations into reusable TM assets.",
+        "Automatic alignment is imperfect — manual correction is often needed.",
+        "Aligned TMs increase TM leverage on future similar projects.",
+        "Good source/target document pairs are required for accurate alignment.",
+        "Aligned content improves consistency across project versions."
+      ],
+      examples:[
+        {label:"WinAlign", text:"SDL tool that aligns existing bilingual documents to populate a TM."}
+      ],
+      examTips:[
+        "Explain why alignment is valuable for legacy content.",
+        "Know that automatic alignment requires human review.",
+        "Understand the relationship between alignment quality and TM usefulness."
+      ],
+      citations:["Véronis, J. (2000). Parallel Text Processing. Kluwer Academic."]
+    },
+    {
+      id:"topic10", code:"T10", title:"Corpus-Based Translation", category:"advanced",
+      sourcePdf:"./pdf/ENGL465-Topic10.pdf",
+      overview:"Corpus-based translation uses large collections of texts to inform translation decisions, train MT engines, and study translation patterns systematically.",
+      definitions:[
+        {term:"Corpus", def:"A large, structured collection of texts used for linguistic analysis."},
+        {term:"Parallel Corpus", def:"A corpus containing texts and their translations."},
+        {term:"Comparable Corpus", def:"Texts in two languages on the same topic but not translations of each other."}
+      ],
+      keyPoints:[
+        "Parallel corpora are used to train statistical and neural MT systems.",
+        "Comparable corpora help identify equivalent expressions.",
+        "Corpus tools like AntConc enable frequency and concordance analysis.",
+        "Translation universals (e.g., explicitation, normalization) are studied via corpora.",
+        "Large corpora are essential for NMT training."
+      ],
+      examples:[
+        {label:"Europarl Corpus", text:"Multilingual corpus of European Parliament proceedings, widely used in MT research."}
+      ],
+      examTips:[
+        "Distinguish parallel from comparable corpora.",
+        "Know what translation universals are.",
+        "Understand how corpora are used in NMT training."
+      ],
+      citations:["Baker, M. (1995). Corpora in translation studies. Target 7(2)."]
+    },
+    {
+      id:"topic11", code:"T11", title:"Speech & Voice Technologies", category:"advanced",
+      sourcePdf:"./pdf/ENGL465-Topic11.pdf",
+      overview:"Speech technologies including Automatic Speech Recognition (ASR) and Text-to-Speech (TTS) are increasingly integrated into translation and localization workflows.",
+      definitions:[
+        {term:"ASR", def:"Automatic Speech Recognition — converting spoken language to text."},
+        {term:"TTS", def:"Text-to-Speech — converting written text to synthetic speech."},
+        {term:"Subtitling", def:"Adding synchronized text to video, requiring time-code and character constraints."}
+      ],
+      keyPoints:[
+        "ASR enables dictation-based translation workflows.",
+        "TTS is used in localization of audiovisual content.",
+        "Subtitling requires adherence to reading speed and line length rules.",
+        "Voice interfaces require localization of spoken prompts.",
+        "ASR accuracy varies significantly by language and accent."
+      ],
+      examples:[
+        {label:"Dragon NaturallySpeaking", text:"ASR tool used by some translators for dictation-based workflows."}
+      ],
+      examTips:[
+        "Know the difference between ASR and TTS.",
+        "Understand subtitling constraints.",
+        "Be able to explain how ASR integrates with CAT tools."
+      ],
+      citations:["Díaz Cintas, J. & Remael, A. (2007). Audiovisual Translation: Subtitling. Routledge."]
+    },
+    {
+      id:"topic12", code:"T12", title:"Ethics & Professional Practice", category:"advanced",
+      sourcePdf:"./pdf/ENGL465-Topic12.pdf",
+      overview:"Professional translators must navigate ethical obligations including confidentiality, accuracy, intellectual property, and the responsible use of technology such as MT in their workflows.",
+      definitions:[
+        {term:"Confidentiality", def:"The obligation to protect client data and documents from unauthorized disclosure."},
+        {term:"NDA", def:"Non-Disclosure Agreement — a legal contract protecting client confidentiality."},
+        {term:"Intellectual Property", def:"Legal rights over creative and translated works."}
+      ],
+      keyPoints:[
+        "Client documents must be treated as confidential.",
+        "MT tools may store or process data on external servers — a privacy risk.",
+        "Translators must disclose use of MT if contractually required.",
+        "Authorship and copyright of translations can be complex.",
+        "Professional associations (ATA, ITI) provide ethical guidelines."
+      ],
+      examples:[
+        {label:"GDPR & MT", text:"Using cloud-based MT tools may violate GDPR if personal data is processed outside the EU."}
+      ],
+      examTips:[
+        "Know the key ethical obligations of a professional translator.",
+        "Understand the privacy risks of cloud-based MT tools.",
+        "Be aware of professional association codes of ethics."
+      ],
+      citations:["Pym, A. (2012). On Translator Ethics. Benjamins."]
+    },
+    {
+      id:"topic13", code:"T13", title:"Future Trends in CAT", category:"advanced",
+      sourcePdf:"./pdf/ENGL465-Topic13.pdf",
+      overview:"The translation industry is rapidly evolving with advances in AI, neural MT, adaptive TMs, and cloud-based collaboration platforms reshaping the professional landscape.",
+      definitions:[
+        {term:"Adaptive MT", def:"MT systems that learn from post-editor corrections in real time."},
+        {term:"AI Writing Assistant", def:"Tools like ChatGPT that generate and refine text, increasingly used alongside translation."},
+        {term:"Cloud TMS", def:"Translation management systems hosted in the cloud for remote collaboration."}
+      ],
+      keyPoints:[
+        "Adaptive MT reduces repetitive post-editing over time.",
+        "AI writing tools blur the boundary between translation and content creation.",
+        "Cloud platforms enable real-time collaboration across time zones.",
+        "Translators must develop data literacy and tech adaptability.",
+        "The human translator's role is shifting toward language specialist and reviewer."
+      ],
+      examples:[
+        {label:"Lilt", text:"AI-powered adaptive MT platform that learns from translator corrections in real time."}
+      ],
+      examTips:[
+        "Know what adaptive MT is and how it differs from standard NMT.",
+        "Understand the cloud collaboration trend.",
+        "Be able to discuss the evolving role of the human translator."
+      ],
+      citations:["Moorkens, J. et al. (2018). Translation Quality Assessment. Springer."]
+    }
+  ],
+
+  flashcards: [
+    {id:"fc1",  topicId:"topic1",  difficulty:"easy",   front:"What is a CAT tool?",                                   back:"Software that assists human translators with memory, terminology, and workflow — not automatic translation."},
+    {id:"fc2",  topicId:"topic1",  difficulty:"easy",   front:"Name four major CAT tools.",                             back:"SDL Trados Studio, memoQ, Wordfast, OmegaT."},
+    {id:"fc3",  topicId:"topic1",  difficulty:"medium", front:"How does a CAT tool differ from an MT engine?",          back:"A CAT tool supports the human translator; an MT engine produces automatic translations without human input during translation."},
+    {id:"fc4",  topicId:"topic2",  difficulty:"easy",   front:"What is a Translation Memory (TM)?",                    back:"A database storing source and target segment pairs for future reuse."},
+    {id:"fc5",  topicId:"topic2",  difficulty:"medium", front:"What is the difference between an exact match and a fuzzy match?", back:"Exact match = 100% identical source; fuzzy match = similar but not identical, requiring human editing."},
+    {id:"fc6",  topicId:"topic2",  difficulty:"medium", front:"What does TMX stand for and why is it important?",       back:"Translation Memory eXchange — an open standard enabling TM sharing across different CAT tools."},
+    {id:"fc7",  topicId:"topic3",  difficulty:"easy",   front:"What is a term base?",                                  back:"A structured database of approved source and target terms, including metadata such as subject domain and usage notes."},
+    {id:"fc8",  topicId:"topic3",  difficulty:"medium", front:"What is TBX?",                                          back:"TermBase eXchange — the open standard format for sharing term bases between tools."},
+    {id:"fc9",  topicId:"topic4",  difficulty:"medium", front:"What is MTPE?",                                         back:"Machine Translation Post-Editing — human correction of MT output to meet quality standards."},
+    {id:"fc10", topicId:"topic4",  difficulty:"hard",   front:"Distinguish light post-editing from full post-editing.", back:"Light PE: minimal edits for comprehensibility. Full PE: thorough edits to achieve publication quality."},
+    {id:"fc11", topicId:"topic5",  difficulty:"medium", front:"What does a QA tool check?",                            back:"Missing translations, tag errors, number mismatches, punctuation inconsistencies, and terminology violations."},
+    {id:"fc12", topicId:"topic6",  difficulty:"easy",   front:"What does L10n stand for?",                             back:"Localization — adapting content for a specific locale (language, region, culture)."},
+    {id:"fc13", topicId:"topic6",  difficulty:"medium", front:"What is internationalization (i18n)?",                  back:"Designing a product so that it can be easily adapted for different locales without engineering changes."},
+    {id:"fc14", topicId:"topic7",  difficulty:"easy",   front:"What is XLIFF?",                                        back:"XML Localization Interchange File Format — the standard bilingual format for exchanging translatable content."},
+    {id:"fc15", topicId:"topic7",  difficulty:"medium", front:"Why must tags be preserved in translation?",            back:"Tags control formatting, links, and functionality; incorrect tags cause display errors or broken functionality."},
+    {id:"fc16", topicId:"topic8",  difficulty:"easy",   front:"What is a TMS?",                                        back:"Translation Management System — software that automates and manages the translation workflow."},
+    {id:"fc17", topicId:"topic8",  difficulty:"medium", front:"What is an LSP?",                                       back:"Language Service Provider — a company offering professional translation, localization, and related services."},
+    {id:"fc18", topicId:"topic9",  difficulty:"medium", front:"What is alignment in the context of CAT tools?",        back:"Pairing existing source and target documents sentence by sentence to populate a Translation Memory."},
+    {id:"fc19", topicId:"topic10", difficulty:"medium", front:"Distinguish a parallel corpus from a comparable corpus.", back:"Parallel: texts + their translations. Comparable: texts on the same topic in two languages, not translations."},
+    {id:"fc20", topicId:"topic10", difficulty:"hard",   front:"What are translation universals?",                      back:"Recurring patterns observed in translated texts (e.g., explicitation, normalization) studied via corpora."},
+    {id:"fc21", topicId:"topic11", difficulty:"easy",   front:"What is ASR?",                                          back:"Automatic Speech Recognition — technology that converts spoken language into text."},
+    {id:"fc22", topicId:"topic11", difficulty:"medium", front:"What constraints apply to subtitling?",                 back:"Reading speed (characters per second), line length, and synchronization with audio/video timing."},
+    {id:"fc23", topicId:"topic12", difficulty:"medium", front:"Why is cloud-based MT a potential ethical concern?",    back:"Client documents may be processed or stored on external servers, risking confidentiality and GDPR compliance."},
+    {id:"fc24", topicId:"topic12", difficulty:"hard",   front:"What is an NDA and why do translators use them?",       back:"Non-Disclosure Agreement — a legal contract ensuring the translator keeps client materials confidential."},
+    {id:"fc25", topicId:"topic13", difficulty:"medium", front:"What is adaptive MT?",                                  back:"An MT system that learns from post-editor corrections in real time, improving output quality over a session."},
+    {id:"fc26", topicId:"topic13", difficulty:"hard",   front:"How is the translator's role changing in the AI era?",  back:"Shifting from pure translation to language specialist, reviewer, and quality controller of AI-generated content."},
+    {id:"fc27", topicId:"topic1",  difficulty:"hard",   front:"What is TM leverage and why does it matter financially?", back:"The percentage of new text matched by existing TM entries; higher leverage means lower cost and faster delivery."},
+    {id:"fc28", topicId:"topic5",  difficulty:"hard",   front:"Is QA tool checking a substitute for human proofreading?", back:"No — QA tools catch systematic and technical errors but cannot assess meaning, style, or cultural appropriateness."},
+    {id:"fc29", topicId:"topic4",  difficulty:"hard",   front:"What is the 'over-editing' trap in post-editing?",      back:"Spending excessive time improving MT output beyond the required quality level, reducing the productivity benefit of MT."},
+    {id:"fc30", topicId:"topic6",  difficulty:"hard",   front:"What is string externalization?",                       back:"Separating translatable UI strings from source code into resource files so they can be translated without code changes."},
+    {id:"fc31", topicId:"topic9",  difficulty:"hard",   front:"Why does automatic alignment require human review?",    back:"Sentence boundaries, paragraph breaks, and structural differences can cause misalignment that tools cannot resolve."}
+  ],
+
+  quizzes: [
+    {id:"q1",  topicId:"topic1",  difficulty:"easy",   question:"What is the primary purpose of a CAT tool?",                                       options:["Replace human translators","Assist human translators with memory and consistency","Automatically translate documents","Generate source text"],                                              answer:1, explanation:"CAT tools support translators; they do not replace human judgment.",          reference:"Topic 1, Overview"},
+    {id:"q2",  topicId:"topic1",  difficulty:"easy",   question:"Which of the following is a free, open-source CAT tool?",                          options:["SDL Trados Studio","memoQ","OmegaT","Wordfast Pro"],                                                                                                                                         answer:2, explanation:"OmegaT is a free, open-source CAT tool.",                                    reference:"Topic 1, Key Points"},
+    {id:"q3",  topicId:"topic1",  difficulty:"medium", question:"What does TM leverage measure?",                                                    options:["The weight of translation files","The percentage of text matched by TM entries","The speed of the MT engine","The number of active translators"],                                                    answer:1, explanation:"TM leverage measures how much new text is covered by existing TM matches.",  reference:"Topic 1, Definitions"},
+    {id:"q4",  topicId:"topic1",  difficulty:"hard",   question:"How does a CAT tool fundamentally differ from a machine translation engine?",       options:["CAT tools are faster","CAT tools keep the human translator in control during translation","MT engines cost more","CAT tools use neural networks"],                                          answer:1, explanation:"CAT tools assist humans; MT engines generate translations automatically.",    reference:"Topic 1, Overview"},
+    {id:"q5",  topicId:"topic2",  difficulty:"easy",   question:"What is a Translation Memory (TM)?",                                               options:["A list of approved terms","A database of source and target segment pairs","A grammar checker","An MT engine"],                                                                                    answer:1, explanation:"A TM stores bilingual segment pairs for future reuse.",                       reference:"Topic 2, Definitions"},
+    {id:"q6",  topicId:"topic2",  difficulty:"medium", question:"What distinguishes an exact match from a fuzzy match?",                            options:["Exact matches are longer","Exact matches are 100% identical; fuzzy matches are similar but not identical","Fuzzy matches are always rejected","Exact matches require editing"],                answer:1, explanation:"Exact matches (100%) can be inserted automatically; fuzzy matches need review.", reference:"Topic 2, Definitions"},
+    {id:"q7",  topicId:"topic2",  difficulty:"medium", question:"What does TMX stand for?",                                                         options:["Translation Memory Extension","Translation Memory eXchange","Text Markup XML","Translated Memory Export"],                                                                                    answer:1, explanation:"TMX = Translation Memory eXchange, the open standard for TM interoperability.", reference:"Topic 2, Key Points"},
+    {id:"q8",  topicId:"topic3",  difficulty:"easy",   question:"What is a term base?",                                                             options:["A corpus of texts","A structured database of approved source and target terms","A type of TM","A bilingual dictionary"],                                                                          answer:1, explanation:"A term base stores approved terminology with metadata.",                       reference:"Topic 3, Definitions"},
+    {id:"q9",  topicId:"topic3",  difficulty:"medium", question:"What is the open standard for exchanging term bases?",                             options:["TMX","XLIFF","TBX","XML"],                                                                                                                                                             answer:2, explanation:"TBX (TermBase eXchange) is the standard for sharing term bases.",              reference:"Topic 3, Definitions"},
+    {id:"q10", topicId:"topic3",  difficulty:"medium", question:"What does active term recognition do in a CAT tool?",                              options:["Highlights approved terms in the source segment during translation","Automatically inserts target terms","Deletes unapproved terms","Translates entire sentences"],                      answer:0, explanation:"Active term recognition highlights source terms that have entries in the term base.", reference:"Topic 3, Key Points"},
+    {id:"q11", topicId:"topic4",  difficulty:"easy",   question:"What does MTPE stand for?",                                                        options:["Manual Translation Process Evaluation","Machine Translation Post-Editing","Multilingual Text Processing Engine","Machine Terminology Parsing Engine"],                               answer:1, explanation:"MTPE = Machine Translation Post-Editing — correcting MT output.",               reference:"Topic 4, Definitions"},
+    {id:"q12", topicId:"topic4",  difficulty:"medium", question:"What is the goal of light post-editing?",                                          options:["Publication-quality output","Making MT output comprehensible","Rewriting the MT output entirely","Translating from scratch"],                                                           answer:1, explanation:"Light PE aims for comprehensibility, not publication quality.",                 reference:"Topic 4, Definitions"},
+    {id:"q13", topicId:"topic4",  difficulty:"hard",   question:"What is the 'over-editing' trap in post-editing?",                                 options:["Not editing enough","Spending too much time improving MT beyond the required quality level","Using the wrong MT engine","Editing the source text"],                                    answer:1, explanation:"Over-editing negates the productivity benefit of MT.",                         reference:"Topic 4, Exam Tips"},
+    {id:"q14", topicId:"topic5",  difficulty:"easy",   question:"Which tool is commonly used for standalone QA checks in translation?",             options:["SDL Trados","OmegaT","Xbench","MultiTerm"],                                                                                                                                            answer:2, explanation:"Xbench is a popular third-party QA tool.",                                     reference:"Topic 5, Definitions"},
+    {id:"q15", topicId:"topic5",  difficulty:"medium", question:"Can QA tools fully replace human proofreading?",                                   options:["Yes, they catch all errors","No, they cannot assess meaning, style, or cultural appropriateness","Yes, if configured correctly","Only for technical documents"],                           answer:1, explanation:"QA tools catch systematic errors but not semantic or cultural issues.",          reference:"Topic 5, Key Points"},
+    {id:"q16", topicId:"topic5",  difficulty:"hard",   question:"Which error type is most likely to be missed by an automated QA tool?",            options:["Missing translation","Number mismatch","Culturally inappropriate phrasing","Tag error"],                                                                                                 answer:2, explanation:"QA tools check technical parameters; cultural appropriateness requires human judgment.", reference:"Topic 5, Key Points"},
+    {id:"q17", topicId:"topic6",  difficulty:"easy",   question:"What does the abbreviation L10n represent?",                                       options:["Localization","Linearization","Language notation","Lexical normalization"],                                                                                                           answer:0, explanation:"L10n = Localization (10 letters between L and n).",                             reference:"Topic 6, Definitions"},
+    {id:"q18", topicId:"topic6",  difficulty:"medium", question:"What is internationalization (i18n)?",                                             options:["Translating a product for multiple markets simultaneously","Designing a product to be easily adapted for different locales","Testing a localized product","Exporting a term base"], answer:1, explanation:"i18n is the design phase that makes l10n possible.",                          reference:"Topic 6, Definitions"},
+    {id:"q19", topicId:"topic7",  difficulty:"easy",   question:"What does XLIFF stand for?",                                                       options:["Extended Language Interchange Format","XML Localization Interchange File Format","eXtensible Linguistic File Format","XML Language Interface Format"],                             answer:1, explanation:"XLIFF = XML Localization Interchange File Format.",                              reference:"Topic 7, Definitions"},
+    {id:"q20", topicId:"topic7",  difficulty:"medium", question:"Why is tag preservation critical in translation?",                                 options:["Tags contain the translation","Tags control formatting and functionality","Tags are part of the word count","Tags must be translated"],                                               answer:1, explanation:"Incorrect tags cause display errors or broken functionality.",                  reference:"Topic 7, Key Points"},
+    {id:"q21", topicId:"topic7",  difficulty:"hard",   question:"Which process converts a source file to a bilingual format and back?",             options:["Alignment","Round-trip conversion (filter → translate → generate)","Post-editing","Concordance search"],                                                                           answer:1, explanation:"Round-trip conversion must be lossless to preserve file integrity.",            reference:"Topic 7, Key Points"},
+    {id:"q22", topicId:"topic8",  difficulty:"easy",   question:"What is a TMS?",                                                                   options:["Translation Memory System","Translation Management System","Term Management Software","Technical Markup Standard"],                                                                     answer:1, explanation:"TMS = Translation Management System.",                                         reference:"Topic 8, Definitions"},
+    {id:"q23", topicId:"topic8",  difficulty:"medium", question:"What does a CAT project package typically contain?",                               options:["Only the source files","Source files, TMs, term bases, and project settings","The final translated files","Only the TM"],                                                            answer:1, explanation:"A project package bundles all resources needed by the translator.",              reference:"Topic 8, Definitions"},
+    {id:"q24", topicId:"topic8",  difficulty:"hard",   question:"What are the three pillars of translation project management?",                    options:["Speed, accuracy, and terminology","Scope, timeline, and budget","TM, TB, and QA","Source, target, and locale"],                                                                 answer:1, explanation:"Scope, timeline, and budget are the classic PM constraints.",                   reference:"Topic 8, Key Points"},
+    {id:"q25", topicId:"topic9",  difficulty:"medium", question:"What is the purpose of alignment in CAT tools?",                                   options:["Creating a new source document","Pairing existing bilingual documents to build a TM","Checking for tag errors","Extracting terminology"],                                             answer:1, explanation:"Alignment populates a TM from legacy bilingual documents.",                     reference:"Topic 9, Overview"},
+    {id:"q26", topicId:"topic10", difficulty:"medium", question:"What is a parallel corpus?",                                                       options:["A corpus of texts in one language","A corpus containing texts and their translations","A corpus of comparable texts in two languages","A corpus of terminology"],                     answer:1, explanation:"A parallel corpus pairs source texts with their target translations.",           reference:"Topic 10, Definitions"},
+    {id:"q27", topicId:"topic11", difficulty:"easy",   question:"What does ASR stand for?",                                                         options:["Automatic Speech Recognition","Advanced Subtitle Rendering","Automated Source Review","Audio Speech Reconstruction"],                                                               answer:0, explanation:"ASR = Automatic Speech Recognition.",                                           reference:"Topic 11, Definitions"},
+    {id:"q28", topicId:"topic12", difficulty:"medium", question:"Why is using cloud-based MT a potential ethical concern for translators?",          options:["It is too expensive","Client documents may be processed on external servers, risking confidentiality","It produces poor quality output","It is not compatible with CAT tools"], answer:1, explanation:"Cloud MT can expose confidential client data to third-party servers.",          reference:"Topic 12, Key Points"},
+    {id:"q29", topicId:"topic13", difficulty:"medium", question:"What is adaptive MT?",                                                             options:["MT that translates adaptations","An MT system that learns from post-editor corrections in real time","MT used only for literary texts","A type of rule-based MT"],              answer:1, explanation:"Adaptive MT improves output based on real-time post-editor feedback.",          reference:"Topic 13, Definitions"},
+    {id:"q30", topicId:"topic13", difficulty:"hard",   question:"How is the professional translator's role evolving in the AI era?",                options:["Translators are being fully replaced","Translators are shifting toward language specialist and AI output reviewer roles","The role is unchanged","Translators are only needed for literary texts"], answer:1, explanation:"Human translators are increasingly quality controllers and specialists rather than sole producers.", reference:"Topic 13, Key Points"}
+  ],
+
+  mindmaps: [
+    {
+      topicId:"topic1", center:"CAT Tools",
+      branches:[
+        {label:"Core Features", children:["TM","Term Base","QA Module","File Filters"]},
+        {label:"Major Tools",   children:["SDL Trados","memoQ","OmegaT","Wordfast"]},
+        {label:"Benefits",      children:["Consistency","Speed","Cost Reduction","Reuse"]},
+        {label:"vs MT",         children:["Human Control","No Auto Output","Supports PE","Hybrid Use"]}
+      ]
+    },
+    {
+      topicId:"topic2", center:"Translation Memory",
+      branches:[
+        {label:"Match Types",    children:["Exact (100%)","Fuzzy (<100%)","Context Match","No Match"]},
+        {label:"Formats",        children:["TMX","SDLTM","MemoQ TM","TXT Bilingual"]},
+        {label:"Leverage",       children:["Cost Savings","Speed","Consistency","Repetitions"]},
+        {label:"Building TMs",   children:["Alignment","Importing","Project TM","Master TM"]}
+      ]
+    },
+    {
+      topicId:"topic13", center:"Future of CAT",
+      branches:[
+        {label:"AI & NMT",       children:["Adaptive MT","DeepL","ChatGPT Integration","Quality Estimation"]},
+        {label:"Cloud & Collab", children:["Cloud TMS","Real-Time Collab","Remote Teams","API Workflows"]},
+        {label:"Roles Changing", children:["Language Specialist","AI Reviewer","Data Curator","Content Strategist"]},
+        {label:"New Skills",     children:["Data Literacy","Prompt Engineering","Tech Adaptability","Ethics"]}
+      ]
+    }
+  ],
+
+  achievements: [
+    {id:"explorer",        icon:"🗺️",  title:"Explorer",         desc:"Visit 3 or more sections of the platform."},
+    {id:"flashStarter",    icon:"🃏",  title:"Flash Starter",    desc:"Master your first flashcard."},
+    {id:"quizAce",         icon:"🎯",  title:"Quiz Ace",         desc:"Answer 10 quiz questions correctly."},
+    {id:"xpHunter",        icon:"⚡",  title:"XP Hunter",        desc:"Accumulate 500 XP."},
+    {id:"streakMaster",    icon:"🔥",  title:"Streak Master",    desc:"Maintain a 3-day study streak."},
+    {id:"glossaryGuru",    icon:"📝",  title:"Glossary Guru",    desc:"Add 5 entries to your glossary."},
+    {id:"topicTrailblazer",icon:"📚",  title:"Trailblazer",      desc:"Open 5 different topic lessons."},
+    {id:"rapidChamp",      icon:"⚡",  title:"Rapid Champ",      desc:"Achieve a streak of 5 in Rapid Match."},
+    {id:"masteryKing",     icon:"👑",  title:"Mastery King",     desc:"Master 10 flashcards."}
+  ],
+
+  dailyChallenges: [
+    {id:"d1", title:"Flashcard Sprint",     desc:"Rate 5 flashcards today.",         target:5},
+    {id:"d2", title:"Quiz Champion",        desc:"Answer 5 quiz questions correctly.", target:5},
+    {id:"d3", title:"Topic Explorer",       desc:"Open 3 different topic lessons.",   target:3},
+    {id:"d4", title:"Glossary Builder",     desc:"Add 3 entries to your glossary.",   target:3},
+    {id:"d5", title:"Term Extractor",       desc:"Run 2 term extraction sessions.",   target:2}
+  ],
+
+  reviewChecklist: [
+    "Understand the difference between CAT tools and machine translation.",
+    "Know the four main CAT tools (Trados, memoQ, OmegaT, Wordfast).",
+    "Explain TM leverage and its financial implications.",
+    "Distinguish exact matches from fuzzy matches.",
+    "Know TMX and TBX as interoperability standards.",
+    "Understand the MTPE workflow and light vs. full post-editing.",
+    "List common QA error categories.",
+    "Explain the i18n → l10n pipeline.",
+    "Know XLIFF and why tag preservation matters.",
+    "Understand the scope-timeline-budget PM triangle.",
+    "Discuss the ethical implications of cloud-based MT tools."
+  ],
+
+  revisionPlan: [
+    {title:"CAT Tool Fundamentals",    detail:"Review Topic 1 & 2: TM, term base, major tools, TM leverage."},
+    {title:"Terminology & Formats",    detail:"Study Topic 3 & 7: TBX, TBX, XLIFF, file filters, tag handling."},
+    {title:"MT & Post-Editing",        detail:"Focus on Topic 4: NMT, light vs. full PE, over-editing, content suitability."},
+    {title:"Quality & Workflow",       detail:"Topics 5 & 8: QA error types, Xbench, TMS, PM triangle, project packages."},
+    {title:"Localization Deep Dive",   detail:"Topic 6: i18n/l10n pipeline, string externalization, locale formats."},
+    {title:"Corpora, Speech & Ethics", detail:"Topics 9–12: alignment, parallel corpora, ASR/TTS, confidentiality, GDPR."},
+    {title:"Future Trends & Review",   detail:"Topic 13 + full mock quiz: adaptive MT, cloud collab, evolving translator role."}
+  ]
+};
+/* ═══════════════════════════════════════════════════════
+   APP
+═══════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  const DATA = window.CATALYST_DATA;
+  if (!DATA) {
+    document.body.innerHTML =
+      '<div style="padding:3rem;font-family:sans-serif;color:#c00">' +
+      "<h2>⚠️ Data failed to load.</h2>" +
+      "<p>Ensure you are running via a local server (VS Code Live Server or python -m http.server).</p></div>";
+    return;
+  }
+
+  const STORAGE_KEY = "CATALYST_ACADEMY_STATE_V2";
+  const $ = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+  /* ── Element refs ── */
+  const els = {
+    welcomeScreen:        $("#welcomeScreen"),
+    startBtn:             $("#startBtn"),
+    statusLine:           $("#statusLine"),
+    globalSearch:         $("#globalSearch"),
+    dailyChallengeBtn:    $("#dailyChallengeBtn"),
+    resetProgressBtn:     $("#resetProgressBtn"),
+    navTabs:              $$(".nav-tab"),
+    sections:             $$("section[id]"),
+    toastStack:           $("#toastStack"),
+    modalOverlay:         $("#modalOverlay"),
+    modalTitle:           $("#modalTitle"),
+    modalBody:            $("#modalBody"),
+    modalClose:           $("#modalClose"),
+    statLevel:            $("#statLevel"),
+    statXP:               $("#statXP"),
+    statCoins:            $("#statCoins"),
+    statStreak:           $("#statStreak"),
+    masteryMeter:         $("#masteryMeter"),
+    completionMeter:      $("#completionMeter"),
+    badgesArea:           $("#badgesArea"),
+    snapshotList:         $("#snapshotList"),
+    dailyChallengeCard:   $("#dailyChallengeCard"),
+    searchResultsSection: $("#searchResultsSection"),
+    searchResults:        $("#searchResults"),
+    topicGrid:            $("#topicGrid"),
+    topicFilterBtns:      $$(".topic-filter-btn"),
+    lessonView:           $("#lessonView"),
+    lessonContent:        $("#lessonContent"),
+    closeLessonBtn:       $("#closeLessonBtn"),
+    quickTopicList:       $("#quickTopicList"),
+    fcTopicSelect:        $("#fcTopicSelect"),
+    fcDiffSelect:         $("#fcDiffSelect"),
+    fcMeta:               $("#fcMeta"),
+    flashcardEl:          $("#flashcard"),
+    fcFront:              $("#fcFront"),
+    fcBack:               $("#fcBack"),
+    fcHardBtn:            $("#fcHardBtn"),
+    fcGoodBtn:            $("#fcGoodBtn"),
+    fcMasteredBtn:        $("#fcMasteredBtn"),
+    fcPrevBtn:            $("#fcPrevBtn"),
+    fcNextBtn:            $("#fcNextBtn"),
+    fcShuffleBtn:         $("#fcShuffleBtn"),
+    fcRestartBtn:         $("#fcRestartBtn"),
+    quizTopicSelect:      $("#quizTopicSelect"),
+    quizModeSelect:       $("#quizModeSelect"),
+    quizLengthSelect:     $("#quizLengthSelect"),
+    generateQuizBtn:      $("#generateQuizBtn"),
+    quizMeta:             $("#quizMeta"),
+    quizQuestionEl:       $("#quizQuestion"),
+    quizOptionsEl:        $("#quizOptions"),
+    quizNextBtn:          $("#quizNextBtn"),
+    quizSummary:          $("#quizSummary"),
+    mmTopicSelect:        $("#mmTopicSelect"),
+    mmLoadBtn:            $("#mmLoadBtn"),
+    mmResetBtn:           $("#mmResetBtn"),
+    mmZoomInBtn:          $("#mmZoomInBtn"),
+    mmZoomOutBtn:         $("#mmZoomOutBtn"),
+    mmSvg:                $("#mmSvg"),
+    mmNodesLayer:         $("#mmNodesLayer"),
+    rmStartBtn:           $("#rmStartBtn"),
+    rmTimer:              $("#rmTimer"),
+    rmStreak:             $("#rmStreak"),
+    rmBest:               $("#rmBest"),
+    rmQuestion:           $("#rmQuestion"),
+    rmOptions:            $("#rmOptions"),
+    achievementsPanel:    $("#achievementsPanel"),
+    tlText:               $("#tlText"),
+    tlModeSelect:         $("#tlModeSelect"),
+    tlExtractBtn:         $("#tlExtractBtn"),
+    tlResults:            $("#tlResults"),
+    glossTermInput:       $("#glossTermInput"),
+    glossEquivInput:      $("#glossEquivInput"),
+    glossNoteInput:       $("#glossNoteInput"),
+    glossAddBtn:          $("#glossAddBtn"),
+    glossExportBtn:       $("#glossExportBtn"),
+    glossClearBtn:        $("#glossClearBtn"),
+    glossList:            $("#glossList"),
+    sourceGrid:           $("#sourceGrid"),
+    citationsList:        $("#citationsList"),
+    weakAreasList:        $("#weakAreasList"),
+    reviewChecklist:      $("#reviewChecklist"),
+    revisionPlan:         $("#revisionPlan"),
+    catalystCanvas:       $("#catalystCanvas"),
+    footerStatus:         $("#footerStatus")
+  };
+
+  /* ── State ── */
+  function createDefaultState() {
+    return {
+      xp:0, coins:0, streak:0, lastStudyDay:"",
+      badges:[], sectionVisits:{}, topicsOpened:[],
+      fcRatings:{}, quizStats:{ attempted:0, correct:0, byTopic:{} },
+      glossary:[], rapidBest:0,
+      dailyChallengeDay:"", dailyChallengeIndex:0, dailyChallengeProgress:0,
+      checkedItems:[], currentSection:"dashboard"
+    };
+  }
+
+  let state = createDefaultState();
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state = Object.assign(createDefaultState(), JSON.parse(raw));
+    } catch(e) { console.warn("State load error:", e); }
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e) { console.warn("State save error:", e); }
+  }
+
+  /* ── Utilities ── */
+  const todayKey  = () => new Date().toISOString().slice(0,10);
+  const escHtml   = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const shuffle   = a => { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; };
+  const sample    = (a,n) => shuffle(a).slice(0, Math.min(n, a.length));
+  const calcLevel = xp => Math.floor(xp/100)+1;
+
+  function toast(msg, type="success") {
+    const d = document.createElement("div");
+    d.className = `toast toast-${type}`;
+    d.textContent = msg;
+    els.toastStack && els.toastStack.appendChild(d);
+    setTimeout(()=>d.remove(), 3500);
+  }
+
+  function setStatus(msg) {
+    if(els.statusLine)   els.statusLine.textContent  = msg;
+    if(els.footerStatus) els.footerStatus.textContent = msg;
+  }
+
+  function award(xp, coins, msg) {
+    state.xp    += xp;
+    state.coins += coins;
+    saveState();
+    renderProgress();
+    if(msg) toast(`+${xp} XP  +${coins} coins — ${msg}`, "success");
+    checkAchievements();
+  }
+
+  /* ── Streak ── */
+  function updateStreak() {
+    const today = todayKey();
+    if(state.lastStudyDay === today) return;
+    const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    state.streak      = state.lastStudyDay === yesterday ? state.streak+1 : 1;
+    state.lastStudyDay = today;
+    saveState();
+  }
+
+  /* ── Daily Challenge ── */
+  function ensureDailyChallenge() {
+    const today = todayKey();
+    if(state.dailyChallengeDay !== today){
+      state.dailyChallengeDay      = today;
+      state.dailyChallengeIndex    = (state.dailyChallengeIndex+1) % (DATA.dailyChallenges||[]).length;
+      state.dailyChallengeProgress = 0;
+      saveState();
+    }
+  }
+
+  function incrementDailyChallenge() {
+    const ch = (DATA.dailyChallenges||[])[state.dailyChallengeIndex];
+    if(!ch) return;
+    if(state.dailyChallengeProgress < ch.target){
+      state.dailyChallengeProgress++;
+      saveState();
+      if(state.dailyChallengeProgress >= ch.target){
+        award(40,15,"Daily Challenge complete!");
+        toast("🎯 Daily Challenge Complete!","success");
+      }
+    }
+    renderDailyChallenge();
+  }
+
+  /* ── Achievements ── */
+  function checkAchievements() {
+    (DATA.achievements||[]).forEach(ach=>{
+      if(state.badges.includes(ach.id)) return;
+      const visits  = Object.values(state.sectionVisits||{}).reduce((a,b)=>a+b,0);
+      const mastered= Object.values(state.fcRatings||{}).filter(v=>v==="mastered").length;
+      let earned = false;
+      if(ach.id==="explorer"        && visits  >=3)   earned=true;
+      if(ach.id==="flashStarter"    && mastered>=1)   earned=true;
+      if(ach.id==="quizAce"         && state.quizStats.correct>=10) earned=true;
+      if(ach.id==="xpHunter"        && state.xp>=500) earned=true;
+      if(ach.id==="streakMaster"    && state.streak>=3) earned=true;
+      if(ach.id==="glossaryGuru"    && state.glossary.length>=5) earned=true;
+      if(ach.id==="topicTrailblazer"&& state.topicsOpened.length>=5) earned=true;
+      if(ach.id==="rapidChamp"      && state.rapidBest>=5) earned=true;
+      if(ach.id==="masteryKing"     && mastered>=10) earned=true;
+      if(earned){
+        state.badges.push(ach.id);
+        saveState();
+        toast(`🏆 Badge Unlocked: ${ach.title}`,"success");
+        renderBadges();
+      }
+    });
+  }
+
+  /* ════════════════════════════════
+     RENDER FUNCTIONS
+  ════════════════════════════════ */
+
+  function renderProgress() {
+    const level   = calcLevel(state.xp);
+    if(els.statLevel)  els.statLevel.textContent  = level;
+    if(els.statXP)     els.statXP.textContent     = state.xp;
+    if(els.statCoins)  els.statCoins.textContent  = state.coins;
+    if(els.statStreak) els.statStreak.textContent = state.streak+"🔥";
+
+    const totalCards = (DATA.flashcards||[]).length||1;
+    const mastered   = Object.values(state.fcRatings||{}).filter(v=>v==="mastered").length;
+    const mastPct    = Math.round(mastered/totalCards*100);
+
+    const totalTopics= (DATA.topics||[]).length||1;
+    const compPct    = Math.round((state.topicsOpened||[]).length/totalTopics*100);
+
+    if(els.masteryMeter)    { els.masteryMeter.style.width    = mastPct+"%"; els.masteryMeter.textContent    = mastPct+"%"; }
+    if(els.completionMeter) { els.completionMeter.style.width = compPct+"%"; els.completionMeter.textContent = compPct+"%"; }
+  }
+
+  function renderBadges() {
+    if(!els.badgesArea) return;
+    els.badgesArea.innerHTML = (DATA.achievements||[]).map(a=>{
+      const earned = state.badges.includes(a.id);
+      return `<span class="badge ${earned?"badge-earned":"badge-locked"}" title="${escHtml(a.desc)}">${escHtml(a.icon||"🏅")} ${escHtml(a.title)}</span>`;
+    }).join("");
+  }
+
+  function renderSnapshot() {
+    if(!els.snapshotList) return;
+    els.snapshotList.innerHTML = (DATA.snapshotPoints||[]).map(p=>`<li>${escHtml(p)}</li>`).join("");
+  }
+
+  function renderDailyChallenge() {
+    if(!els.dailyChallengeCard) return;
+    const ch  = (DATA.dailyChallenges||[])[state.dailyChallengeIndex];
+    if(!ch){ els.dailyChallengeCard.innerHTML="<p>No challenge today.</p>"; return; }
+    const pct = Math.min(Math.round(state.dailyChallengeProgress/ch.target*100),100);
+    els.dailyChallengeCard.innerHTML=`
+      <h3>🎯 Daily Challenge</h3>
+      <p><strong>${escHtml(ch.title)}</strong> — ${escHtml(ch.desc)}</p>
+      <div class="meter-wrap"><div class="meter" style="width:${pct}%">${pct}%</div></div>
+      <p style="margin-top:.4rem;font-size:.88rem;color:var(--muted)">${state.dailyChallengeProgress} / ${ch.target} completed</p>`;
+  }
+
+  /* Topics */
+  function renderTopicGrid(filter="all") {
+    if(!els.topicGrid) return;
+    const topics = (DATA.topics||[]).filter(t=>filter==="all"||t.category===filter);
+    els.topicGrid.innerHTML = topics.map(t=>`
+      <div class="card topic-card">
+        <span class="topic-code">${escHtml(t.code)}</span>
+        <h3>${escHtml(t.title)}</h3>
+        <p>${escHtml((t.overview||"").slice(0,100))}…</p>
+        <button class="btn btn-primary open-lesson-btn" style="margin-top:.75rem" data-id="${escHtml(t.id)}">Open Lesson →</button>
+      </div>`).join("");
+  }
+
+  function renderQuickTopicList() {
+    if(!els.quickTopicList) return;
+    els.quickTopicList.innerHTML = (DATA.topics||[]).map(t=>
+      `<button class="quick-topic-btn" data-id="${escHtml(t.id)}">${escHtml(t.code)}: ${escHtml(t.title)}</button>`
+    ).join("");
+  }
+
+  function openLesson(topicId) {
+    const topic = (DATA.topics||[]).find(t=>t.id===topicId);
+    if(!topic) return;
+    if(!state.topicsOpened.includes(topicId)){
+      state.topicsOpened.push(topicId);
+      award(10,3,`Opened: ${topic.title}`);
+    }
+    incrementDailyChallenge();
+    let html = `<h2>${escHtml(topic.code)}: ${escHtml(topic.title)}</h2>`;
+    if(topic.overview) html+=`<h3>Overview</h3><p>${escHtml(topic.overview)}</p>`;
+    if(topic.definitions?.length) html+=`<h3>Key Definitions</h3><ul>`+topic.definitions.map(d=>`<li><strong>${escHtml(d.term)}</strong>: ${escHtml(d.def)}</li>`).join("")+`</ul>`;
+    if(topic.keyPoints?.length)   html+=`<h3>Key Points</h3><ul>`+topic.keyPoints.map(p=>`<li>${escHtml(p)}</li>`).join("")+`</ul>`;
+    if(topic.examples?.length)    html+=`<h3>Examples</h3>`+topic.examples.map(e=>`<div class="example-block"><strong>${escHtml(e.label)}:</strong> ${escHtml(e.text)}</div>`).join("");
+    if(topic.process?.length)     html+=`<h3>Process Steps</h3><ol>`+topic.process.map(s=>`<li><strong>${escHtml(s.step)}:</strong> ${escHtml(s.desc)}</li>`).join("")+`</ol>`;
+    if(topic.comparison)          html+=`<h3>Comparison</h3><table class="compare-table"><thead><tr><th>${escHtml(topic.comparison.colA)}</th><th>${escHtml(topic.comparison.colB)}</th></tr></thead><tbody>`+topic.comparison.rows.map(r=>`<tr><td>${escHtml(r[0])}</td><td>${escHtml(r[1])}</td></tr>`).join("")+`</tbody></table>`;
+    if(topic.examTips?.length)    html+=`<h3>Exam Tips</h3><ul class="exam-tips">`+topic.examTips.map(t=>`<li>💡 ${escHtml(t)}</li>`).join("")+`</ul>`;
+    if(topic.citations?.length)   html+=`<h3>Citations</h3><ul class="citations">`+topic.citations.map(c=>`<li>${escHtml(c)}</li>`).join("")+`</ul>`;
+    if(els.lessonContent) els.lessonContent.innerHTML = html;
+    if(els.lessonView)    els.lessonView.classList.remove("hidden");
+    setStatus(`Lesson: ${topic.title}`);
+  }
+
+  /* Flashcards */
+  let fcDeck=[], fcIndex=0;
+
+  function buildFcDeck() {
+    const topicId = els.fcTopicSelect?.value||"all";
+    const diff    = els.fcDiffSelect?.value||"all";
+    let cards = [...(DATA.flashcards||[])];
+    if(topicId!=="all") cards=cards.filter(c=>c.topicId===topicId);
+    if(diff!=="all")    cards=cards.filter(c=>c.difficulty===diff);
+    fcDeck  = shuffle(cards);
+    fcIndex = 0;
+    renderFcCard();
+  }
+
+  function renderFcCard() {
+    if(!fcDeck.length){
+      if(els.fcFront) els.fcFront.textContent="No flashcards match.";
+      if(els.fcBack)  els.fcBack.textContent="";
+      if(els.fcMeta)  els.fcMeta.textContent="";
+      return;
+    }
+    const card = fcDeck[fcIndex];
+    if(els.fcFront) els.fcFront.textContent = card.front||card.question||"";
+    if(els.fcBack)  els.fcBack.textContent  = card.back||card.answer||"";
+    if(els.fcMeta)  els.fcMeta.textContent  = `Card ${fcIndex+1} / ${fcDeck.length}  ·  ${card.topicId||""}  ·  ${card.difficulty||""}`;
+    if(els.flashcardEl) els.flashcardEl.classList.remove("flipped");
+  }
+
+  /* Quiz */
+  let cq = { items:[], index:0, score:0, selected:null, locked:false, summary:[] };
+
+  function generateQuiz() {
+    const topicId = els.quizTopicSelect?.value||"all";
+    const mode    = els.quizModeSelect?.value||"mixed";
+    const length  = Number(els.quizLengthSelect?.value||10);
+    let pool = [...(DATA.quizzes||[])];
+    if(mode==="topic" && topicId!=="all") pool=pool.filter(q=>q.topicId===topicId);
+    if(mode==="exam") pool=pool.sort((a,b)=>(a.difficulty||"").localeCompare(b.difficulty||""));
+    const count = Math.min(length, pool.length);
+    cq = { items:sample(pool,count), index:0, score:0, selected:null, locked:false, summary:[] };
+    if(els.quizSummary) els.quizSummary.classList.add("hidden");
+    if(els.quizNextBtn) els.quizNextBtn.classList.add("hidden");
+    renderQuizQuestion();
+    setStatus(`Quiz ready — ${cq.items.length} questions (mode: ${mode})`);
+  }
+
+  function renderQuizQuestion() {
+    if(!cq.items.length){
+      if(els.quizQuestionEl) els.quizQuestionEl.textContent="No questions. Click Generate Quiz.";
+      if(els.quizMeta)       els.quizMeta.textContent="";
+      return;
+    }
+    if(cq.index >= cq.items.length){ showQuizSummary(); return; }
+    const q = cq.items[cq.index];
+    if(els.quizMeta)       els.quizMeta.textContent=`Question ${cq.index+1} / ${cq.items.length}  ·  Score: ${cq.score}`;
+    if(els.quizQuestionEl) els.quizQuestionEl.textContent=q.question||"";
+    if(els.quizOptionsEl)  els.quizOptionsEl.innerHTML=(q.options||[]).map((o,i)=>
+      `<button class="quiz-option btn btn-secondary" data-index="${i}">${escHtml(o)}</button>`).join("");
+    if(els.quizNextBtn)    els.quizNextBtn.classList.add("hidden");
+    cq.selected=null; cq.locked=false;
+  }
+
+  function answerQuiz(idx){
+    if(cq.locked) return;
+    cq.locked=true; cq.selected=idx;
+    const q       = cq.items[cq.index];
+    const correct = q.answer===idx;
+    if(correct){ cq.score++; state.quizStats.correct++; award(20,5,"Correct!"); toast("✅ Correct!","success"); }
+    else        { toast(`❌ Incorrect. Answer: ${escHtml(q.options[q.answer])}`,"error"); }
+    state.quizStats.attempted++;
+    const tid = q.topicId||"general";
+    if(!state.quizStats.byTopic[tid]) state.quizStats.byTopic[tid]={a:0,c:0};
+    state.quizStats.byTopic[tid].a++;
+    if(correct) state.quizStats.byTopic[tid].c++;
+    saveState(); incrementDailyChallenge();
+
+    $$(".quiz-option",els.quizOptionsEl).forEach((btn,i)=>{
+      if(i===q.answer) btn.classList.add("quiz-correct");
+      else if(i===idx) btn.classList.add("quiz-wrong");
+      btn.disabled=true;
+    });
+    if(q.explanation && els.quizOptionsEl){
+      const p=document.createElement("p");
+      p.className="quiz-explanation";
+      p.textContent=`💡 ${q.explanation}`;
+      els.quizOptionsEl.appendChild(p);
+    }
+    cq.summary.push({q:q.question,correct,yourAnswer:q.options[idx],rightAnswer:q.options[q.answer]});
+    if(els.quizNextBtn) els.quizNextBtn.classList.remove("hidden");
+  }
+
+  function showQuizSummary(){
+    const total=cq.items.length, score=cq.score;
+    const pct  = total ? Math.round(score/total*100) : 0;
+    if(els.quizSummary){
+      els.quizSummary.classList.remove("hidden");
+      els.quizSummary.innerHTML=`
+        <h3>Quiz Complete!</h3>
+        <p>Score: <strong>${score} / ${total}</strong> (${pct}%)</p>
+        <p>${pct>=80?"🎉 Excellent!":pct>=60?"👍 Good effort!":"📚 Keep studying!"}</p>
+        <h4 style="margin-top:1rem">Review:</h4>
+        <ul>${cq.summary.map(s=>`<li>${s.correct?"✅":"❌"} ${escHtml(s.q)} — <em>${escHtml(s.yourAnswer)}</em>${!s.correct?` (Correct: <strong>${escHtml(s.rightAnswer)}</strong>)`:""}</li>`).join("")}</ul>
+        <button class="btn btn-primary" id="retakeQuizBtn" style="margin-top:1rem">↺ Retake Quiz</button>`;
+      $("#retakeQuizBtn")?.addEventListener("click",generateQuiz);
+    }
+    if(els.quizQuestionEl) els.quizQuestionEl.textContent="";
+    if(els.quizOptionsEl)  els.quizOptionsEl.innerHTML="";
+    if(els.quizMeta)       els.quizMeta.textContent=`Final score: ${score}/${total} (${pct}%)`;
+  }
+
+  /* Mind Map */
+  let mmZoom=1, mmMap=null;
+
+  function loadMindMap(topicId){
+    mmMap  = (DATA.mindmaps||[]).find(m=>m.topicId===topicId);
+    mmZoom = 1;
+    drawMindMap();
+  }
+
+  function drawMindMap(){
+    if(!els.mmNodesLayer) return;
+    els.mmNodesLayer.innerHTML="";
+    if(!mmMap){ els.mmNodesLayer.innerHTML=`<text x="50%" y="50%" text-anchor="middle" fill="#888" font-size="16">No mind map for this topic.</text>`; return; }
+    const cx=400, cy=260;
+    const branches=(mmMap.branches||[]).map((branch,bi)=>{
+      const angle=(2*Math.PI*bi)/(mmMap.branches.length);
+      const bx=cx+180*Math.cos(angle), by=cy+130*Math.sin(angle);
+      const children=(branch.children||[]).map((child,ci)=>{
+        const ca=angle+(ci-(branch.children.length-1)/2)*0.4;
+        const chX=bx+110*Math.cos(ca), chY=by+80*Math.sin(ca);
+        return `<line x1="${bx}" y1="${by}" x2="${chX}" y2="${chY}" stroke="#ccc" stroke-width="1.5"/>
+          <rect x="${chX-45}" y="${chY-13}" width="90" height="26" rx="6" fill="#e8f9f6" stroke="#17b59c" stroke-width="1"/>
+          <text x="${chX}" y="${chY+5}" text-anchor="middle" font-size="10" fill="#1a2b2a">${escHtml(child)}</text>`;
+      }).join("");
+      return `<line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="#17b59c" stroke-width="2"/>
+        <rect x="${bx-55}" y="${by-18}" width="110" height="36" rx="8" fill="#17b59c" opacity=".85"/>
+        <text x="${bx}" y="${by+6}" text-anchor="middle" fill="#fff" font-size="12">${escHtml(branch.label||"")}</text>
+        ${children}`;
+    }).join("");
+    els.mmNodesLayer.innerHTML=`<g transform="scale(${mmZoom}) translate(0,0)">
+      <circle cx="${cx}" cy="${cy}" r="48" fill="#0e8a76"/>
+      <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">${escHtml(mmMap.center||"")}</text>
+      ${branches}</g>`;
+  }
+
+  /* Rapid Match */
+  let rmActive=false, rmTimerInt=null, rmTimeLeft=15, rmCurStreak=0;
+
+  function startRapidMatch(){
+    rmActive=true; rmCurStreak=0; rmTimeLeft=15;
+    if(els.rmTimer)  els.rmTimer.textContent="15";
+    if(els.rmStreak) els.rmStreak.textContent="0";
+    clearInterval(rmTimerInt);
+    rmTimerInt=setInterval(()=>{
+      rmTimeLeft--;
+      if(els.rmTimer) els.rmTimer.textContent=rmTimeLeft;
+      if(rmTimeLeft<=0) endRapidMatch();
+    },1000);
+    nextRapidQuestion();
+  }
+
+  function endRapidMatch(){
+    clearInterval(rmTimerInt); rmActive=false;
+    if(rmCurStreak>state.rapidBest){ state.rapidBest=rmCurStreak; saveState(); }
+    if(els.rmBest)    els.rmBest.textContent=state.rapidBest;
+    if(els.rmQuestion) els.rmQuestion.textContent="⏱ Time's up!";
+    if(els.rmOptions)  els.rmOptions.innerHTML="";
+    award(12,3,`Rapid Match — streak: ${rmCurStreak}`);
+    checkAchievements();
+  }
+
+  function nextRapidQuestion(){
+    if(!rmActive) return;
+    const fc=(DATA.flashcards||[]);
+    if(!fc.length) return;
+    const card=fc[Math.floor(Math.random()*fc.length)];
+    if(els.rmQuestion) els.rmQuestion.textContent=card.front||card.question||"?";
+    const wrong=shuffle(fc.filter(c=>c!==card)).slice(0,3);
+    const choices=shuffle([card,...wrong]);
+    if(els.rmOptions) els.rmOptions.innerHTML=choices.map(c=>
+      `<button class="btn btn-secondary rm-option" data-correct="${c===card}">${escHtml(c.back||c.answer||"")}</button>`
+    ).join("");
+  }
+
+  /* Term Lab */
+  function extractTerms(){
+    const text=els.tlText?.value.trim()||"";
+    const mode=els.tlModeSelect?.value||"pattern";
+    if(!text){ toast("Paste text first.","warning"); return; }
+    let results=[];
+    if(mode==="pattern"||mode==="hybrid"){
+      [/\b[A-Z]{2,}\b/g,
+       /\b\w+(?:tion|ment|ology|ware|base|file|data|system|process|tool|memory|engine|module)\b/gi,
+       /\b(?:translation memory|term base|CAT tool|machine translation|quality assurance|post.?editing|localization|terminology|workflow|alignment)\b/gi
+      ].forEach(pat=>(text.match(pat)||[]).forEach(m=>{ if(!results.includes(m)) results.push(m); }));
+    }
+    if(mode==="frequency"||mode==="hybrid"){
+      const freq={};
+      (text.toLowerCase().match(/\b\w{4,}\b/g)||[]).forEach(w=>freq[w]=(freq[w]||0)+1);
+      Object.entries(freq).filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]).slice(0,20)
+        .forEach(([w])=>{ if(!results.includes(w)) results.push(w); });
+    }
+    if(!results.length){ toast("No terms found.","warning"); return; }
+    if(els.tlResults) els.tlResults.innerHTML=`<h4>Extracted (${results.length})</h4>`+results.map(r=>`<span class="term-chip">${escHtml(r)}</span>`).join(" ");
+    award(6,2,"Term extraction done!");
+    incrementDailyChallenge();
+  }
+
+  /* Glossary */
+  function renderGlossList(){
+    if(!els.glossList) return;
+    if(!state.glossary.length){ els.glossList.innerHTML="<em>No entries yet.</em>"; return; }
+    els.glossList.innerHTML=state.glossary.map((e,i)=>
+      `<div class="gloss-entry">
+        <strong>${escHtml(e.term)}</strong> → ${escHtml(e.equiv)}
+        ${e.note?`<span class="gloss-note">(${escHtml(e.note)})</span>`:""}
+        <button class="btn btn-ghost btn-xs gloss-del" data-i="${i}" style="margin-left:auto">✕</button>
+      </div>`
+    ).join("");
+  }
+
+  function addGlossEntry(){
+    const term  = els.glossTermInput?.value.trim()||"";
+    const equiv = els.glossEquivInput?.value.trim()||"";
+    if(!term||!equiv){ toast("Enter both term and equivalent.","warning"); return; }
+    state.glossary.push({ term, equiv, note:els.glossNoteInput?.value.trim()||"" });
+    saveState();
+    if(els.glossTermInput)  els.glossTermInput.value="";
+    if(els.glossEquivInput) els.glossEquivInput.value="";
+    if(els.glossNoteInput)  els.glossNoteInput.value="";
+    renderGlossList();
+    award(6,2,"Glossary entry added!");
+    checkAchievements();
+    incrementDailyChallenge();
+  }
+
+  function exportGloss(){
+    if(!state.glossary.length){ toast("Nothing to export.","warning"); return; }
+    const blob=new Blob(
+      ["Term\tEquivalent\tNote\n"+state.glossary.map(e=>`${e.term}\t${e.equiv}\t${e.note||""}`).join("\n")],
+      {type:"text/plain"}
+    );
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="catalyst_glossary.txt";
+    a.click();
+    toast("Glossary exported!","success");
+  }
+
+  /* Sources */
+  function renderSources(){
+    if(els.sourceGrid){
+      els.sourceGrid.innerHTML=(DATA.topics||[]).map(t=>`
+        <div class="card source-card">
+          <h4>${escHtml(t.code)}</h4>
+          <p>${escHtml(t.title)}</p>
+          ${t.sourcePdf
+            ?`<a class="btn btn-ghost btn-sm" href="${escHtml(t.sourcePdf)}" target="_blank">📄 Open PDF</a>`
+            :"<em style='font-size:.82rem;color:var(--muted)'>PDF not linked</em>"}
+        </div>`).join("");
+    }
+    if(els.citationsList){
+      const all=[];
+      (DATA.topics||[]).forEach(t=>(t.citations||[]).forEach(c=>all.push(`[${t.code}] ${c}`)));
+      els.citationsList.innerHTML=all.map(c=>`<li>${escHtml(c)}</li>`).join("")||"<li>No citations.</li>";
+    }
+  }
+
+  /* Review */
+  function renderReview(){
+    /* Weak areas */
+    if(els.weakAreasList){
+      const byTopic=state.quizStats.byTopic||{};
+      const weak=(DATA.topics||[]).filter(t=>{ const s=byTopic[t.id]; return s&&s.a>0&&s.c/s.a<0.6; });
+      els.weakAreasList.innerHTML=weak.length
+        ?weak.map(t=>{ const s=byTopic[t.id]; const pct=Math.round(s.c/s.a*100);
+            return `<li>${escHtml(t.title)} — ${pct}% correct</li>`; }).join("")
+        :"<li>No weak areas yet — complete some quizzes!</li>";
+    }
+    /* Checklist */
+    if(els.reviewChecklist){
+      els.reviewChecklist.innerHTML=(DATA.reviewChecklist||[]).map((item,i)=>
+        `<label class="checklist-item">
+          <input type="checkbox" data-i="${i}" ${state.checkedItems.includes(i)?"checked":""}/>
+          ${escHtml(item)}
+        </label>`).join("");
+    }
+    /* Revision plan */
+    if(els.revisionPlan){
+      els.revisionPlan.innerHTML=(DATA.revisionPlan||[]).map((step,i)=>
+        `<div class="card revision-step">
+          <h4>Day ${i+1}: ${escHtml(step.title)}</h4>
+          <p>${escHtml(step.detail)}</p>
+        </div>`).join("");
+    }
+  }
+
+  /* Achievements panel */
+  function renderAchievements(){
+    if(!els.achievementsPanel) return;
+    els.achievementsPanel.innerHTML=`
+      <h3 style="margin-bottom:.75rem">🏆 Achievements</h3>
+      <div class="achievements-grid">
+        ${(DATA.achievements||[]).map(a=>{
+          const earned=state.badges.includes(a.id);
+          return `<div class="achievement-card ${earned?"earned":"locked"}">
+            <span class="ach-icon">${escHtml(a.icon||"🏅")}</span>
+            <strong>${escHtml(a.title)}</strong>
+            <p style="font-size:.82rem;color:var(--muted);margin:.3rem 0">${escHtml(a.desc)}</p>
+            <span class="ach-badge ${earned?"":"locked"}">${earned?"✅ Earned":"🔒 Locked"}</span>
+          </div>`;
+        }).join("")}
+      </div>`;
+  }
+
+  /* Global search */
+  function runSearch(query){
+    if(!query.trim()){ if(els.searchResultsSection) els.searchResultsSection.classList.add("hidden"); return; }
+    const q=query.toLowerCase(), results=[];
+    (DATA.topics||[]).forEach(t=>{
+      if((t.title||"").toLowerCase().includes(q)||(t.overview||"").toLowerCase().includes(q))
+        results.push({type:"Topic",text:t.title});
+    });
+    (DATA.flashcards||[]).forEach(f=>{
+      if((f.front||f.question||"").toLowerCase().includes(q))
+        results.push({type:"Flashcard",text:f.front||f.question});
+    });
+    (DATA.quizzes||[]).forEach(qz=>{
+      if((qz.question||"").toLowerCase().includes(q))
+        results.push({type:"Quiz",text:qz.question});
+    });
+    if(els.searchResults){
+      els.searchResults.innerHTML=results.length
+        ?results.map(r=>`<div class="search-result-item"><strong>[${escHtml(r.type)}]</strong> ${escHtml(r.text)}</div>`).join("")
+        :"<p style='color:var(--muted);padding:.5rem'>No results found.</p>";
+    }
+    if(els.searchResultsSection) els.searchResultsSection.classList.remove("hidden");
+  }
+
+  /* ════════════════════════════════
+     NAVIGATION
+  ════════════════════════════════ */
+  function showSection(id){
+    els.sections.forEach(s=>s.classList.add("hidden"));
+    const target=document.getElementById(id);
+    if(target) target.classList.remove("hidden");
+    els.navTabs.forEach(tab=>tab.classList.toggle("active",tab.dataset.section===id));
+    state.currentSection=id;
+    state.sectionVisits[id]=(state.sectionVisits[id]||0)+1;
+    saveState();
+    checkAchievements();
+    setStatus(`Section: ${id}`);
+    if(id==="sources")   renderSources();
+    if(id==="review")    renderReview();
+    if(id==="gamelab")   renderAchievements();
+  }
+
+  /* ════════════════════════════════
+     BACKGROUND CANVAS
+  ════════════════════════════════ */
+  function startCanvas(){
+    const canvas=els.catalystCanvas;
+    if(!canvas) return;
+    const ctx=canvas.getContext("2d");
+    const resize=()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; };
+    resize();
+    window.addEventListener("resize",resize);
+    const particles=Array.from({length:45},()=>({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height,
+      r:Math.random()*3+1,
+      dx:(Math.random()-.5)*.5,
+      dy:(Math.random()-.5)*.5,
+      alpha:Math.random()*.4+.1
+    }));
+    (function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(23,181,156,${p.alpha})`;
+        ctx.fill();
+        p.x+=p.dx; p.y+=p.dy;
+        if(p.x<0||p.x>canvas.width)  p.dx*=-1;
+        if(p.y<0||p.y>canvas.height) p.dy*=-1;
+      });
+      requestAnimationFrame(draw);
+    })();
+  }
+
+  /* ════════════════════════════════
+     EVENT BINDING
+  ════════════════════════════════ */
+  function bindEvents(){
+
+    /* Welcome */
+    els.startBtn?.addEventListener("click",()=>{
+      if(els.welcomeScreen) els.welcomeScreen.classList.add("hidden");
+      showSection("dashboard");
+    });
+
+    /* Modal */
+    els.modalClose?.addEventListener("click",()=>els.modalOverlay?.classList.remove("active"));
+    els.modalOverlay?.addEventListener("click",e=>{ if(e.target===els.modalOverlay) els.modalOverlay.classList.remove("active"); });
+
+    /* Nav tabs */
+    els.navTabs.forEach(tab=>tab.addEventListener("click",()=>showSection(tab.dataset.section)));
+
+    /* Search */
+    els.globalSearch?.addEventListener("input",e=>runSearch(e.target.value));
+
+    /* Reset progress */
+    els.resetProgressBtn?.addEventListener("click",()=>{
+      if(confirm("Reset ALL progress? This cannot be undone.")){
+        localStorage.removeItem(STORAGE_KEY);
+        state=createDefaultState();
+        saveState();
+        renderAll();
+        toast("Progress reset.","warning");
+      }
+    });
+
+    /* Daily challenge button */
+    els.dailyChallengeBtn?.addEventListener("click",()=>{
+      showSection("dashboard");
+      toast("📅 Daily Challenge loaded!","success");
+    });
+
+    /* Topic filters */
+    els.topicFilterBtns.forEach(btn=>btn.addEventListener("click",()=>{
+      els.topicFilterBtns.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTopicGrid(btn.dataset.filter||"all");
+    }));
+
+    /* Open lesson (event delegation on grid) */
+    els.topicGrid?.addEventListener("click",e=>{
+      const btn=e.target.closest(".open-lesson-btn");
+      if(btn) openLesson(btn.dataset.id);
+    });
+
+    /* Close lesson */
+    els.closeLessonBtn?.addEventListener("click",()=>els.lessonView?.classList.add("hidden"));
+
+    /* Quick topic list (event delegation) */
+    els.quickTopicList?.addEventListener("click",e=>{
+      const btn=e.target.closest(".quick-topic-btn");
+      if(btn) openLesson(btn.dataset.id);
+    });
+
+    /* ── Flashcard controls ── */
+    els.fcTopicSelect?.addEventListener("change",buildFcDeck);
+    els.fcDiffSelect?.addEventListener("change",buildFcDeck);
+    els.flashcardEl?.addEventListener("click",()=>els.flashcardEl.classList.toggle("flipped"));
+    els.fcPrevBtn?.addEventListener("click",()=>{ if(fcIndex>0){ fcIndex--; renderFcCard(); } });
+    els.fcNextBtn?.addEventListener("click",()=>{ if(fcIndex<fcDeck.length-1){ fcIndex++; renderFcCard(); } });
+    els.fcShuffleBtn?.addEventListener("click",buildFcDeck);
+    els.fcRestartBtn?.addEventListener("click",()=>{ fcIndex=0; renderFcCard(); });
+
+    els.fcHardBtn?.addEventListener("click",()=>{
+      if(!fcDeck.length) return;
+      state.fcRatings[fcDeck[fcIndex].id]="hard";
+      saveState(); toast("Marked: Hard 😓","warning");
+      if(fcIndex<fcDeck.length-1){ fcIndex++; renderFcCard(); }
+    });
+    els.fcGoodBtn?.addEventListener("click",()=>{
+      if(!fcDeck.length) return;
+      state.fcRatings[fcDeck[fcIndex].id]="good";
+      saveState(); award(8,2,"Flashcard: Good 👍");
+      if(fcIndex<fcDeck.length-1){ fcIndex++; renderFcCard(); }
+    });
+    els.fcMasteredBtn?.addEventListener("click",()=>{
+      if(!fcDeck.length) return;
+      state.fcRatings[fcDeck[fcIndex].id]="mastered";
+      saveState(); award(14,4,"Flashcard: Mastered! ⭐");
+      checkAchievements();
+      if(fcIndex<fcDeck.length-1){ fcIndex++; renderFcCard(); }
+    });
+
+    /* ── Quiz controls ── */
+    els.generateQuizBtn?.addEventListener("click",generateQuiz);
+
+    els.quizOptionsEl?.addEventListener("click",e=>{
+      const btn=e.target.closest(".quiz-option");
+      if(btn) answerQuiz(Number(btn.dataset.index));
+    });
+
+    els.quizNextBtn?.addEventListener("click",()=>{ cq.index++; renderQuizQuestion(); });
+
+    /* ── Mind map ── */
+    els.mmLoadBtn?.addEventListener("click",()=>{ if(els.mmTopicSelect) loadMindMap(els.mmTopicSelect.value); });
+    els.mmResetBtn?.addEventListener("click",()=>{ mmZoom=1; drawMindMap(); });
+    els.mmZoomInBtn?.addEventListener("click",()=>{ mmZoom=Math.min(mmZoom+.2,3); drawMindMap(); });
+    els.mmZoomOutBtn?.addEventListener("click",()=>{ mmZoom=Math.max(mmZoom-.2,.3); drawMindMap(); });
+
+    /* ── Rapid Match ── */
+    els.rmStartBtn?.addEventListener("click",startRapidMatch);
+    els.rmOptions?.addEventListener("click",e=>{
+      const btn=e.target.closest(".rm-option");
+      if(!btn||!rmActive) return;
+      if(btn.dataset.correct==="true"){
+        rmCurStreak++;
+        if(els.rmStreak) els.rmStreak.textContent=rmCurStreak;
+        toast("⚡ Correct!","success");
+        nextRapidQuestion();
+      } else {
+        toast("❌ Wrong!","error");
+        endRapidMatch();
+      }
+    });
+
+    /* ── Term Lab ── */
+    els.tlExtractBtn?.addEventListener("click",extractTerms);
+
+    /* ── Glossary ── */
+    els.glossAddBtn?.addEventListener("click",addGlossEntry);
+    els.glossExportBtn?.addEventListener("click",exportGloss);
+    els.glossClearBtn?.addEventListener("click",()=>{
+      if(confirm("Clear entire glossary?")){ state.glossary=[]; saveState(); renderGlossList(); toast("Glossary cleared.","warning"); }
+    });
+    els.glossList?.addEventListener("click",e=>{
+      const btn=e.target.closest(".gloss-del");
+      if(btn){ state.glossary.splice(Number(btn.dataset.i),1); saveState(); renderGlossList(); }
+    });
+
+    /* ── Review checklist ── */
+    els.reviewChecklist?.addEventListener("change",e=>{
+      if(e.target.type==="checkbox"){
+        const i=Number(e.target.dataset.i);
+        if(e.target.checked){
+          if(!state.checkedItems.includes(i)){ state.checkedItems.push(i); award(5,1,"Checklist item ✅"); }
+        } else {
+          state.checkedItems=state.checkedItems.filter(x=>x!==i);
+        }
+        saveState();
+      }
+    });
+  }
+
+  /* ════════════════════════════════
+     POPULATE SELECTS
+  ════════════════════════════════ */
+  function populateSelects(){
+    const topicOptions=`<option value="all">All Topics</option>`
+      +(DATA.topics||[]).map(t=>`<option value="${t.id}">${escHtml(t.code)}: ${escHtml(t.title)}</option>`).join("");
+
+    if(els.fcTopicSelect)    els.fcTopicSelect.innerHTML    = topicOptions;
+    if(els.quizTopicSelect)  els.quizTopicSelect.innerHTML  = topicOptions;
+
+    if(els.mmTopicSelect){
+      els.mmTopicSelect.innerHTML=(DATA.mindmaps||[]).map(m=>{
+        const t=(DATA.topics||[]).find(x=>x.id===m.topicId);
+        return `<option value="${m.topicId}">${escHtml(t?t.title:m.topicId)}</option>`;
+      }).join("");
+    }
+  }
+
+  /* ════════════════════════════════
+     INITIAL RENDER
+  ════════════════════════════════ */
+  function renderAll(){
+    renderProgress();
+    renderBadges();
+    renderSnapshot();
+    renderDailyChallenge();
+    renderTopicGrid("all");
+    renderQuickTopicList();
+    populateSelects();
+    buildFcDeck();
+    renderGlossList();
+    renderAchievements();
+    if(els.rmBest) els.rmBest.textContent=state.rapidBest;
+    /* Load first available mind map */
+    if(els.mmTopicSelect && (DATA.mindmaps||[]).length){
+      loadMindMap(els.mmTopicSelect.value||(DATA.mindmaps[0].topicId));
+    }
+  }
+
+  /* ════════════════════════════════
+     BOOT
+  ════════════════════════════════ */
+  function init(){
+    loadState();
+    updateStreak();
+    ensureDailyChallenge();
+    bindEvents();
+    renderAll();
+    startCanvas();
+
+    /* Hide all sections; show welcome screen */
+    els.sections.forEach(s=>s.classList.add("hidden"));
+    if(els.welcomeScreen) els.welcomeScreen.classList.remove("hidden");
+
+    /* Hide music controls (no playlist) */
+    document.querySelectorAll(".music-controls,[id$='TrackBtn'],[id='musicToggleBtn'],.range-wrap")
+      .forEach(el=>el.style.display="none");
+
+    setStatus("CATalyst Academy ready — click Start to begin.");
+
+    console.log(
+      `%cCATalyst Academy ✓  |  Topics: ${(DATA.topics||[]).length}  |  Flashcards: ${(DATA.flashcards||[]).length}  |  Quizzes: ${(DATA.quizzes||[]).length}`,
+      "color:#17b59c;font-weight:bold;font-size:13px"
+    );
+  }
+
+  init();
+
+})();
+</script>
 </body>
 </html>
