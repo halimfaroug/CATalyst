@@ -677,74 +677,396 @@ window.CATALYST_DATA = {
   ],
 
   quizzes: [
-    { id:"q1",  topicId:"topic1",  difficulty:"basic",
+     {
+      id:"q1", topicId:"topic1", difficulty:"basic",
       question:"Which statement best defines CAT?",
-      options:["It replaces translators completely.","It assists human translators with digital tools.","It is purely optical character recognition.","It is the same as localisation."],
-      answer:1, explanation:"CAT supports human translators rather than replacing them; the translator remains in control.", ref:"Topic 1, p. 4" },
-    { id:"q2",  topicId:"topic1",  difficulty:"basic",
+      options:[
+        "It replaces translators completely.",
+        "It assists human translators with digital tools.",
+        "It is purely optical character recognition.",
+        "It is the same as localisation."
+      ],
+      answer:1,
+      explanation:"CAT supports human translators rather than replacing them. The translator remains in control of all decisions throughout the process.",
+      ref:"Topic 1, p. 4"
+    },
+    {
+      id:"q2", topicId:"topic1", difficulty:"basic",
       question:"What does a Translation Memory store?",
-      options:["Audio recordings of sessions.","Source and target segment pairs for reuse.","Grammar rules of the target language.","Statistical frequency tables."],
-      answer:1, explanation:"A TM stores aligned source-target segment pairs that can be retrieved for future translations.", ref:"Topic 1, p. 6" },
-    { id:"q3",  topicId:"topic1",  difficulty:"intermediate",
-      question:"Which is a key difference between CAT and MT?",
-      options:["CAT is faster than MT.","MT requires human approval for every segment.","CAT keeps the human translator in control; MT automates the process.","CAT and MT are identical technologies."],
-      answer:2, explanation:"The defining distinction is human control: CAT aids the translator while MT produces translations automatically.", ref:"Topic 1, p. 7" },
-    { id:"q4",  topicId:"topic2",  difficulty:"basic",
+      options:[
+        "Audio recordings of translation sessions.",
+        "Source and target segment pairs for reuse.",
+        "Grammar rules of the target language.",
+        "Statistical frequency tables."
+      ],
+      answer:1,
+      explanation:"A TM stores aligned source-target segment pairs that can be retrieved and reused in future translation projects, saving time and improving consistency.",
+      ref:"Topic 1, p. 6"
+    },
+    {
+      id:"q3", topicId:"topic1", difficulty:"intermediate",
+      question:"Which is the key difference between CAT and MT?",
+      options:[
+        "CAT is always faster than MT.",
+        "MT requires human approval for every segment.",
+        "CAT keeps the human translator in control; MT automates the process.",
+        "CAT and MT are identical technologies with different names."
+      ],
+      answer:2,
+      explanation:"The defining distinction is human control: CAT aids the translator while MT produces translations automatically without human input during the process.",
+      ref:"Topic 1, p. 7"
+    },
+    {
+      id:"q4", topicId:"topic1", difficulty:"intermediate",
+      question:"Which of the following is NOT typically considered a component of a CAT workstation?",
+      options:[
+        "Translation Memory system.",
+        "Terminology management tool.",
+        "Neural network training pipeline.",
+        "File filter for format handling."
+      ],
+      answer:2,
+      explanation:"A CAT workstation typically comprises a TM system, terminology manager, alignment tool, and file filters. Neural network training is part of MT development, not a standard CAT workstation component.",
+      ref:"Topic 1, p. 5"
+    },
+    {
+      id:"q5", topicId:"topic2", difficulty:"basic",
       question:"What is a fuzzy match in a CAT tool?",
-      options:["An exact match from the TM.","A match that is similar but not identical to the source segment.","A match from a different language pair.","An untranslated segment."],
-      answer:1, explanation:"A fuzzy match is similar but not identical to the current source segment and requires editing.", ref:"Topic 2, p. 9" },
-    { id:"q5",  topicId:"topic2",  difficulty:"intermediate",
+      options:[
+        "An exact 100% match from the TM.",
+        "A match that is similar but not identical to the source segment.",
+        "A match retrieved from a different language pair.",
+        "An untranslated new segment."
+      ],
+      answer:1,
+      explanation:"A fuzzy match is similar but not identical to the current source segment and always requires editing before it can be accepted as a final translation.",
+      ref:"Topic 2, p. 9"
+    },
+    {
+      id:"q6", topicId:"topic2", difficulty:"basic",
       question:"What does segmentation do in a CAT tool?",
-      options:["Translates the text automatically.","Splits the source text into individual units for translation.","Exports the finished file.","Runs quality assurance checks."],
-      answer:1, explanation:"Segmentation splits source text into units (usually sentences) that are processed and stored individually.", ref:"Topic 2, p. 5" },
-    { id:"q6",  topicId:"topic3",  difficulty:"basic",
+      options:[
+        "Automatically translates the entire source document.",
+        "Splits the source text into individual units for translation.",
+        "Exports the finished translation in the target file format.",
+        "Runs automated quality assurance checks on the output."
+      ],
+      answer:1,
+      explanation:"Segmentation splits source text into individual units — usually sentences — that are processed, stored, and matched individually by the CAT tool.",
+      ref:"Topic 2, p. 5"
+    },
+    {
+      id:"q7", topicId:"topic2", difficulty:"intermediate",
+      question:"What happens when a translator accepts a 100% TM match without checking it?",
+      options:[
+        "The tool automatically flags the segment as verified.",
+        "There is a risk of propagating errors from previous translations.",
+        "The segment is deleted from the TM permanently.",
+        "The tool generates a new MT suggestion instead."
+      ],
+      answer:1,
+      explanation:"Even 100% matches can contain errors from previous projects. Accepting them without review risks propagating those errors into the current translation.",
+      ref:"Topic 2, p. 10"
+    },
+    {
+      id:"q8", topicId:"topic3", difficulty:"basic",
       question:"What is TM alignment used for?",
-      options:["Training neural MT models from scratch.","Creating a TM from existing source-target text pairs.","Running QA checks on translated files.","Exporting glossary entries."],
-      answer:1, explanation:"Alignment pairs existing source and target texts to build a TM database that can be reused in future projects.", ref:"Topic 3, p. 7" },
-    { id:"q7",  topicId:"topic4",  difficulty:"basic",
+      options:[
+        "Training neural MT models from scratch.",
+        "Creating a TM database from existing source-target text pairs.",
+        "Running automated QA checks on translated files.",
+        "Exporting glossary entries to a termbase."
+      ],
+      answer:1,
+      explanation:"Alignment pairs existing source and target texts to build a TM database that can be reused in future projects, saving translation effort and building on previous work.",
+      ref:"Topic 3, p. 7"
+    },
+    {
+      id:"q9", topicId:"topic3", difficulty:"intermediate",
+      question:"In which text type is TM leverage most effective?",
+      options:[
+        "Literary fiction with creative and varied language.",
+        "Repetitive technical texts such as manuals and software strings.",
+        "Political speeches with persuasive and rhetorical language.",
+        "Poetry with complex metaphors and cultural references."
+      ],
+      answer:1,
+      explanation:"TM leverage is highest in repetitive technical texts because similar or identical segments recur frequently, allowing the TM to provide consistent matches across the document.",
+      ref:"Topic 3, p. 13"
+    },
+    {
+      id:"q10", topicId:"topic3", difficulty:"intermediate",
+      question:"What is the main benefit of sharing a TM across a translation team?",
+      options:[
+        "It allows each translator to develop their own individual style.",
+        "It ensures consistent terminology and phrasing across all translators on the project.",
+        "It automatically generates MT output when no TM match is found.",
+        "It eliminates the need for a project manager."
+      ],
+      answer:1,
+      explanation:"Sharing a TM across a team ensures that all translators use the same approved translations for recurring segments, maintaining consistency throughout large projects.",
+      ref:"Topic 3, p. 15"
+    },
+    {
+      id:"q11", topicId:"topic4", difficulty:"basic",
       question:"What is the main purpose of a termbase?",
-      options:["To store full sentence translations.","To store approved terms with definitions and target equivalents.","To align parallel texts.","To evaluate MT output quality."],
-      answer:1, explanation:"A termbase stores approved terms with metadata — definitions, equivalents, domain, and usage notes.", ref:"Topic 4, p. 3" },
-    { id:"q8",  topicId:"topic5",  difficulty:"basic",
+      options:[
+        "To store full sentence translations for reuse.",
+        "To store approved terms with definitions and target-language equivalents.",
+        "To align parallel source and target texts.",
+        "To evaluate the quality of MT output."
+      ],
+      answer:1,
+      explanation:"A termbase stores approved terms with metadata including definitions, target equivalents, domain labels, and usage notes for use during translation.",
+      ref:"Topic 4, p. 3"
+    },
+    {
+      id:"q12", topicId:"topic4", difficulty:"basic",
+      question:"What is term extraction?",
+      options:[
+        "The process of automatically translating specialised terms using MT.",
+        "The process of identifying candidate terms in source texts automatically or manually.",
+        "The process of deleting outdated terms from a termbase.",
+        "The process of aligning source and target terms in a parallel corpus."
+      ],
+      answer:1,
+      explanation:"Term extraction identifies candidate terms from source texts — either automatically using software or manually by a terminologist — for inclusion in a termbase.",
+      ref:"Topic 4, p. 14"
+    },
+    {
+      id:"q13", topicId:"topic4", difficulty:"intermediate",
+      question:"How does a termbase differ from a Translation Memory?",
+      options:[
+        "A termbase stores full segment translations; a TM stores individual terms.",
+        "A termbase stores individual approved terms; a TM stores full segment translation pairs.",
+        "A termbase is only used in literary translation; a TM is used in technical translation.",
+        "They are identical resources with different names."
+      ],
+      answer:1,
+      explanation:"A termbase stores individual terms with definitions and equivalents. A TM stores full source-target segment pairs. Both are used together in a CAT workstation.",
+      ref:"Topic 4, p. 4"
+    },
+    {
+      id:"q14", topicId:"topic5", difficulty:"basic",
       question:"What does GILT stand for?",
-      options:["Grammar, Interpretation, Language, Translation.","Globalisation, Internationalisation, Localisation, Translation.","Glossary, Index, Lexicon, Terminology.","Graphics, Icons, Layout, Text."],
-      answer:1, explanation:"GILT is the framework covering Globalisation, Internationalisation, Localisation, and Translation.", ref:"Topic 5, p. 4" },
-    { id:"q9",  topicId:"topic5",  difficulty:"intermediate",
+      options:[
+        "Grammar, Interpretation, Language, Translation.",
+        "Globalisation, Internationalisation, Localisation, Translation.",
+        "Glossary, Index, Lexicon, Terminology.",
+        "Graphics, Icons, Layout, Text."
+      ],
+      answer:1,
+      explanation:"GILT covers Globalisation, Internationalisation, Localisation, and Translation — describing the full pipeline from business strategy to language adaptation.",
+      ref:"Topic 5, p. 4"
+    },
+    {
+      id:"q15", topicId:"topic5", difficulty:"basic",
       question:"Which of the following is a non-linguistic aspect of localisation?",
-      options:["Translating the user interface strings.","Adapting date and currency formats for the target locale.","Checking grammar in the target text.","Building a parallel corpus."],
-      answer:1, explanation:"Localisation includes technical adaptations such as date formats, currency symbols, and units of measurement.", ref:"Topic 5, p. 8" },
-    { id:"q10", topicId:"topic6",  difficulty:"intermediate",
+      options:[
+        "Translating the user interface strings.",
+        "Adapting date and currency formats for the target locale.",
+        "Checking grammar and style in the target text.",
+        "Building a parallel corpus for MT training."
+      ],
+      answer:1,
+      explanation:"Localisation includes technical adaptations such as date formats, currency symbols, and units of measurement — not just linguistic translation of text.",
+      ref:"Topic 5, p. 8"
+    },
+    {
+      id:"q16", topicId:"topic5", difficulty:"intermediate",
+      question:"Why must internationalisation happen before localisation?",
+      options:[
+        "Because localisation is always more expensive than internationalisation.",
+        "Because internationalisation prepares the product architecture to support multiple locales without re-engineering.",
+        "Because translators cannot work without internationalised source files.",
+        "Because localisation automatically handles internationalisation issues."
+      ],
+      answer:1,
+      explanation:"Internationalisation designs the product so that locale-specific elements — strings, formats, encodings — are separated from the core code, making localisation efficient and scalable.",
+      ref:"Topic 5, p. 6"
+    },
+    {
+      id:"q17", topicId:"topic6", difficulty:"basic",
+      question:"Why are minority languages described as under-resourced for MT?",
+      options:[
+        "Because minority language speakers refuse to use digital tools.",
+        "Because they lack the large parallel corpora needed to train MT models effectively.",
+        "Because MT companies deliberately exclude minority languages.",
+        "Because minority languages have no written form."
+      ],
+      answer:1,
+      explanation:"MT systems — especially statistical and neural models — require large parallel corpora to train on. Minority languages typically lack sufficient digital text resources.",
+      ref:"Topic 6, p. 3"
+    },
+    {
+      id:"q18", topicId:"topic6", difficulty:"intermediate",
       question:"Why do minority languages benefit more from TM than from MT?",
-      options:["TM requires more training data than MT.","MT works better with small corpora.","TM does not require large training corpora, unlike statistical or neural MT.","MT is cheaper to implement for minority languages."],
-      answer:2, explanation:"TM reuses existing human translations without requiring large data sets, making it more viable for under-resourced minority languages.", ref:"Topic 6, p. 8" },
-    { id:"q11", topicId:"topic7",  difficulty:"basic",
+      options:[
+        "TM requires more training data than MT.",
+        "MT works better with small corpora than TM does.",
+        "TM does not require large training corpora, unlike statistical or neural MT.",
+        "MT is cheaper and easier to implement for minority languages."
+      ],
+      answer:2,
+      explanation:"TM reuses existing human-approved translations without needing large data sets, making it far more viable for under-resourced minority languages than MT systems.",
+      ref:"Topic 6, p. 8"
+    },
+    {
+      id:"q19", topicId:"topic7", difficulty:"basic",
+      question:"What is a parallel corpus?",
+      options:[
+        "A corpus of texts written simultaneously in two languages.",
+        "A corpus containing source texts aligned with their translations.",
+        "A corpus built from comparable texts on similar topics in different languages.",
+        "A corpus used exclusively for MT evaluation."
+      ],
+      answer:1,
+      explanation:"A parallel corpus contains source texts paired and aligned with their translations, allowing direct comparison and use in TM building, MT training, and translation research.",
+      ref:"Topic 7, p. 4"
+    },
+    {
+      id:"q20", topicId:"topic7", difficulty:"intermediate",
       question:"What distinguishes a parallel corpus from a comparable corpus?",
-      options:["A parallel corpus is larger.","A parallel corpus contains aligned source-translation pairs; a comparable corpus does not.","A comparable corpus is used for MT training only.","They are the same thing."],
-      answer:1, explanation:"A parallel corpus aligns source texts with their translations; a comparable corpus covers similar topics in different languages but without direct translation alignment.", ref:"Topic 7, p. 5" },
-    { id:"q12", topicId:"topic8",  difficulty:"basic",
+      options:[
+        "A parallel corpus is always larger in size.",
+        "A parallel corpus contains aligned source-translation pairs; a comparable corpus does not.",
+        "A comparable corpus is used exclusively for MT training.",
+        "They are the same type of resource with different names."
+      ],
+      answer:1,
+      explanation:"A parallel corpus aligns source texts with their translations. A comparable corpus covers similar topics in different languages but without direct translation alignment.",
+      ref:"Topic 7, p. 5"
+    },
+    {
+      id:"q21", topicId:"topic7", difficulty:"intermediate",
+      question:"How would a translator practically use a corpus when making a translation decision?",
+      options:[
+        "To automatically generate a target-language equivalent for an unknown term.",
+        "To search for natural collocations and verify how a term is typically used in authentic texts.",
+        "To check whether their translation matches a reference TM.",
+        "To calculate the BLEU score of their output."
+      ],
+      answer:1,
+      explanation:"Translators query corpora to find concordance lines showing how terms are used in context, helping them select natural collocations and verify register and frequency.",
+      ref:"Topic 7, p. 13"
+    },
+    {
+      id:"q22", topicId:"topic8", difficulty:"basic",
       question:"Why do idioms cause problems for MT systems?",
-      options:["Idioms are always very long.","MT systems lack the world knowledge to recognise figurative meaning and translate idioms literally.","Idioms use rare vocabulary.","MT systems refuse to process idioms."],
-      answer:1, explanation:"Without world knowledge and pragmatic understanding, MT systems translate idioms word-for-word, producing nonsensical output.", ref:"Topic 8, p. 10" },
-    { id:"q13", topicId:"topic11", difficulty:"basic",
-      question:"What does BLEU measure in MT evaluation?",
-      options:["The number of words in the MT output.","N-gram overlap between MT output and human reference translations.","The time taken to post-edit MT output.","The fluency of MT output only."],
-      answer:1, explanation:"BLEU calculates how many n-grams in the MT output match those in one or more human reference translations.", ref:"Topic 11, p. 6" },
-    { id:"q14", topicId:"topic11", difficulty:"intermediate",
-      question:"What is a major limitation of BLEU?",
-      options:["It is too expensive to calculate.","It requires post-editors.","It does not capture meaning well at sentence level and can reward incorrect translations with similar surface forms.","It only works for European languages."],
-      answer:2, explanation:"BLEU is a surface-level metric; it can give high scores to translations that have the right words but the wrong meaning.", ref:"Topic 11, p. 8" },
-    { id:"q15", topicId:"topic12", difficulty:"basic",
+      options:[
+        "Idioms are always composed of very rare vocabulary.",
+        "MT systems lack the world knowledge to recognise figurative meaning and translate idioms literally.",
+        "MT systems are programmed to skip idiomatic expressions.",
+        "Idioms only exist in European languages, limiting MT training data."
+      ],
+      answer:1,
+      explanation:"Without world knowledge and pragmatic understanding, MT systems translate idioms word-for-word, producing nonsensical or misleading output in the target language.",
+      ref:"Topic 8, p. 10"
+    },
+    {
+      id:"q23", topicId:"topic8", difficulty:"intermediate",
+      question:"What is lexical ambiguity and why does it challenge MT?",
+      options:[
+        "When a word is spelled differently in two dialects, confusing the MT system.",
+        "When a word has multiple meanings and the MT system selects the wrong one without contextual understanding.",
+        "When a word does not exist in the MT system's vocabulary.",
+        "When a word is too long to be processed by the MT system."
+      ],
+      answer:1,
+      explanation:"Lexical ambiguity occurs when a source word has multiple possible meanings. MT systems often select the wrong sense because they lack the contextual and world knowledge needed to disambiguate.",
+      ref:"Topic 8, p. 5"
+    },
+    {
+      id:"q24", topicId:"topic8", difficulty:"intermediate",
+      question:"Which type of knowledge do human translators use that MT systems fundamentally lack?",
+      options:[
+        "Knowledge of alphabetical ordering of words.",
+        "World knowledge and pragmatic understanding of context and intent.",
+        "Knowledge of basic grammatical categories such as noun and verb.",
+        "Knowledge of source language spelling conventions."
+      ],
+      answer:1,
+      explanation:"Human translators draw on world knowledge, cultural understanding, and pragmatic awareness to resolve ambiguity and interpret intent — capabilities MT systems do not genuinely possess.",
+      ref:"Topic 8, p. 3"
+    },
+    {
+      id:"q25", topicId:"topic11", difficulty:"basic",
+      question:"What does the BLEU metric measure in MT evaluation?",
+      options:[
+        "The total number of words produced in the MT output.",
+        "N-gram overlap between MT output and human reference translations.",
+        "The average time taken to post-edit MT output to publication quality.",
+        "The fluency of MT output as judged by human evaluators."
+      ],
+      answer:1,
+      explanation:"BLEU calculates how many n-grams in the MT output match those in one or more human reference translations, producing a precision-based quality score.",
+      ref:"Topic 11, p. 6"
+    },
+    {
+      id:"q26", topicId:"topic11", difficulty:"intermediate",
+      question:"What is a major limitation of the BLEU metric?",
+      options:[
+        "It is too expensive and slow to calculate.",
+        "It requires trained post-editors to administer.",
+        "It does not capture meaning well at sentence level and can reward incorrect translations with similar surface forms.",
+        "It only works for European language pairs."
+      ],
+      answer:2,
+      explanation:"BLEU is a surface-level metric that can give high scores to translations containing the right words in the wrong order or with the wrong meaning, making it unreliable at the sentence level.",
+      ref:"Topic 11, p. 8"
+    },
+    {
+      id:"q27", topicId:"topic11", difficulty:"intermediate",
+      question:"What is the difference between adequacy and fluency in human MT evaluation?",
+      options:[
+        "Adequacy measures speed; fluency measures accuracy.",
+        "Adequacy measures how much source meaning is preserved; fluency measures how natural the output reads.",
+        "Adequacy and fluency are two names for the same evaluation criterion.",
+        "Adequacy is used for literary translation; fluency is used for technical translation."
+      ],
+      answer:1,
+      explanation:"Adequacy assesses whether the meaning of the source is fully preserved in the MT output. Fluency assesses whether the output reads naturally and grammatically in the target language.",
+      ref:"Topic 11, p. 13"
+    },
+    {
+      id:"q28", topicId:"topic12", difficulty:"basic",
       question:"What is a sublanguage?",
-      options:["A pidgin or creole language.","A domain-specific variety of language with restricted vocabulary and syntax.","A language spoken by fewer than 1,000 people.","An early stage of language acquisition."],
-      answer:1, explanation:"A sublanguage is a restricted form of natural language used in a specific domain with limited vocabulary and constrained syntax.", ref:"Topic 12, p. 2" },
-    { id:"q16", topicId:"topic13", difficulty:"basic",
-      question:"What is light post-editing?",
-      options:["Full revision of MT output to publication quality.","Minimal correction to make MT output understandable and accurate without full fluency revision.","Translating a text from scratch using MT as reference.","Evaluating MT quality using BLEU."],
-      answer:1, explanation:"Light post-editing aims for comprehensibility and accuracy with minimal changes, not full stylistic revision.", ref:"Topic 13, p. 4" },
-    { id:"q17", topicId:"topic13", difficulty:"intermediate",
-      question:"Which skill is most important for a professional post-editor?",
-      options:["Ability to write original creative content.","Translation competence combined with understanding of MT error types.","Advanced programming skills.","Knowledge of BLEU score calculation."],
-      answer:1, explanation:"Post-editors need linguistic translation skills AND awareness of how MT systems fail in order to spot and correct errors efficiently.", ref:"Topic 13, p. 9" }
+      options:[
+        "A pidgin or creole language used in trade contexts.",
+        "A domain-specific variety of language with restricted vocabulary and constrained syntax.",
+        "A language spoken by fewer than one thousand people.",
+        "An early developmental stage of first language acquisition."
+      ],
+      answer:1,
+      explanation:"A sublanguage is a restricted form of natural language used within a specific domain, characterised by limited vocabulary and predictable syntactic structures.",
+      ref:"Topic 12, p. 2"
+    },
+    {
+      id:"q29", topicId:"topic12", difficulty:"intermediate",
+      question:"Why are sublanguages easier for MT systems to process than general language?",
+      options:[
+        "Because sublanguages use shorter sentences on average.",
+        "Because restricted vocabulary and constrained syntax reduce ambiguity and increase predictability.",
+        "Because MT systems are specifically designed for sublanguage domains.",
+        "Because sublanguages never contain idioms or figurative language."
+      ],
+      answer:1,
+      explanation:"The restricted vocabulary and constrained syntactic patterns of sublanguages reduce the ambiguity and variability that make general language so difficult for MT to handle accurately.",
+      ref:"Topic 12, p. 6"
+    },
+    {
+      id:"q30", topicId:"topic13", difficulty:"basic",
+      question:"What is the difference between light and full post-editing?",
+      options:[
+        "Light PE targets literary quality; full PE targets technical accuracy.",
+        "Light PE aims for understandable and accurate output with minimal changes; full PE targets publication quality including fluency and style.",
+        "Light PE is done by translators; full PE is done by software automatically.",
+        "Light PE and full PE are identical processes applied to different text types."
+      ],
+      answer:1,
+      explanation:"Light post-editing makes the MT output comprehensible and factually accurate with minimal intervention. Full post-editing revises the output to the same standard as a human translation, including fluency and style.",
+      ref:"Topic 13, p. 4"
+    }
   ],
 
   mindmaps: {
