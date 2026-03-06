@@ -3,1853 +3,673 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ENGL465 Interactive Platform — CAT</title>
-  <style>
-    @font-face{
-      font-family:"KermitSemiBold";
-      src:url("./fonts/Kermit-SemiBold.woff2") format("woff2"),
-          url("./fonts/Kermit-SemiBold.ttf") format("truetype");
-      font-weight:600;
-      font-style:normal;
-      font-display:swap;
-    }
-    :root{
-      --bg:#f7fcfb;
-      --bg2:#eef8f6;
-      --card:#ffffffea;
-      --line:#d7ebe6;
-      --ink:#183734;
-      --muted:#68857f;
-      --accent:#17b59c;
-      --accent2:#618bff;
-      --gold:#f1b84e;
-      --ok:#139a55;
-      --bad:#dc4c4c;
-      --shadow:0 18px 40px rgba(24,55,52,.08);
-      --r:20px;
-      --font:"KermitSemiBold","Segoe UI",Inter,Arial,sans-serif;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--font);
-      color:var(--ink);
-      background:
-        radial-gradient(circle at 10% 10%, rgba(23,181,156,.08), transparent 28%),
-        radial-gradient(circle at 90% 12%, rgba(97,139,255,.08), transparent 28%),
-        linear-gradient(180deg,#fbfffe 0%, #f5fbfa 100%);
-      overflow-x:hidden;
-    }
-    #catalyst{
-      position:fixed; inset:0; z-index:-2; pointer-events:none;
-    }
-    body::before{
-      content:"";
-      position:fixed; inset:0; z-index:-1; pointer-events:none;
-      background:
-        radial-gradient(900px 480px at 18% 90%, rgba(23,181,156,.05), transparent 70%),
-        radial-gradient(900px 460px at 82% 88%, rgba(97,139,255,.04), transparent 72%);
-    }
-    .hidden{display:none!important}
-    .welcome{
-      position:fixed; inset:0; z-index:999;
-      display:grid; place-items:center;
-      background:rgba(247,252,251,.92);
-      backdrop-filter:blur(10px);
-      transition:.35s ease;
-    }
-    .welcome.hide{opacity:0; pointer-events:none; visibility:hidden}
-    .welcome-card{
-      width:min(760px,92vw);
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:0 30px 60px rgba(24,55,52,.12);
-      padding:28px;
-      text-align:center;
-    }
-    .chip{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 14px; border-radius:999px;
-      background:#ebfaf7; color:var(--accent);
-      font-size:14px; margin-bottom:12px;
-    }
-    .welcome h1{
-      margin:0 0 10px; line-height:1.1;
-      font-size:clamp(28px,4vw,46px);
-    }
-    .welcome p{
-      margin:0 auto 16px; max-width:60ch;
-      color:var(--muted); line-height:1.75;
-    }
-    header{
-      position:sticky; top:0; z-index:50;
-      background:rgba(255,255,255,.86);
-      backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--line);
-    }
-    .topbar,.navwrap,.mainwrap,.foot{
-      width:min(1360px,96vw); margin:0 auto;
-    }
-    .topbar{
-      padding:14px 0 10px; display:flex; gap:14px;
-      align-items:center; justify-content:space-between; flex-wrap:wrap;
-    }
-    .brand{display:flex; gap:14px; align-items:center}
-    .logo{
-      width:54px; height:54px; border-radius:18px; position:relative;
-      background:
-        radial-gradient(circle at 34% 34%, #fff, rgba(255,255,255,.35) 28%, transparent 32%),
-        linear-gradient(135deg,var(--accent),var(--accent2));
-      box-shadow:0 16px 30px rgba(23,181,156,.18);
-      overflow:hidden;
-    }
-    .logo:before,.logo:after{
-      content:""; position:absolute; border-radius:50%;
-      border:2px solid rgba(255,255,255,.7);
-    }
-    .logo:before{inset:10px}
-    .logo:after{inset:18px 8px 8px 18px; opacity:.6}
-    .brand h1{margin:0; font-size:clamp(20px,2.2vw,30px); line-height:1.15}
-    .brand p{margin:4px 0 0; font-size:14px; color:var(--muted)}
-    .headtools{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .search{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px; border-radius:14px;
-      background:#fff; border:1px solid var(--line); box-shadow:var(--shadow);
-    }
-    .search input{
-      border:0; outline:0; background:transparent; min-width:220px;
-      color:var(--ink); font-family:var(--font);
-    }
-    .btn{
-      border:1px solid var(--line); background:#fff; color:var(--ink);
-      padding:10px 14px; border-radius:14px; cursor:pointer;
-      box-shadow:var(--shadow); transition:.18s ease;
-      font-family:var(--font);
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:linear-gradient(135deg,var(--accent),#42c8b3); color:#fff; border-color:transparent}
-    .btn.secondary{background:linear-gradient(135deg,var(--accent2),#8ea8ff); color:#fff; border-color:transparent}
-    .btn.gold{background:linear-gradient(135deg,var(--gold),#f5cc7b); color:#664200; border-color:transparent}
-    .btn.small{padding:8px 12px; font-size:14px}
-    .volume{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 12px; border-radius:14px;
-      border:1px solid var(--line); background:#fff;
-    }
-    .volume input{accent-color:var(--accent)}
-    nav{
-      display:flex; gap:10px; flex-wrap:wrap; padding:0 0 14px;
-    }
-    .tab{
-      border:1px solid var(--line); background:#fff;
-      padding:10px 14px; border-radius:999px; cursor:pointer;
-      box-shadow:var(--shadow); color:var(--ink);
-      transition:.18s ease; font-family:var(--font);
-    }
-    .tab.active{
-      background:linear-gradient(135deg,rgba(23,181,156,.14),rgba(97,139,255,.12));
-      color:var(--accent); border-color:#bfe5dd;
-    }
-    main.mainwrap{padding:22px 0 88px}
-    .section{display:none}
-    .section.active{display:block}
-    .grid{display:grid; gap:18px}
-    .hero{grid-template-columns:1.35fr .85fr}
-    .two{grid-template-columns:1fr 1fr}
-    @media (max-width:980px){.hero,.two{grid-template-columns:1fr}}
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--r); box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .pad{padding:18px 20px}
-    .heroBox{
-      padding:24px;
-      background:
-        radial-gradient(circle at top left, rgba(23,181,156,.12), transparent 34%),
-        radial-gradient(circle at top right, rgba(97,139,255,.12), transparent 34%),
-        linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.82));
-    }
-    h2,h3,h4{margin:0 0 10px; line-height:1.2}
-    p{margin:0; color:var(--muted); line-height:1.72}
-    .actions,.toolbar,.pills,.flash-controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .stats{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-    .stat{
-      padding:16px; border-radius:18px; background:#fff;
-      border:1px solid var(--line);
-    }
-    .label{font-size:13px; color:var(--muted); margin-bottom:6px}
-    .value{font-size:28px}
-    .bar{height:12px; background:#e9f2ef; border-radius:999px; overflow:hidden; margin-top:10px}
-    .bar span{
-      display:block; height:100%; width:0%;
-      background:linear-gradient(90deg,var(--accent),var(--accent2));
-      transition:.3s ease;
-    }
-    .badgeWrap{display:flex; gap:10px; flex-wrap:wrap}
-    .badge{
-      padding:10px 12px; border-radius:999px;
-      background:#fff7e7; color:#8d5c00;
-      border:1px solid #f0d28b; font-size:13px;
-    }
-    .notice{
-      margin-top:16px; padding:14px 16px; border-radius:16px;
-      background:#edf9f6; border:1px solid #ccebe2; color:#28695f;
-      line-height:1.7;
-    }
-    .mini{font-size:13px; color:var(--muted)}
-    .topicGrid{
-      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;
-    }
-    .topic{
-      padding:18px; border-radius:20px; background:#fff;
-      border:1px solid var(--line); box-shadow:var(--shadow);
-      display:grid; gap:12px;
-    }
-    .topicCode{
-      display:inline-flex; padding:6px 10px; border-radius:999px;
-      background:#ebfaf7; color:var(--accent); font-size:13px;
-    }
-    .tags{display:flex; gap:8px; flex-wrap:wrap}
-    .tag{
-      padding:6px 10px; border-radius:999px; font-size:12px;
-      background:#f3f8f7; border:1px solid var(--line); color:var(--muted);
-    }
-    .bullets{display:grid; gap:8px}
-    .bullet{display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.65}
-    .dot{
-      width:9px; height:9px; border-radius:50%;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      margin-top:8px; flex:0 0 auto;
-    }
-    select,input[type="text"],textarea{
-      width:100%; border:1px solid var(--line); background:#fff;
-      padding:12px 14px; border-radius:14px; outline:none;
-      color:var(--ink); font-family:var(--font);
-    }
-    textarea{min-height:140px; resize:vertical; line-height:1.7}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:7px 10px; border-radius:999px;
-      background:#f2f8f7; border:1px solid var(--line); color:var(--muted);
-      font-size:13px;
-    }
-    .flashStage{display:grid; gap:16px}
-    .flashCard{position:relative; height:300px; perspective:1400px}
-    .flashCardInner{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.2,.7,.2,1)}
-    .flashCard.flipped .flashCardInner{transform:rotateY(180deg)}
-    .face{
-      position:absolute; inset:0; backface-visibility:hidden;
-      border-radius:24px; border:1px solid var(--line);
-      box-shadow:var(--shadow); padding:24px; display:flex;
-      flex-direction:column; justify-content:space-between; background:
-        radial-gradient(circle at top left, rgba(23,181,156,.11), transparent 35%),
-        radial-gradient(circle at top right, rgba(97,139,255,.11), transparent 35%),
-        rgba(255,255,255,.97);
-    }
-    .face.back{transform:rotateY(180deg)}
-    .big{font-size:clamp(22px,3vw,34px); line-height:1.3}
-    .ref{font-size:13px; color:var(--muted)}
-    .quizQ{font-size:22px; line-height:1.5; color:var(--ink)}
-    .options{display:grid; gap:10px}
-    .option{
-      border:1px solid var(--line); background:#fff; padding:14px;
-      border-radius:16px; cursor:pointer; transition:.15s ease; line-height:1.65;
-    }
-    .option:hover{border-color:#bde5db}
-    .option.selected{border-color:var(--accent); background:#ecfaf7}
-    .option.correct{border-color:#a8ddb9; background:#edfdf2}
-    .option.wrong{border-color:#efbbbb; background:#fff1f1}
-    .explain,.resultBox{
-      border:1px solid var(--line); border-radius:16px; background:#fcfffe;
-      padding:14px; line-height:1.75; min-height:72px;
-    }
-    .mapStage{display:grid; gap:18px}
-    .mapCore{
-      text-align:center; padding:18px; border-radius:24px;
-      background:linear-gradient(135deg,rgba(23,181,156,.12),rgba(97,139,255,.10));
-      border:1px solid var(--line); font-size:24px;
-    }
-    .mapGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
-    .branch{
-      border:1px solid var(--line); background:#fff; border-radius:20px; overflow:hidden; box-shadow:var(--shadow);
-    }
-    .branchHead{
-      width:100%; border:0; background:#fff; text-align:left;
-      padding:16px; cursor:pointer; color:var(--ink); font-family:var(--font);
-      display:flex; justify-content:space-between; gap:10px;
-    }
-    .branchBody{display:none; padding:0 16px 16px}
-    .branch.open .branchBody{display:block}
-    .branchItem{
-      border:1px solid var(--line); border-radius:14px; padding:10px 12px;
-      margin-top:10px; background:#fbfffe; color:var(--muted); line-height:1.65;
-    }
-    details{
-      border:1px solid var(--line); background:#fff; border-radius:16px; padding:14px 16px;
-    }
-    summary{cursor:pointer}
-    .sourceItem{
-      border:1px solid var(--line); border-radius:18px; background:#fff;
-      box-shadow:var(--shadow); padding:16px; display:grid; gap:10px;
-    }
-    .foot{
-      position:fixed; left:0; right:0; bottom:0; z-index:60;
-      background:rgba(255,255,255,.9); backdrop-filter:blur(12px);
-      border-top:1px solid var(--line); padding:10px 0;
-      display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap;
-      color:var(--muted); font-size:14px;
-    }
-    .confetti{
-      position:fixed; top:-20px; width:10px; height:14px; border-radius:2px;
-      z-index:999; pointer-events:none; animation:drop 1.8s linear forwards;
-    }
-    @keyframes drop{
-      to{transform:translateY(110vh) rotate(720deg); opacity:0}
-    }
-  </style>
+  <meta
+    name="description"
+    content="CATalyst Academy — ENGL465 interactive learning platform for Computer-Assisted Translation."
+  />
+  <title>CATalyst Academy — ENGL465 Interactive CAT Platform</title>
+
+  <!-- Optional local font -->
+  <link rel="preload" href="./fonts/Kermit-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Data and App -->
+  <script src="./data.js" defer></script>
+  <script src="./app.js" defer></script>
 </head>
 <body>
-  <canvas id="catalyst" aria-hidden="true"></canvas>
+  <!-- Animated catalyst background -->
+  <canvas id="catalystCanvas" aria-hidden="true"></canvas>
 
-  <div class="welcome" id="welcome">
-    <div class="welcome-card">
-      <div class="chip">✦ ENGL465 Interactive Educational Platform</div>
-      <h1>Computer-Assisted Translation</h1>
-      <p>
-        Built from your attached ENGL465 topics. Includes topic cards, flashcards,
-        quizzes, mind maps, glossary lab, gamified learning, moving catalyst background,
-        and serene study audio.
-      </p>
-      <div class="actions" style="justify-content:center">
-        <button class="btn primary" id="enterBtn">Enter Platform</button>
-        <button class="btn" id="enterMutedBtn">Enter Muted</button>
+  <!-- Optional real music player -->
+  <!-- Add real audio files in ./audio/ -->
+  <audio id="bgAudio" preload="none"></audio>
+
+  <!-- Toasts -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Node / citation / detail modal -->
+  <div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h3 id="modalTitle">Details</h3>
+        <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">✕</button>
       </div>
-      <p class="mini" style="margin-top:12px">
-        Optional files: <strong>./fonts/Kermit-SemiBold.woff2</strong> and <strong>./audio/serene.mp3</strong>
-      </p>
+      <div id="modalBody" class="modal-body"></div>
     </div>
   </div>
 
-  <header>
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>ENGL465 — Computer-Assisted Translation (CAT)</h1>
-          <p>Interactive study hub based on Topics 1–8 and 11–13 from your attached files</p>
+  <!-- Welcome screen -->
+  <section id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-card">
+      <div class="welcome-badge">✦ ENGL465 / Computer-Assisted Translation</div>
+      <h1>CATalyst Academy</h1>
+      <p class="welcome-subtitle">
+        A comprehensive interactive platform built from your ENGL465 course topics:
+        study, revise, test, map concepts, build glossaries, and track your mastery.
+      </p>
+
+      <div class="welcome-points">
+        <span>Interactive topic lessons</span>
+        <span>Large flashcard bank</span>
+        <span>Topic quizzes + mixed quizzes</span>
+        <span>Interactive mind maps</span>
+        <span>Gamified learning</span>
+        <span>Real music playlist support</span>
+      </div>
+
+      <div class="welcome-actions">
+        <button id="enterWithMusicBtn" class="btn btn-primary">Enter with Music</button>
+        <button id="enterMutedBtn" class="btn btn-ghost">Enter Muted</button>
+      </div>
+
+      <p class="mini-note">
+        Optional folders:
+        <code>/fonts</code>,
+        <code>/audio</code>,
+        <code>/pdf</code>
+      </p>
+    </div>
+  </section>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-top container">
+      <div class="brand-wrap">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-text">
+          <h1>CATalyst Academy</h1>
+          <p>ENGL465 — Interactive Computer-Assisted Translation Learning Platform</p>
         </div>
       </div>
 
-      <div class="headtools">
-        <div class="search">
-          <input id="searchInput" type="text" placeholder="Search topics, cards, quizzes, sources..." />
-          <button class="btn small" id="searchBtn">Search</button>
+      <div class="header-tools">
+        <label class="search-box" aria-label="Search all content">
+          <span>⌕</span>
+          <input
+            id="globalSearchInput"
+            type="text"
+            placeholder="Search topics, concepts, quiz items, citations..."
+          />
+        </label>
+        <button id="globalSearchBtn" class="btn btn-small">Search</button>
+
+        <div class="music-controls compact">
+          <button id="musicToggleBtn" class="btn btn-small">♪ Music</button>
+          <button id="prevTrackBtn" class="btn btn-small" title="Previous track">⏮</button>
+          <button id="nextTrackBtn" class="btn btn-small" title="Next track">⏭</button>
+          <label class="range-wrap" title="Volume">
+            <span>Vol</span>
+            <input id="musicVolume" type="range" min="0" max="100" value="35" />
+          </label>
         </div>
-        <button class="btn small" id="musicBtn">♪ Music</button>
-        <div class="volume">
-          <span class="mini">Volume</span>
-          <input type="range" id="volume" min="0" max="100" value="35">
-        </div>
-        <button class="btn small gold" id="dailyBtn">Daily Challenge</button>
-        <button class="btn small" id="resetBtn">Reset</button>
+
+        <button id="dailyChallengeBtn" class="btn btn-small btn-gold">Daily Challenge</button>
+        <button id="resetProgressBtn" class="btn btn-small">Reset Progress</button>
       </div>
     </div>
 
-    <div class="navwrap">
-      <nav>
-        <button class="tab active" data-target="dashboard">Dashboard</button>
-        <button class="tab" data-target="topics">Topics</button>
-        <button class="tab" data-target="flashcards">Flashcards</button>
-        <button class="tab" data-target="quizzes">Quizzes</button>
-        <button class="tab" data-target="mindmaps">Mind Maps</button>
-        <button class="tab" data-target="games">Game Lab</button>
-        <button class="tab" data-target="lab">Glossary Lab</button>
-        <button class="tab" data-target="sources">Sources</button>
-        <button class="tab" data-target="review">Review</button>
-      </nav>
-    </div>
+    <nav class="main-nav container" aria-label="Main navigation">
+      <button class="nav-tab active" data-target="dashboardSection">Dashboard</button>
+      <button class="nav-tab" data-target="topicsSection">Topics</button>
+      <button class="nav-tab" data-target="flashcardsSection">Flashcards</button>
+      <button class="nav-tab" data-target="quizzesSection">Quizzes</button>
+      <button class="nav-tab" data-target="mindmapsSection">Mind Maps</button>
+      <button class="nav-tab" data-target="gamesSection">Game Lab</button>
+      <button class="nav-tab" data-target="labSection">Glossary Lab</button>
+      <button class="nav-tab" data-target="sourcesSection">Sources</button>
+      <button class="nav-tab" data-target="reviewSection">Review</button>
+    </nav>
   </header>
 
-  <main class="mainwrap">
-    <section id="dashboard" class="section active">
-      <div class="grid hero">
-        <div class="card heroBox">
-          <h2>Study smarter with interactive CAT learning.</h2>
-          <p>
-            This platform turns your course content into an active study environment.
-            You can review all attached topics, practice flashcards, answer quizzes,
-            expand mind maps, build glossaries, and earn XP, coins, streaks, and badges.
-          </p>
-          <div class="actions" style="margin-top:18px">
-            <button class="btn primary" id="dashFlash">Start Flashcards</button>
-            <button class="btn secondary" id="dashQuiz">Start Mixed Quiz</button>
-            <button class="btn" id="dashTopics">Browse Topics</button>
-          </div>
-          <div class="notice">
-            <strong>Included source set:</strong> ENGL465 Topic 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, and 13. 
-            Topic 14 was not attached, so it is not included in the data model.
-          </div>
-        </div>
+  <!-- Main -->
+  <main class="container page-main">
+    <!-- DASHBOARD -->
+    <section id="dashboardSection" class="page-section active">
+      <div class="grid grid-hero">
+        <article class="card hero-card">
+          <div class="hero-card-inner">
+            <span class="eyebrow">Interactive revision + practice + gamified mastery</span>
+            <h2>Study CAT in a structured, visual, and active way.</h2>
+            <p>
+              This platform is built from the attached ENGL465 materials and turns them into a
+              comprehensive learning experience with topic lessons, interactive flashcards,
+              quizzes, mind maps, glossary building, and progress tracking.
+            </p>
 
-        <div class="card">
-          <div class="pad">
+            <div class="hero-actions">
+              <button id="startFlashcardsBtn" class="btn btn-primary">Start Flashcards</button>
+              <button id="startMixedQuizBtn" class="btn btn-secondary">Start Mixed Quiz</button>
+              <button id="browseTopicsBtn" class="btn btn-ghost">Browse Topics</button>
+            </div>
+
+            <div class="hero-highlights">
+              <div class="highlight-pill">Comprehensive topic coverage</div>
+              <div class="highlight-pill">Large question bank</div>
+              <div class="highlight-pill">Interactive mind maps</div>
+              <div class="highlight-pill">XP / Levels / Streaks / Badges</div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="card">
+          <div class="card-head">
             <h3>Your Progress</h3>
-            <p>Saved locally on this device.</p>
-            <div class="stats" style="margin-top:16px">
-              <div class="stat"><div class="label">Level</div><div class="value" id="levelOut">1</div></div>
-              <div class="stat"><div class="label">XP</div><div class="value" id="xpOut">0</div></div>
-              <div class="stat"><div class="label">Coins</div><div class="value" id="coinsOut">0</div></div>
-              <div class="stat"><div class="label">Streak</div><div class="value" id="streakOut">0</div></div>
-            </div>
-            <div style="margin-top:16px">
-              <div class="mini">Mastery</div>
-              <div class="bar"><span id="masterBar"></span></div>
-              <div class="mini" id="masterText" style="margin-top:8px">0% mastered</div>
-            </div>
-            <div class="badgeWrap" id="badgeOut" style="margin-top:16px"></div>
+            <p>Stored locally in your browser.</p>
           </div>
-        </div>
+          <div class="card-body">
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="statLevel">1</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">XP</div>
+                <div class="stat-value" id="statXP">0</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Coins</div>
+                <div class="stat-value" id="statCoins">0</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="statStreak">0</div>
+              </div>
+            </div>
+
+            <div class="meter-block">
+              <div class="meter-top">
+                <span>Mastery</span>
+                <span id="masteryText">0%</span>
+              </div>
+              <div class="meter">
+                <span id="masteryBar"></span>
+              </div>
+            </div>
+
+            <div class="meter-block">
+              <div class="meter-top">
+                <span>Course Completion</span>
+                <span id="completionText">0%</span>
+              </div>
+              <div class="meter meter-alt">
+                <span id="completionBar"></span>
+              </div>
+            </div>
+
+            <div class="badges-area">
+              <h4>Badges</h4>
+              <div id="dashboardBadges" class="badge-wrap"></div>
+            </div>
+          </div>
+        </aside>
       </div>
 
-      <div class="grid two" style="margin-top:18px">
-        <div class="card">
-          <div class="pad">
+      <div class="grid grid-2">
+        <article class="card">
+          <div class="card-head">
             <h3>Daily Challenge</h3>
-            <p>Complete today’s mission for bonus XP.</p>
-            <div class="notice" id="dailyBox" style="margin-top:14px"></div>
-            <div class="actions" style="margin-top:14px">
-              <button class="btn primary" id="goDaily">Go to Challenge</button>
+            <p>Complete the mission for extra XP and coins.</p>
+          </div>
+          <div class="card-body">
+            <div id="dailyChallengeCard" class="challenge-card"></div>
+            <div class="toolbar">
+              <button id="openDailyChallengeBtn" class="btn btn-primary">Open Challenge</button>
             </div>
           </div>
-        </div>
-        <div class="card">
-          <div class="pad">
+        </article>
+
+        <article class="card">
+          <div class="card-head">
             <h3>Course Snapshot</h3>
-            <div id="snapshot" class="bullets" style="margin-top:10px"></div>
+            <p>High-yield overview of the included ENGL465 material.</p>
           </div>
-        </div>
+          <div class="card-body">
+            <div id="snapshotList" class="bullet-list"></div>
+          </div>
+        </article>
       </div>
 
-      <div class="card" style="margin-top:18px">
-        <div class="pad">
+      <div class="card">
+        <div class="card-head">
           <h3>Search Results / Smart Notes</h3>
-          <div id="searchOut" class="resultBox" style="margin-top:14px">No search yet.</div>
+          <p>Use global search to jump across content instantly.</p>
+        </div>
+        <div class="card-body">
+          <div id="searchResultsPanel" class="results-panel">
+            <p class="muted">No search yet.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="topics" class="section">
+    <!-- TOPICS -->
+    <section id="topicsSection" class="page-section">
       <div class="card">
-        <div class="pad">
+        <div class="card-head">
           <h2>Topic Explorer</h2>
-          <p>Every topic card below is based on the attached ENGL465 source files.</p>
-          <div class="toolbar" style="margin-top:14px">
-            <button class="btn small primary filterBtn" data-filter="all">All</button>
-            <button class="btn small filterBtn" data-filter="foundation">Foundation</button>
-            <button class="btn small filterBtn" data-filter="tools">Tools</button>
-            <button class="btn small filterBtn" data-filter="technology">Technology</button>
-            <button class="btn small filterBtn" data-filter="practice">Practice</button>
+          <p>
+            Full topic lesson cards and detailed lesson view based on the attached ENGL465 topics.
+          </p>
+        </div>
+        <div class="card-body">
+          <div class="toolbar">
+            <button class="btn btn-small topic-filter active" data-filter="all">All</button>
+            <button class="btn btn-small topic-filter" data-filter="foundation">Foundation</button>
+            <button class="btn btn-small topic-filter" data-filter="tools">Tools</button>
+            <button class="btn btn-small topic-filter" data-filter="technology">Technology</button>
+            <button class="btn btn-small topic-filter" data-filter="practice">Practice</button>
           </div>
-          <div id="topicsOut" class="topicGrid" style="margin-top:16px"></div>
+
+          <div id="topicCardGrid" class="topic-grid"></div>
         </div>
       </div>
-    </section>
 
-    <section id="flashcards" class="section">
-      <div class="card">
-        <div class="pad">
-          <h2>Flashcards</h2>
-          <p>Flip, rate, and master cards topic by topic.</p>
-
-          <div class="toolbar" style="margin-top:14px">
-            <select id="flashSelect" style="max-width:320px"></select>
-            <button class="btn small" id="flashShuffle">Shuffle</button>
-            <button class="btn small" id="flashWeak">Focus Weak</button>
+      <div class="grid grid-topic-detail">
+        <article class="card">
+          <div class="card-head">
+            <h3>Selected Lesson</h3>
+            <p>Click any topic card to load full details.</p>
           </div>
-
-          <div class="flashStage" style="margin-top:16px">
-            <div class="pills">
-              <span class="pill" id="flashDeck">Deck: All</span>
-              <span class="pill" id="flashPos">Card 1 / 1</span>
-              <span class="pill" id="flashState">Status: New</span>
+          <div class="card-body">
+            <div class="lesson-header">
+              <div>
+                <div id="lessonCode" class="topic-code">Topic</div>
+                <h2 id="lessonTitle">Select a topic</h2>
+                <p id="lessonMeta" class="muted">Source file and page details will appear here.</p>
+              </div>
+              <div class="lesson-actions">
+                <button id="lessonToFlashcardsBtn" class="btn btn-small btn-primary">Flashcards</button>
+                <button id="lessonToQuizBtn" class="btn btn-small btn-secondary">Quiz</button>
+                <button id="lessonToMindmapBtn" class="btn btn-small">Mind Map</button>
+              </div>
             </div>
 
-            <div class="flashCard" id="flashCard">
-              <div class="flashCardInner">
-                <div class="face">
+            <div class="lesson-block">
+              <h4>Overview</h4>
+              <div id="lessonOverview" class="rich-list"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Key Definitions</h4>
+              <div id="lessonDefinitions" class="definition-list"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Major Points</h4>
+              <div id="lessonKeyPoints" class="bullet-list"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Examples / Cases</h4>
+              <div id="lessonExamples" class="bullet-list"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Processes / Workflows</h4>
+              <div id="lessonProcess" class="timeline-list"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Compare / Distinguish</h4>
+              <div id="lessonCompare" class="compare-table-wrap"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Exam Tips</h4>
+              <div id="lessonExamTips" class="bullet-list"></div>
+            </div>
+
+            <div class="lesson-block">
+              <h4>Source Citations</h4>
+              <div id="lessonCitations" class="citation-list"></div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="card">
+          <div class="card-head">
+            <h3>Quick Topic Navigator</h3>
+            <p>Jump directly to any included topic.</p>
+          </div>
+          <div class="card-body">
+            <div id="topicQuickList" class="stack-list"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FLASHCARDS -->
+    <section id="flashcardsSection" class="page-section">
+      <div class="card">
+        <div class="card-head">
+          <h2>Flashcards</h2>
+          <p>Comprehensive source-based recall practice for all included topics.</p>
+        </div>
+        <div class="card-body">
+          <div class="toolbar wrap">
+            <select id="flashTopicSelect" class="input-select"></select>
+            <select id="flashDifficultySelect" class="input-select">
+              <option value="all">All Cards</option>
+              <option value="weak">Weak Only</option>
+              <option value="new">New Only</option>
+              <option value="mastered">Mastered Only</option>
+            </select>
+            <button id="shuffleFlashcardsBtn" class="btn btn-small">Shuffle</button>
+            <button id="resetFlashDeckBtn" class="btn btn-small">Restart Deck</button>
+          </div>
+
+          <div class="flash-meta">
+            <span class="meta-pill" id="flashDeckLabel">Deck: All Topics</span>
+            <span class="meta-pill" id="flashPositionLabel">Card 1 / 1</span>
+            <span class="meta-pill" id="flashStatusLabel">Status: New</span>
+          </div>
+
+          <div id="flashcardShell" class="flashcard-shell">
+            <div id="flashcard" class="flashcard">
+              <div class="flashcard-inner">
+                <div class="flash-face flash-front">
                   <div>
-                    <div class="mini">Question / concept</div>
-                    <div class="big" id="flashFront"></div>
+                    <div class="flash-label">Question / Prompt</div>
+                    <div id="flashFrontText" class="flash-main-text">Loading...</div>
                   </div>
                   <div>
-                    <div class="ref" id="flashFrontRef"></div>
-                    <div class="flash-controls" style="margin-top:14px">
-                      <button class="btn primary" id="flipCardBtn">Flip</button>
+                    <div id="flashFrontMeta" class="flash-meta-text"></div>
+                    <div class="toolbar">
+                      <button id="flipFlashcardBtn" class="btn btn-primary">Flip</button>
                     </div>
                   </div>
                 </div>
-                <div class="face back">
+
+                <div class="flash-face flash-back">
                   <div>
-                    <div class="mini">Answer / explanation</div>
-                    <div class="big" id="flashBack"></div>
+                    <div class="flash-label">Answer / Explanation</div>
+                    <div id="flashBackText" class="flash-main-text">Loading...</div>
                   </div>
                   <div>
-                    <div class="ref" id="flashBackRef"></div>
-                    <div class="flash-controls" style="margin-top:14px">
-                      <button class="btn" id="rateHard">Hard</button>
-                      <button class="btn secondary" id="rateGood">Good</button>
-                      <button class="btn primary" id="rateMaster">Mastered</button>
+                    <div id="flashBackMeta" class="flash-meta-text"></div>
+                    <div class="toolbar">
+                      <button id="flashHardBtn" class="btn">Hard</button>
+                      <button id="flashGoodBtn" class="btn btn-secondary">Good</button>
+                      <button id="flashMasteredBtn" class="btn btn-primary">Mastered</button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="toolbar">
-              <button class="btn" id="prevCard">◀ Previous</button>
-              <button class="btn" id="nextCard">Next ▶</button>
-            </div>
+          <div class="toolbar">
+            <button id="prevFlashcardBtn" class="btn">◀ Previous</button>
+            <button id="nextFlashcardBtn" class="btn">Next ▶</button>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="quizzes" class="section">
+    <!-- QUIZZES -->
+    <section id="quizzesSection" class="page-section">
       <div class="card">
-        <div class="pad">
+        <div class="card-head">
           <h2>Quiz Arena</h2>
-          <p>Mixed or topic-based quizzes with source-based explanations.</p>
-
-          <div class="toolbar" style="margin-top:14px">
-            <select id="quizSelect" style="max-width:320px"></select>
-            <button class="btn primary" id="newQuiz">New Quiz</button>
+          <p>Topic-based and mixed quizzes with explanations and citations.</p>
+        </div>
+        <div class="card-body">
+          <div class="toolbar wrap">
+            <select id="quizTopicSelect" class="input-select"></select>
+            <select id="quizModeSelect" class="input-select">
+              <option value="topic">Topic Quiz</option>
+              <option value="mixed">Mixed Quiz</option>
+              <option value="exam">Exam Mode</option>
+            </select>
+            <select id="quizLengthSelect" class="input-select">
+              <option value="5">5 Questions</option>
+              <option value="10">10 Questions</option>
+              <option value="15">15 Questions</option>
+            </select>
+            <button id="generateQuizBtn" class="btn btn-primary">Generate Quiz</button>
           </div>
 
-          <div class="pills" style="margin-top:16px">
-            <span class="pill" id="quizTopicOut">Topic: Mixed</span>
-            <span class="pill" id="quizPosOut">Question 1 / 5</span>
-            <span class="pill" id="quizScoreOut">Score: 0</span>
+          <div class="quiz-meta">
+            <span class="meta-pill" id="quizTopicLabel">Topic: —</span>
+            <span class="meta-pill" id="quizProgressLabel">Question 0 / 0</span>
+            <span class="meta-pill" id="quizScoreLabel">Score: 0</span>
           </div>
 
-          <div class="quizQ" id="quizQ" style="margin-top:16px"></div>
-          <div id="quizOpts" class="options" style="margin-top:14px"></div>
+          <div class="quiz-layout">
+            <article class="quiz-main">
+              <div id="quizQuestionText" class="quiz-question">Generate a quiz to begin.</div>
+              <div id="quizOptions" class="quiz-options"></div>
 
-          <div class="toolbar" style="margin-top:14px">
-            <button class="btn secondary" id="submitQuiz">Submit</button>
-            <button class="btn" id="nextQuiz">Next Question</button>
+              <div class="toolbar">
+                <button id="submitQuizAnswerBtn" class="btn btn-secondary">Submit</button>
+                <button id="nextQuizQuestionBtn" class="btn">Next Question</button>
+              </div>
+
+              <div id="quizFeedback" class="feedback-box">
+                Select an answer and submit to see feedback.
+              </div>
+            </article>
+
+            <aside class="quiz-side">
+              <div class="side-panel">
+                <h4>Quiz Summary</h4>
+                <div id="quizSummaryPanel" class="stack-list"></div>
+              </div>
+            </aside>
           </div>
-
-          <div id="quizExplain" class="explain" style="margin-top:14px">Select an answer and submit.</div>
         </div>
       </div>
     </section>
 
-    <section id="mindmaps" class="section">
+    <!-- MIND MAPS -->
+    <section id="mindmapsSection" class="page-section">
       <div class="card">
-        <div class="pad">
-          <h2>Mind Maps</h2>
-          <p>Interactive revision maps for each attached topic.</p>
-          <div class="toolbar" style="margin-top:14px">
-            <select id="mapSelect" style="max-width:380px"></select>
-            <button class="btn primary" id="loadMap">Load Map</button>
+        <div class="card-head">
+          <h2>Interactive Mind Maps</h2>
+          <p>Click nodes to expand ideas, reveal notes, and open citations.</p>
+        </div>
+        <div class="card-body">
+          <div class="toolbar wrap">
+            <select id="mindmapTopicSelect" class="input-select"></select>
+            <button id="loadMindmapBtn" class="btn btn-primary">Load Mind Map</button>
+            <button id="resetMindmapBtn" class="btn btn-small">Reset View</button>
+            <button id="zoomInMindmapBtn" class="btn btn-small">Zoom +</button>
+            <button id="zoomOutMindmapBtn" class="btn btn-small">Zoom −</button>
           </div>
-          <div id="mapOut" class="mapStage" style="margin-top:16px"></div>
+
+          <div class="mindmap-layout">
+            <div class="mindmap-stage-wrap">
+              <div id="mindmapStage" class="mindmap-stage" aria-label="Interactive mind map stage">
+                <svg id="mindmapSvg" class="mindmap-svg" aria-hidden="true"></svg>
+                <div id="mindmapNodesLayer" class="mindmap-nodes-layer"></div>
+              </div>
+            </div>
+
+            <aside class="mindmap-sidebar">
+              <div class="side-panel">
+                <h4>Node Details</h4>
+                <div id="mindmapNodeDetails" class="details-panel">
+                  Select a node to view its explanation, links, and citation.
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="games" class="section">
-      <div class="grid two">
-        <div class="card">
-          <div class="pad">
+    <!-- GAMES -->
+    <section id="gamesSection" class="page-section">
+      <div class="grid grid-2">
+        <article class="card">
+          <div class="card-head">
             <h2>Rapid Match</h2>
-            <p>Answer fast and build your streak.</p>
-
-            <div class="pills" style="margin-top:14px">
-              <span class="pill" id="gameStreak">Streak: 0</span>
-              <span class="pill" id="gameBest">Best: 0</span>
-            </div>
-
-            <div class="quizQ" id="gameQ" style="margin-top:16px"></div>
-            <div id="gameOpts" class="options" style="margin-top:14px"></div>
-            <div class="toolbar" style="margin-top:14px">
-              <button class="btn primary" id="newGame">New Challenge</button>
-            </div>
-            <div id="gameExplain" class="explain" style="margin-top:14px">Challenge ready.</div>
+            <p>Fast recall challenge based on your course content.</p>
           </div>
-        </div>
+          <div class="card-body">
+            <div class="toolbar">
+              <button id="startRapidMatchBtn" class="btn btn-primary">Start Challenge</button>
+            </div>
 
-        <div class="card">
-          <div class="pad">
+            <div class="rapid-meta">
+              <span class="meta-pill" id="rapidStreakLabel">Streak: 0</span>
+              <span class="meta-pill" id="rapidBestLabel">Best: 0</span>
+              <span class="meta-pill" id="rapidTimerLabel">Time: —</span>
+            </div>
+
+            <div id="rapidPrompt" class="quiz-question">Press “Start Challenge” to begin.</div>
+            <div id="rapidOptions" class="quiz-options"></div>
+            <div id="rapidFeedback" class="feedback-box">Challenge ready.</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
             <h2>Achievements</h2>
-            <p>Badges unlocked through study behavior.</p>
-            <div id="achievements" class="badgeWrap" style="margin-top:16px"></div>
-            <details style="margin-top:16px">
+            <p>Your badges, milestones, and unlocked study rewards.</p>
+          </div>
+          <div class="card-body">
+            <div id="achievementPanel" class="badge-wrap"></div>
+
+            <details class="info-box">
               <summary><strong>XP Rules</strong></summary>
-              <div class="mini" style="margin-top:10px; line-height:1.8">
-                Good flashcard = +8 XP • Mastered flashcard = +14 XP • Correct quiz = +20 XP • Rapid Match = +12 XP • Daily challenge = +40 XP
+              <div class="details-content">
+                <ul>
+                  <li>Good flashcard = +8 XP</li>
+                  <li>Mastered flashcard = +14 XP</li>
+                  <li>Correct quiz answer = +20 XP</li>
+                  <li>Rapid Match win = +12 XP</li>
+                  <li>Daily challenge completion = +40 XP</li>
+                </ul>
               </div>
             </details>
           </div>
-        </div>
+        </article>
       </div>
     </section>
 
-    <section id="lab" class="section">
-      <div class="grid two">
-        <div class="card">
-          <div class="pad">
+    <!-- LAB -->
+    <section id="labSection" class="page-section">
+      <div class="grid grid-2">
+        <article class="card">
+          <div class="card-head">
             <h2>Term Extraction Lab</h2>
-            <p>Paste short text and generate candidate terms.</p>
-            <textarea id="labText" placeholder="Paste source text here..."></textarea>
-            <div class="toolbar" style="margin-top:12px">
-              <button class="btn primary" id="runPattern">Pattern-Based</button>
-              <button class="btn secondary" id="runStats">Frequency-Based</button>
-              <button class="btn gold" id="runHybrid">Hybrid</button>
-            </div>
-            <div id="labOut" class="resultBox" style="margin-top:14px">Candidate terms will appear here.</div>
+            <p>Paste a short text to generate candidate terms for study or glossary building.</p>
           </div>
-        </div>
+          <div class="card-body">
+            <textarea
+              id="termLabInput"
+              class="text-area"
+              placeholder="Paste source text here..."
+            ></textarea>
 
-        <div class="card">
-          <div class="pad">
+            <div class="toolbar">
+              <button id="extractPatternBtn" class="btn btn-primary">Pattern-Based</button>
+              <button id="extractStatBtn" class="btn btn-secondary">Frequency-Based</button>
+              <button id="extractHybridBtn" class="btn btn-gold">Hybrid</button>
+              <button id="clearTermLabBtn" class="btn">Clear</button>
+            </div>
+
+            <div id="termLabOutput" class="results-panel">
+              Candidate terms will appear here.
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
             <h2>Quick Glossary Builder</h2>
-            <p>Build your own mini termbase while you revise.</p>
-            <div class="grid" style="grid-template-columns:1fr; gap:10px; margin-top:12px">
-              <input type="text" id="gTerm" placeholder="Source term">
-              <input type="text" id="gEq" placeholder="Target equivalent">
-              <input type="text" id="gNote" placeholder="Note / domain / usage">
-            </div>
-            <div class="toolbar" style="margin-top:12px">
-              <button class="btn primary" id="addGloss">Add Entry</button>
-              <button class="btn" id="exportGloss">Export</button>
-              <button class="btn" id="clearGloss">Clear</button>
-            </div>
-            <div id="glossOut" class="resultBox" style="margin-top:14px">No glossary entries yet.</div>
+            <p>Build a personal mini-termbase while studying.</p>
           </div>
-        </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <input id="glossaryTermInput" type="text" class="text-input" placeholder="Source term" />
+              <input id="glossaryEquivalentInput" type="text" class="text-input" placeholder="Target equivalent" />
+              <input id="glossaryNoteInput" type="text" class="text-input" placeholder="Note / domain / usage" />
+            </div>
+
+            <div class="toolbar">
+              <button id="addGlossaryEntryBtn" class="btn btn-primary">Add Entry</button>
+              <button id="exportGlossaryBtn" class="btn">Export</button>
+              <button id="clearGlossaryBtn" class="btn">Clear</button>
+            </div>
+
+            <div id="glossaryOutput" class="results-panel">
+              No glossary entries yet.
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
-    <section id="sources" class="section">
+    <!-- SOURCES -->
+    <section id="sourcesSection" class="page-section">
       <div class="card">
-        <div class="pad">
+        <div class="card-head">
           <h2>Source Explorer</h2>
-          <p>Source files and page ranges used to build this platform.</p>
-          <div id="sourcesOut" class="topicGrid" style="margin-top:16px"></div>
+          <p>All source files and lesson citations used to build the platform.</p>
+        </div>
+        <div class="card-body">
+          <div class="notice-box">
+            For best PDF behavior, place the course PDFs inside the <code>/pdf</code> folder and open the project through a local server such as VS Code Live Server.
+          </div>
+
+          <div id="sourceFileGrid" class="topic-grid"></div>
+
+          <div class="lesson-block">
+            <h4>All Citations</h4>
+            <div id="allCitationsPanel" class="citation-list"></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="review" class="section">
-      <div class="grid two">
-        <div class="card">
-          <div class="pad">
+    <!-- REVIEW -->
+    <section id="reviewSection" class="page-section">
+      <div class="grid grid-2">
+        <article class="card">
+          <div class="card-head">
             <h2>Weak Areas</h2>
-            <p>Cards not yet mastered appear here.</p>
-            <div id="weakOut" class="resultBox" style="margin-top:14px"></div>
+            <p>Concepts and cards that need more revision.</p>
           </div>
+          <div class="card-body">
+            <div id="weakAreasPanel" class="results-panel"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h2>High-Yield Review Checklist</h2>
+            <p>Final revision points drawn from the included topics.</p>
+          </div>
+          <div class="card-body">
+            <div id="reviewChecklist" class="bullet-list"></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>Revision Planner</h3>
+          <p>A quick guide to help you revise efficiently.</p>
         </div>
-        <div class="card">
-          <div class="pad">
-            <h2>High-Yield Review</h2>
-            <div class="bullets" style="margin-top:10px">
-              <div class="bullet"><span class="dot"></span><span>Define CAT and distinguish it from MT.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Know the translator’s workstation components.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Understand TM database building and exact/context/fuzzy/fragment matches.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Compare term banks and termbases; explain extraction methods and noise/silence.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Explain localization vs translation and i18n / l10n / g11n.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Describe challenges for minority languages and resource building paths.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Know corpus types and how corpora support translators.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Explain why translation is difficult for computers.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Know MT evaluation methods, BLEU limits, and stakeholder perspectives.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Understand sublanguages and the Météo case.</span></div>
-              <div class="bullet"><span class="dot"></span><span>Differentiate minimal and full post-editing and recall SAE J2450 errors.</span></div>
-            </div>
-          </div>
+        <div class="card-body">
+          <div id="revisionPlanPanel" class="timeline-list"></div>
         </div>
       </div>
     </section>
   </main>
 
-  <div class="foot">
-    <div>ENGL465 Interactive CAT Platform</div>
-    <div id="status">Ready.</div>
-  </div>
-
-  <script>
-    const TOPICS = [
-      {
-        id:"t1", code:"Topic 1", title:"Introduction to CAT", cat:"foundation",
-        file:"ENGL465-Topic 1.pdf", pages:"pp. 4–12",
-        summary:"CAT uses computer tools to assist human translators rather than replace them.",
-        bullets:[
-          "CAT combines human expertise with TM, terminology tools, QA, and project tools.",
-          "Historically, interest shifted from full MT to translator aids after the ALPAC report.",
-          "Benefits include efficiency, consistency, and collaboration; limits include setup, input quality, and lack of creativity."
-        ]
-      },
-      {
-        id:"t2", code:"Topic 2", title:"The Translator’s Workstation", cat:"tools",
-        file:"ENGL465-Topic 2.pdf", pages:"pp. 4–15",
-        summary:"A translator’s workstation is an integrated environment of tools that support translation workflows.",
-        bullets:[
-          "It includes word processing, terminology management, lexical resources, corpora, and MT support.",
-          "It distinguishes MAHT and HAMT.",
-          "Corpus-based resources and concordances help with consistency and context."
-        ]
-      },
-      {
-        id:"t3", code:"Topic 3", title:"Translation Memory Systems", cat:"tools",
-        file:"ENGL465-Topic 3.pdf", pages:"pp. 4–14",
-        summary:"TM stores previous translations and retrieves matches for new segments.",
-        bullets:[
-          "Databases can be built gradually, imported, or created through alignment.",
-          "Alignment faces boundary, reordering, and language-specific challenges.",
-          "TM offers exact, context, fuzzy, and fragment matches."
-        ]
-      },
-      {
-        id:"t4", code:"Topic 4", title:"Terminology Tools for Translators", cat:"tools",
-        file:"ENGL465-Topic 4.pdf", pages:"pp. 4–11",
-        summary:"Terminology tools help translators manage specialized terms efficiently and consistently.",
-        bullets:[
-          "Term records can be rich term-bank style or brief termbase style.",
-          "Modern tools support multilingual storage, search, and integration with CAT tools.",
-          "Term extraction may be linguistic, statistical, or hybrid; each faces noise and silence."
-        ]
-      },
-      {
-        id:"t5", code:"Topic 5", title:"Localization & Translation", cat:"technology",
-        file:"ENGL465-Topic 5.pdf", pages:"pp. 4–13",
-        summary:"Localization adapts products linguistically, culturally, and technically for target markets.",
-        bullets:[
-          "Localization differs from translation in scope, adaptation level, complexity, and technology.",
-          "Key related terms are i18n, l10n, and g11n.",
-          "Projects involve software, help files, documentation, and web content with specialized teams and workflows."
-        ]
-      },
-      {
-        id:"t6", code:"Topic 6", title:"Translation Technologies and Minority Languages", cat:"technology",
-        file:"ENGL465-Topic 6.pdf", pages:"pp. 4–9",
-        summary:"Minority languages often lack the computational resources available to major languages.",
-        bullets:[
-          "Minority language status depends on numerical size and non-official status in a geopolitical area.",
-          "Resource gaps include keyboards, OCR, spelling tools, dictionaries, CAT, and MT.",
-          "Progress can come from corpora, word lists, bilingual corpora, and linguistic description."
-        ]
-      },
-      {
-        id:"t7", code:"Topic 7", title:"Corpora & the Translator", cat:"tools",
-        file:"ENGL465-Topic 7.pdf", pages:"pp. 4–12",
-        summary:"Corpora are computer-stored text collections used in translation research, training, and professional practice.",
-        bullets:[
-          "Key types include parallel and comparable corpora.",
-          "Corpora support translator training, contrastive analysis, and professional translation decisions.",
-          "The Translational English Corpus (TEC) supports research on translated English."
-        ]
-      },
-      {
-        id:"t8", code:"Topic 8", title:"Why Translation Is Difficult for Computers", cat:"technology",
-        file:"ENGL465-Topic 8.pdf", pages:"pp. 4–9",
-        summary:"Translation is difficult for computers because language requires context, ambiguity resolution, and common sense.",
-        bullets:[
-          "Core limitations include vague task handling, lack of experiential learning, weak common-sense reasoning, and combinatorial explosion.",
-          "Problems include analysis, transfer, synthesis, and knowledge description.",
-          "EBMT and SMT helped, but still have data and selection limits."
-        ]
-      },
-      {
-        id:"t11", code:"Topic 11", title:"How to Evaluate Machine Translation", cat:"practice",
-        file:"ENGL465-Topic 11.pdf", pages:"pp. 4–13",
-        summary:"MT evaluation examines translation quality, usability, and system performance using human and automatic methods.",
-        bullets:[
-          "Methods include error analysis, adequacy/fluency, informativeness, and usability/cost.",
-          "Challenges include subjectivity, multiple valid translations, and balancing accuracy with readability.",
-          "BLEU, METEOR, and TER help automate evaluation but do not replace human judgment."
-        ]
-      },
-      {
-        id:"t12", code:"Topic 12", title:"Sublanguage", cat:"technology",
-        file:"ENGL465-Topic 12.pdf", pages:"pp. 4–10",
-        summary:"A sublanguage is a specialized variety of language used in a restricted field or domain.",
-        bullets:[
-          "Sublanguages are useful for MT because they have limited vocabulary and predictable patterns.",
-          "Features include specialized vocabulary, recurring grammar, and stable document structure.",
-          "The Canadian Météo system is a classic example of successful MT on a sublanguage."
-        ]
-      },
-      {
-        id:"t13", code:"Topic 13", title:"Post-Editing", cat:"practice",
-        file:"ENGL465-Topic 13.pdf", pages:"pp. 4–13",
-        summary:"Post-editing improves MT output so it becomes accurate, fluent, and fit for purpose.",
-        bullets:[
-          "Minimal post-editing focuses on understandability; full post-editing aims for near-human quality.",
-          "Best practices include pre-editing, TM/glossaries, training, and structured error classification.",
-          "SAE J2450 identifies seven common error types used in quality assessment."
-        ]
-      }
-    ];
-
-    const CARDS = [
-      {id:"c1", topic:"t1", q:"What is CAT?", a:"Computer-Assisted Translation is the use of computer tools to help human translators work more accurately, efficiently, and consistently.", ref:"Topic 1, p.4"},
-      {id:"c2", topic:"t1", q:"Why was the ALPAC report important?", a:"It criticized early MT for being slow, inaccurate, and costly, and it pushed the field toward translator aids and CAT tools.", ref:"Topic 1, pp.7–8"},
-      {id:"c3", topic:"t2", q:"What is a translator’s workstation?", a:"An integrated environment of tools such as word processors, termbases, lexical resources, corpora, and MT support used to assist translation.", ref:"Topic 2, pp.4, 7–13, 15"},
-      {id:"c4", topic:"t2", q:"What are MAHT and HAMT?", a:"MAHT = machine-aided human translation; HAMT = human-aided machine translation.", ref:"Topic 2, p.4"},
-      {id:"c5", topic:"t3", q:"What is a Translation Memory?", a:"A TM is a database of previous translations used to retrieve similar segments for reuse in new translations.", ref:"Topic 3, pp.4–5"},
-      {id:"c6", topic:"t3", q:"What are the four main match types in TM?", a:"Exact match, context match, fuzzy match, and fragment match.", ref:"Topic 3, pp.13–14"},
-      {id:"c7", topic:"t4", q:"What is the difference between a term bank and a termbase?", a:"A term bank is rich and encyclopedic; a termbase is shorter, practical, and optimized for fast translation workflows.", ref:"Topic 4, pp.6–7"},
-      {id:"c8", topic:"t4", q:"What do noise and silence mean in term extraction?", a:"Noise = non-terms incorrectly extracted; silence = important terms that were missed.", ref:"Topic 4, p.10"},
-      {id:"c9", topic:"t5", q:"How does localization differ from traditional translation?", a:"Localization goes beyond language transfer to include cultural and technical adaptation, often in larger technology-driven projects.", ref:"Topic 5, pp.4–6"},
-      {id:"c10", topic:"t5", q:"What do i18n, l10n, and g11n mean?", a:"i18n = internationalization, l10n = localization, g11n = globalization.", ref:"Topic 5, p.5"},
-      {id:"c11", topic:"t6", q:"How is a minority language defined here?", a:"A minority language is spoken by fewer than 50% of the population in a geopolitical area and often lacks official status.", ref:"Topic 6, p.5"},
-      {id:"c12", topic:"t6", q:"How can resources for minority languages be developed?", a:"By building corpora, extracting word lists, creating dictionaries, using bilingual corpora, and developing linguistic descriptions.", ref:"Topic 6, p.8"},
-      {id:"c13", topic:"t7", q:"What is a corpus?", a:"A corpus is a collection of texts stored on a computer for automatic or semi-automatic analysis.", ref:"Topic 7, p.4"},
-      {id:"c14", topic:"t7", q:"Name two major corpus types in translation studies.", a:"Parallel corpora and comparable corpora.", ref:"Topic 7, pp.5–6"},
-      {id:"c15", topic:"t8", q:"Why is translation difficult for computers?", a:"Because computers struggle with ambiguity, context, common-sense reasoning, and the huge complexity of linguistic knowledge.", ref:"Topic 8, pp.4–7"},
-      {id:"c16", topic:"t8", q:"What are the four MT problem areas discussed?", a:"Analysis, transfer, synthesis, and the problem of description.", ref:"Topic 8, pp.6–7"},
-      {id:"c17", topic:"t11", q:"What are adequacy and fluency in MT evaluation?", a:"Adequacy measures how much meaning is preserved; fluency measures how natural the translation sounds.", ref:"Topic 11, p.7"},
-      {id:"c18", topic:"t11", q:"Why is BLEU limited?", a:"BLEU measures similarity to reference translations but does not reliably capture meaning or fluency.", ref:"Topic 11, p.12"},
-      {id:"c19", topic:"t12", q:"What is a sublanguage?", a:"A specialized version of a full language used in a restricted field with typical vocabulary, grammar, and text formats.", ref:"Topic 12, p.4"},
-      {id:"c20", topic:"t12", q:"Why was the Météo system successful?", a:"Because weather reports use a small vocabulary, fixed formats, and simple grammar patterns.", ref:"Topic 12, pp.5, 9"},
-      {id:"c21", topic:"t13", q:"What is post-editing?", a:"Post-editing is the process of improving machine-translated text to make it accurate, fluent, and readable.", ref:"Topic 13, p.4"},
-      {id:"c22", topic:"t13", q:"What is the difference between minimal and full post-editing?", a:"Minimal PE aims for understandable text; full PE aims for near-human quality suitable for publication.", ref:"Topic 13, p.5"}
-    ];
-
-    const QUIZZES = [
-      {id:"q1", topic:"t1", q:"Which statement best defines CAT?", opts:["It fully replaces human translators.","It assists human translators with tools like TM and terminology management.","It only checks spelling.","It is the same as localization."], a:1, why:"CAT supports human translators rather than replacing them.", ref:"Topic 1, p.4"},
-      {id:"q2", topic:"t2", q:"Which item is part of a translator’s workstation?", opts:["Only a typewriter","Only a bilingual dictionary","Word processor, term tools, lexical resources, corpora","Only a PDF reader"], a:2, why:"The workstation integrates many tools, not just one.", ref:"Topic 2, pp.7–13"},
-      {id:"q3", topic:"t3", q:"Which TM match type suggests a similar but not identical segment?", opts:["Exact match","Fuzzy match","Context match","Fragment deletion"], a:1, why:"Fuzzy matching is based on similarity rather than identity.", ref:"Topic 3, p.14"},
-      {id:"q4", topic:"t4", q:"Which extraction approach relies on frequency and co-occurrence?", opts:["Linguistic","Statistical","Manual","Graphical"], a:1, why:"Statistical extraction looks for repeated combinations and frequency patterns.", ref:"Topic 4, p.10"},
-      {id:"q5", topic:"t5", q:"Localization adapts products to a target market in which ways?", opts:["Only linguistically","Linguistically, culturally, and technically","Only visually","Only legally"], a:1, why:"Localization includes language, culture, and technical adaptation.", ref:"Topic 5, p.4"},
-      {id:"q6", topic:"t6", q:"A minority language in this topic is mainly identified by:", opts:["Being very old","Having fewer than 50% speakers in an area and often lacking official status","Using Roman script","Having no dialects"], a:1, why:"The topic defines it through numerical size and non-official status.", ref:"Topic 6, p.5"},
-      {id:"q7", topic:"t7", q:"A parallel corpus contains:", opts:["Only one dictionary","Texts and their translations","Only grammar rules","Only spoken data"], a:1, why:"Parallel corpora align source texts with translations.", ref:"Topic 7, p.5"},
-      {id:"q8", topic:"t8", q:"Which is NOT one of the four limitations discussed for computers in translation?", opts:["Inability to perform vaguely defined tasks","Inability to learn from experience","Perfect cultural reasoning","Difficulty with combinatorial explosion"], a:2, why:"Computers do not have perfect cultural reasoning; that is the opposite of the problem.", ref:"Topic 8, p.5"},
-      {id:"q9", topic:"t11", q:"Which MT evaluation method uses human judgments of meaning preservation and naturalness?", opts:["Adequacy and fluency","Only BLEU","Only OCR","Only tokenization"], a:0, why:"Adequacy and fluency are classic human evaluation criteria.", ref:"Topic 11, p.7"},
-      {id:"q10", topic:"t12", q:"Why are sublanguages often MT-friendly?", opts:["They have infinite vocabulary","They avoid all grammar","They use limited vocabulary and predictable patterns","They contain only poetry"], a:2, why:"Restricted domains make processing easier for MT.", ref:"Topic 12, pp.5–7"},
-      {id:"q11", topic:"t13", q:"Which SAE J2450 error type refers to missing content?", opts:["Wrong Term","Omission","Punctuation Error","Misspelling"], a:1, why:"Omission means content from the source is absent in the translation.", ref:"Topic 13, p.8"},
-      {id:"q12", topic:"t13", q:"Which post-editing level aims at publishable quality?", opts:["Minimal post-editing","Full post-editing","No post-editing","Raw MT"], a:1, why:"Full post-editing aims for high-quality output close to human standards.", ref:"Topic 13, p.5"}
-    ];
-
-    const MAPS = {
-      t1:{core:"Introduction to CAT", branches:{
-        "Definition":["CAT assists human translators with digital tools.","It differs from MT because the translator remains central."],
-        "History":["Early ideas go back to Leibniz and Descartes.","The ALPAC report pushed attention toward translator aids."],
-        "Components":["TM","Terminology tools","QA","Project management"]
-      }},
-      t2:{core:"Translator’s Workstation", branches:{
-        "Framework":["Workstation = integrated ecosystem of tools.","Supports MAHT and HAMT."],
-        "Core Tools":["Word processors","Terminology management","Lexical resources","Corpora and concordances"],
-        "Support":["Dictation tools","Desktop publishing","Markup languages","MT integration"]
-      }},
-      t3:{core:"Translation Memory", branches:{
-        "Database Building":["Build as you go","Import existing TM","Align parallel text"],
-        "Alignment Challenges":["Sentence boundaries","Structural mismatch","Sentence reordering","Language-specific differences"],
-        "Match Types":["Exact","Context","Fuzzy","Fragment"]
-      }},
-      t4:{core:"Terminology Tools", branches:{
-        "Records":["Term bank = detailed","Termbase = brief and practical"],
-        "Software Features":["Storage","Search","Auto-suggest","TBX sharing"],
-        "Extraction":["Linguistic","Statistical","Hybrid","Noise and silence"]
-      }},
-      t5:{core:"Localization", branches:{
-        "Definitions":["Localization adapts products for target markets.","It is related to i18n and g11n."],
-        "Project Parts":["Software","Online help","Documentation","Web content"],
-        "Workflow":["Setup","Translation","Review","Production","QA","Closure"]
-      }},
-      t6:{core:"Minority Languages", branches:{
-        "Definition":["<50% in area","Often non-official"],
-        "Resource Gaps":["Keyboards","OCR","Spell-checking","CAT/MT","Dictionaries"],
-        "Development":["Word lists","Bilingual corpora","Linguistic descriptions","Open-source support"]
-      }},
-      t7:{core:"Corpora & the Translator", branches:{
-        "Types":["Parallel corpus","Comparable corpus"],
-        "Uses":["Translation studies","Contrastive linguistics","Training","Professional translation"],
-        "Examples":["TEC","Concordancing","Context retrieval"]
-      }},
-      t8:{core:"Why Translation Is Hard for Computers", branches:{
-        "Limits":["Vague tasks","No experience-based learning","Weak common sense","Combinatorial explosion"],
-        "Problems":["Analysis","Transfer","Synthesis","Description"],
-        "New Approaches":["EBMT","SMT","Still limited by data and choice problems"]
-      }},
-      t11:{core:"MT Evaluation", branches:{
-        "Human Methods":["Error analysis","Adequacy","Fluency","Informativeness"],
-        "System Views":["Black-box","Glass-box","Operational","Usability"],
-        "Automatic Metrics":["BLEU","METEOR","TER","Human judgment still needed"]
-      }},
-      t12:{core:"Sublanguage", branches:{
-        "Nature":["Specialized domain language","Restricted vocabulary and patterns"],
-        "Features":["Vocabulary","Grammar","Text format"],
-        "Case Study":["Météo system","High accuracy","Low cost","Simple patterns"]
-      }},
-      t13:{core:"Post-Editing", branches:{
-        "Types":["Minimal PE","Full PE"],
-        "Best Practices":["Pre-editing","TM and glossaries","Training","Quality categories"],
-        "SAE J2450":["Wrong Term","Syntactic Error","Omission","Agreement","Misspelling","Punctuation","Miscellaneous"]
-      }}
-    };
-
-    const SOURCES = TOPICS.map(t => ({
-      title:t.title, file:t.file, pages:t.pages,
-      link:t.file
-    }));
-
-    const DAILY = [
-      {id:"d1", text:"Master 2 flashcards today.", type:"master", goal:2, route:"flashcards"},
-      {id:"d2", text:"Answer 3 quiz questions correctly today.", type:"quizCorrect", goal:3, route:"quizzes"},
-      {id:"d3", text:"Add 2 glossary entries today.", type:"gloss", goal:2, route:"lab"},
-      {id:"d4", text:"Win 2 Rapid Match rounds today.", type:"gameWin", goal:2, route:"games"}
-    ];
-
-    const LS = "ENGL465_INTERACTIVE_CAT_V1";
-
-    function defaultState(){
-      return {
-        xp:0, coins:0, streak:0, lastDay:null,
-        cardScores:{}, quizCorrect:0, quizAttempted:0,
-        glossary:[], badges:[], gameBest:0, sectionVisits:{},
-        daily:{date:null, master:0, quizCorrect:0, gloss:0, gameWin:0, claimed:false}
-      };
-    }
-
-    function loadState(){
-      try{ return {...defaultState(), ...JSON.parse(localStorage.getItem(LS)||"{}")} }
-      catch{ return defaultState() }
-    }
-    let state = loadState();
-
-    function saveState(){ localStorage.setItem(LS, JSON.stringify(state)); renderStats(); renderWeak() }
-
-    function todayKey(){
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    }
-
-    function touchDay(){
-      const tk = todayKey();
-      if(state.lastDay !== tk){
-        if(state.lastDay){
-          const last = new Date(state.lastDay+"T00:00:00");
-          const now = new Date(tk+"T00:00:00");
-          const diff = Math.round((now-last)/86400000);
-          state.streak = diff === 1 ? state.streak + 1 : 1;
-        }else state.streak = 1;
-        state.lastDay = tk;
-      }
-      if(state.daily.date !== tk){
-        state.daily = {date:tk, master:0, quizCorrect:0, gloss:0, gameWin:0, claimed:false};
-      }
-      saveState();
-    }
-
-    function levelOf(xp){ return Math.floor(xp/120)+1 }
-    function masteredCount(){
-      return Object.values(state.cardScores).filter(v=>v>=2).length;
-    }
-
-    function award(xp, coins, reason){
-      state.xp += xp; state.coins += coins;
-      saveState(); setStatus(`+${xp} XP, +${coins} coins — ${reason}`);
-      checkBadges(); checkDaily();
-      if(xp >= 20) confetti();
-    }
-
-    function setStatus(txt){ document.getElementById("status").textContent = txt }
-
-    function confetti(){
-      const colors = ["#17b59c","#618bff","#f1b84e","#ffffff","#8ee0d1"];
-      for(let i=0;i<28;i++){
-        const c = document.createElement("div");
-        c.className = "confetti";
-        c.style.left = Math.random()*100 + "vw";
-        c.style.background = colors[Math.floor(Math.random()*colors.length)];
-        c.style.opacity = .9;
-        c.style.transform = `rotate(${Math.random()*180}deg)`;
-        c.style.animationDuration = (1.3 + Math.random()*1.2) + "s";
-        document.body.appendChild(c);
-        setTimeout(()=>c.remove(), 2200);
-      }
-    }
-
-    function addBadge(id, label){
-      if(!state.badges.includes(id)){
-        state.badges.push(id);
-        saveState();
-        setStatus(`Badge unlocked: ${label}`);
-        confetti();
-      }
-    }
-
-    function checkBadges(){
-      if(Object.keys(state.sectionVisits).length >= 3) addBadge("explorer","Explorer");
-      if(Object.keys(state.cardScores).length >= 1) addBadge("flashstarter","Flash Starter");
-      if(state.quizCorrect >= 1) addBadge("quizstarter","Quiz Starter");
-      if(state.glossary.length >= 3) addBadge("terminologist","Terminologist");
-      if(masteredCount() >= 5) addBadge("master5","Master 5");
-      if(masteredCount() >= 10) addBadge("master10","Master 10");
-      if(state.streak >= 3) addBadge("streak3","3-Day Streak");
-      if(state.xp >= 500) addBadge("xp500","500 XP Scholar");
-    }
-
-    function dailyChallenge(){
-      const idx = new Date().getDate() % DAILY.length;
-      return DAILY[idx];
-    }
-
-    function checkDaily(){
-      const ch = dailyChallenge();
-      const progress = state.daily[ch.type] || 0;
-      if(progress >= ch.goal && !state.daily.claimed){
-        state.daily.claimed = true;
-        award(40, 15, "Daily challenge completed");
-      }
-      renderDaily();
-    }
-
-    function renderStats(){
-      document.getElementById("levelOut").textContent = levelOf(state.xp);
-      document.getElementById("xpOut").textContent = state.xp;
-      document.getElementById("coinsOut").textContent = state.coins;
-      document.getElementById("streakOut").textContent = state.streak;
-      const pct = Math.round((masteredCount()/CARDS.length)*100);
-      document.getElementById("masterBar").style.width = pct + "%";
-      document.getElementById("masterText").textContent = `${pct}% mastered (${masteredCount()}/${CARDS.length} cards)`;
-
-      const labels = {
-        explorer:"Explorer",
-        flashstarter:"Flash Starter",
-        quizstarter:"Quiz Starter",
-        terminologist:"Terminologist",
-        master5:"Master 5",
-        master10:"Master 10",
-        streak3:"3-Day Streak",
-        xp500:"500 XP Scholar"
-      };
-      const badgeHTML = state.badges.length
-        ? state.badges.map(b=>`<span class="badge">${labels[b]||b}</span>`).join("")
-        : `<span class="mini">No badges yet.</span>`;
-      document.getElementById("badgeOut").innerHTML = badgeHTML;
-      document.getElementById("achievements").innerHTML = badgeHTML;
-    }
-
-    function renderDaily(){
-      const ch = dailyChallenge();
-      const value = state.daily[ch.type] || 0;
-      const done = state.daily.claimed ? "✅ Claimed" : `${value}/${ch.goal}`;
-      document.getElementById("dailyBox").innerHTML =
-        `<strong>${escapeHtml(ch.text)}</strong><br><span class="mini">Progress: ${done}</span>`;
-    }
-
-    function renderSnapshot(){
-      const items = [
-        "CAT supports human translators with TM, terminology, QA, and project tools.",
-        "Workstations combine lexical resources, corpora, concordancing, and MT support.",
-        "TM works through aligned examples and different match types.",
-        "Terminology tools improve consistency, speed, and collaboration.",
-        "Localization adapts language, culture, and technical features.",
-        "Minority languages often lack digital resources and tool support.",
-        "Corpora help in training, research, and professional translation.",
-        "MT evaluation needs both human and automatic methods.",
-        "Sublanguages and post-editing are key practical areas in CAT."
-      ];
-      document.getElementById("snapshot").innerHTML =
-        items.map(x => `<div class="bullet"><span class="dot"></span><span>${escapeHtml(x)}</span></div>`).join("");
-    }
-
-    function escapeHtml(s){
-      return String(s)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function shuffle(arr){
-      const a = [...arr];
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-      }
-      return a;
-    }
-
-    function sample(arr, n){
-      return shuffle(arr).slice(0, n);
-    }
-
-    function renderTopics(filter="all"){
-      const mount = document.getElementById("topicsOut");
-      const data = filter==="all" ? TOPICS : TOPICS.filter(t=>t.cat===filter);
-      mount.innerHTML = data.map(t => `
-        <div class="topic">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-            <span class="topicCode">${escapeHtml(t.code)}</span>
-            <div class="tags">
-              <span class="tag">${escapeHtml(t.cat)}</span>
-              <span class="tag">${escapeHtml(t.pages)}</span>
-            </div>
-          </div>
-          <div>
-            <h3>${escapeHtml(t.title)}</h3>
-            <p>${escapeHtml(t.summary)}</p>
-          </div>
-          <div class="bullets">
-            ${t.bullets.map(b=>`<div class="bullet"><span class="dot"></span><span>${escapeHtml(b)}</span></div>`).join("")}
-          </div>
-          <div class="mini">Source: ${escapeHtml(t.file)} • ${escapeHtml(t.pages)}</div>
-          <div class="toolbar">
-            <button class="btn small primary topicGo" data-go="flashcards" data-topic="${t.id}">Flashcards</button>
-            <button class="btn small secondary topicGo" data-go="quizzes" data-topic="${t.id}">Quiz</button>
-            <button class="btn small topicGo" data-go="mindmaps" data-topic="${t.id}">Mind Map</button>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderSources(){
-      document.getElementById("sourcesOut").innerHTML = SOURCES.map(s => `
-        <div class="sourceItem">
-          <h3>${escapeHtml(s.title)}</h3>
-          <div class="mini">File: ${escapeHtml(s.file)}</div>
-          <div class="mini">Pages used: ${escapeHtml(s.pages)}</div>
-          <div class="toolbar">
-            <a class="btn small" href="${encodeURI(s.link)}" target="_blank" rel="noopener">Open PDF</a>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderWeak(){
-      const weak = CARDS.filter(c => (state.cardScores[c.id] || 0) < 2);
-      document.getElementById("weakOut").innerHTML = weak.length
-        ? weak.map(c => `
-            <div style="padding:10px 0;border-bottom:1px solid var(--line)">
-              <div><strong>${escapeHtml(c.q)}</strong></div>
-              <div class="mini">${escapeHtml(c.ref)}</div>
-            </div>
-          `).join("")
-        : `<strong>Excellent.</strong> All current flashcards are mastered.`;
-    }
-
-    function fillSelects(){
-      const flash = document.getElementById("flashSelect");
-      const quiz = document.getElementById("quizSelect");
-      const map = document.getElementById("mapSelect");
-
-      flash.innerHTML =
-        `<option value="all">All Topics</option>
-         <option value="weak">Weak Cards Only</option>` +
-        TOPICS.map(t=>`<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`).join("");
-
-      quiz.innerHTML =
-        `<option value="mixed">Mixed Quiz</option>` +
-        TOPICS.map(t=>`<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`).join("");
-
-      map.innerHTML =
-        TOPICS.map(t=>`<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`).join("");
-    }
-
-    const tabs = [...document.querySelectorAll(".tab")];
-    const sections = [...document.querySelectorAll(".section")];
-
-    function go(id){
-      sections.forEach(s=>s.classList.toggle("active", s.id===id));
-      tabs.forEach(t=>t.classList.toggle("active", t.dataset.target===id));
-      state.sectionVisits[id] = (state.sectionVisits[id] || 0) + 1;
-      saveState();
-      setStatus(`Opened: ${id}`);
-      window.scrollTo({top:0, behavior:"smooth"});
-    }
-
-    tabs.forEach(t => t.addEventListener("click", ()=>go(t.dataset.target)));
-
-    document.getElementById("dashFlash").addEventListener("click", ()=>{
-      go("flashcards");
-    });
-    document.getElementById("dashQuiz").addEventListener("click", ()=>{
-      document.getElementById("quizSelect").value = "mixed";
-      newQuizSet();
-      go("quizzes");
-    });
-    document.getElementById("dashTopics").addEventListener("click", ()=>go("topics"));
-
-    document.querySelectorAll(".filterBtn").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        document.querySelectorAll(".filterBtn").forEach(x=>x.classList.remove("primary"));
-        btn.classList.add("primary");
-        renderTopics(btn.dataset.filter);
-      });
-    });
-
-    document.getElementById("topicsOut").addEventListener("click", (e)=>{
-      const btn = e.target.closest(".topicGo");
-      if(!btn) return;
-      const topic = btn.dataset.topic;
-      const target = btn.dataset.go;
-
-      if(target==="flashcards"){
-        document.getElementById("flashSelect").value = topic;
-        buildFlashDeck();
-      }
-      if(target==="quizzes"){
-        document.getElementById("quizSelect").value = topic;
-        newQuizSet();
-      }
-      if(target==="mindmaps"){
-        document.getElementById("mapSelect").value = topic;
-        renderMap(topic);
-      }
-      go(target);
-    });
-
-    let flashDeck = [];
-    let flashIndex = 0;
-
-    function scoreLabel(v){
-      if(v >= 2) return "Mastered";
-      if(v === 1) return "Good";
-      if(v === -1) return "Hard";
-      return "New";
-    }
-
-    function buildFlashDeck(){
-      const mode = document.getElementById("flashSelect").value;
-      if(mode === "all") flashDeck = [...CARDS];
-      else if(mode === "weak") flashDeck = CARDS.filter(c => (state.cardScores[c.id] || 0) < 2);
-      else flashDeck = CARDS.filter(c => c.topic === mode);
-
-      if(!flashDeck.length) flashDeck = [...CARDS];
-      flashIndex = 0;
-      renderFlash();
-    }
-
-    function renderFlash(){
-      const c = flashDeck[flashIndex];
-      if(!c) return;
-
-      document.getElementById("flashCard").classList.remove("flipped");
-      document.getElementById("flashFront").textContent = c.q;
-      document.getElementById("flashBack").textContent = c.a;
-      document.getElementById("flashFrontRef").textContent = c.ref;
-      document.getElementById("flashBackRef").textContent = c.ref;
-
-      const deckLabel = document.getElementById("flashSelect").selectedOptions[0].textContent;
-      document.getElementById("flashDeck").textContent = `Deck: ${deckLabel}`;
-      document.getElementById("flashPos").textContent = `Card ${flashIndex+1} / ${flashDeck.length}`;
-      document.getElementById("flashState").textContent = `Status: ${scoreLabel(state.cardScores[c.id] || 0)}`;
-    }
-
-    function rateFlash(value){
-      const c = flashDeck[flashIndex];
-      if(!c) return;
-      const old = state.cardScores[c.id] || 0;
-      state.cardScores[c.id] = value;
-
-      if(value === 1) award(8, 2, "Good flashcard");
-      if(value >= 2) award(14, 4, "Mastered flashcard");
-      if(value >= 2 && old < 2){
-        state.daily.master += 1;
-      }
-
-      saveState();
-      renderFlash();
-      setTimeout(nextFlash, 180);
-    }
-
-    function nextFlash(){
-      if(!flashDeck.length) return;
-      flashIndex = (flashIndex + 1) % flashDeck.length;
-      renderFlash();
-    }
-
-    function prevFlash(){
-      if(!flashDeck.length) return;
-      flashIndex = (flashIndex - 1 + flashDeck.length) % flashDeck.length;
-      renderFlash();
-    }
-
-    document.getElementById("flashSelect").addEventListener("change", buildFlashDeck);
-    document.getElementById("flashShuffle").addEventListener("click", ()=>{
-      flashDeck = shuffle(flashDeck);
-      flashIndex = 0;
-      renderFlash();
-      setStatus("Flashcards shuffled.");
-    });
-    document.getElementById("flashWeak").addEventListener("click", ()=>{
-      document.getElementById("flashSelect").value = "weak";
-      buildFlashDeck();
-    });
-    document.getElementById("flipCardBtn").addEventListener("click", ()=>{
-      document.getElementById("flashCard").classList.toggle("flipped");
-    });
-    document.getElementById("flashCard").addEventListener("click", (e)=>{
-      if(e.target.closest("button")) return;
-      document.getElementById("flashCard").classList.toggle("flipped");
-    });
-    document.getElementById("prevCard").addEventListener("click", prevFlash);
-    document.getElementById("nextCard").addEventListener("click", nextFlash);
-    document.getElementById("rateHard").addEventListener("click", ()=>rateFlash(-1));
-    document.getElementById("rateGood").addEventListener("click", ()=>rateFlash(1));
-    document.getElementById("rateMaster").addEventListener("click", ()=>rateFlash(2));
-
-    let quizSet = [];
-    let quizIndex = 0;
-    let quizScore = 0;
-    let quizSelected = null;
-    let quizLocked = false;
-
-    function newQuizSet(){
-      const mode = document.getElementById("quizSelect").value;
-      const pool = mode === "mixed" ? QUIZZES : QUIZZES.filter(q => q.topic === mode);
-      quizSet = sample(pool.length ? pool : QUIZZES, Math.min(5, pool.length || QUIZZES.length));
-      quizIndex = 0;
-      quizScore = 0;
-      renderQuiz();
-    }
-
-    function renderQuiz(){
-      const q = quizSet[quizIndex];
-      if(!q) return;
-
-      quizSelected = null;
-      quizLocked = false;
-      document.getElementById("quizQ").textContent = q.q;
-      document.getElementById("quizTopicOut").textContent =
-        `Topic: ${document.getElementById("quizSelect").selectedOptions[0].textContent}`;
-      document.getElementById("quizPosOut").textContent = `Question ${quizIndex+1} / ${quizSet.length}`;
-      document.getElementById("quizScoreOut").textContent = `Score: ${quizScore}`;
-      document.getElementById("quizExplain").innerHTML = `Select an answer and submit. <div class="mini" style="margin-top:8px">${escapeHtml(q.ref)}</div>`;
-
-      const wrap = document.getElementById("quizOpts");
-      wrap.innerHTML = q.opts.map((opt, i)=>`
-        <div class="option" data-i="${i}">${escapeHtml(opt)}</div>
-      `).join("");
-
-      wrap.querySelectorAll(".option").forEach(el=>{
-        el.addEventListener("click", ()=>{
-          if(quizLocked) return;
-          wrap.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
-          el.classList.add("selected");
-          quizSelected = Number(el.dataset.i);
-        });
-      });
-    }
-
-    function submitQuiz(){
-      if(quizLocked) return;
-      const q = quizSet[quizIndex];
-      if(quizSelected === null){
-        setStatus("Select an option first.");
-        return;
-      }
-
-      quizLocked = true;
-      state.quizAttempted += 1;
-
-      const opts = [...document.querySelectorAll("#quizOpts .option")];
-      opts.forEach((o, i)=>{
-        if(i === q.a) o.classList.add("correct");
-      });
-
-      if(quizSelected === q.a){
-        quizScore += 1;
-        state.quizCorrect += 1;
-        state.daily.quizCorrect += 1;
-        opts[quizSelected].classList.add("correct");
-        award(20, 5, "Correct quiz answer");
-        document.getElementById("quizExplain").innerHTML =
-          `<strong>Correct.</strong> ${escapeHtml(q.why)}<div class="mini" style="margin-top:8px">${escapeHtml(q.ref)}</div>`;
-      }else{
-        opts[quizSelected].classList.add("wrong");
-        document.getElementById("quizExplain").innerHTML =
-          `<strong>Incorrect.</strong> ${escapeHtml(q.why)}<div class="mini" style="margin-top:8px">Correct answer: ${escapeHtml(q.opts[q.a])} • ${escapeHtml(q.ref)}</div>`;
-      }
-
-      saveState();
-      document.getElementById("quizScoreOut").textContent = `Score: ${quizScore}`;
-    }
-
-    function nextQuiz(){
-      if(quizIndex < quizSet.length - 1){
-        quizIndex++;
-        renderQuiz();
-      }else{
-        document.getElementById("quizExplain").innerHTML =
-          `<strong>Quiz complete.</strong> Final score: ${quizScore}/${quizSet.length}.`;
-        setStatus(`Quiz finished: ${quizScore}/${quizSet.length}`);
-      }
-    }
-
-    document.getElementById("quizSelect").addEventListener("change", newQuizSet);
-    document.getElementById("newQuiz").addEventListener("click", newQuizSet);
-    document.getElementById("submitQuiz").addEventListener("click", submitQuiz);
-    document.getElementById("nextQuiz").addEventListener("click", nextQuiz);
-
-    function renderMap(topicId){
-      const m = MAPS[topicId] || MAPS.t1;
-      const mount = document.getElementById("mapOut");
-      mount.innerHTML = `
-        <div class="mapCore">${escapeHtml(m.core)}</div>
-        <div class="mapGrid">
-          ${Object.entries(m.branches).map(([k, items], idx)=>`
-            <div class="branch" id="branch-${idx}">
-              <button class="branchHead" data-branch="${idx}">
-                <strong>${escapeHtml(k)}</strong>
-                <span>＋</span>
-              </button>
-              <div class="branchBody">
-                ${items.map(x=>`<div class="branchItem">${escapeHtml(x)}</div>`).join("")}
-              </div>
-            </div>
-          `).join("")}
-        </div>
-      `;
-
-      mount.querySelectorAll(".branchHead").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const box = document.getElementById(`branch-${btn.dataset.branch}`);
-          box.classList.toggle("open");
-        });
-      });
-    }
-
-    document.getElementById("loadMap").addEventListener("click", ()=>{
-      renderMap(document.getElementById("mapSelect").value);
-    });
-
-    let gameStreak = 0;
-    function renderGameBest(){
-      document.getElementById("gameBest").textContent = `Best: ${state.gameBest || 0}`;
-    }
-
-    function newGameRound(){
-      const correct = CARDS[Math.floor(Math.random()*CARDS.length)];
-      const wrongs = sample(CARDS.filter(c => c.id !== correct.id), 3).map(c => c.a);
-      const opts = shuffle([correct.a, ...wrongs]);
-      document.getElementById("gameQ").textContent = correct.q;
-      document.getElementById("gameOpts").innerHTML = opts.map(o=>`
-        <div class="option">${escapeHtml(o)}</div>
-      `).join("");
-      document.getElementById("gameExplain").textContent = "Choose the correct answer.";
-      document.getElementById("gameStreak").textContent = `Streak: ${gameStreak}`;
-
-      [...document.querySelectorAll("#gameOpts .option")].forEach(opt=>{
-        opt.addEventListener("click", ()=>{
-          const ok = opt.textContent === correct.a;
-          if(ok){
-            gameStreak++;
-            state.daily.gameWin += 1;
-            award(12, 3, "Rapid Match win");
-            document.getElementById("gameExplain").innerHTML =
-              `<strong>Correct.</strong> ${escapeHtml(correct.ref)}`;
-          }else{
-            gameStreak = 0;
-            document.getElementById("gameExplain").innerHTML =
-              `<strong>Incorrect.</strong> Correct answer: ${escapeHtml(correct.a)}<div class="mini" style="margin-top:8px">${escapeHtml(correct.ref)}</div>`;
-          }
-          if(gameStreak > (state.gameBest || 0)) state.gameBest = gameStreak;
-          saveState();
-          document.getElementById("gameStreak").textContent = `Streak: ${gameStreak}`;
-          renderGameBest();
-
-          [...document.querySelectorAll("#gameOpts .option")].forEach(x=>{
-            x.style.pointerEvents = "none";
-            if(x.textContent === correct.a) x.classList.add("correct");
-            else if(x === opt && !ok) x.classList.add("wrong");
-          });
-        });
-      });
-    }
-
-    document.getElementById("newGame").addEventListener("click", newGameRound);
-
-    function extractTerms(mode){
-      const text = document.getElementById("labText").value.trim();
-      if(!text){
-        document.getElementById("labOut").textContent = "Paste text first.";
-        return;
-      }
-
-      const stop = new Set(["the","a","an","and","or","but","to","of","in","on","for","with","by","as","is","are","was","were","be","been","this","that","these","those","it","its","their","they","we","you","i","at","from","into","over","under","than","then","which","who","whom","can","could","should","would","may","might","will","also","not"]);
-      const clean = text.replace(/[^\w\s\-']/g," ").replace(/\s+/g," ").trim();
-      const tokens = clean.split(" ").filter(Boolean);
-      const uni = new Map();
-      const bi = new Map();
-
-      for(let i=0;i<tokens.length;i++){
-        const w = tokens[i].toLowerCase();
-        if(w.length > 3 && !stop.has(w)) uni.set(w, (uni.get(w)||0)+1);
-        if(i < tokens.length-1){
-          const pair = `${tokens[i].toLowerCase()} ${tokens[i+1].toLowerCase()}`;
-          if(pair.split(" ").every(x => x.length > 2 && !stop.has(x))) bi.set(pair, (bi.get(pair)||0)+1);
-        }
-      }
-
-      const linguistic = new Set();
-      (text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\b/g) || []).forEach(x=>linguistic.add(x));
-      (text.match(/\b\w+(?:-\w+)+\b/g) || []).forEach(x=>linguistic.add(x));
-      ["translation memory","machine translation","term bank","termbase","post-editing","minority language","computer-assisted translation","localization","sublanguage"].forEach(p=>{
-        if(text.toLowerCase().includes(p)) linguistic.add(p);
-      });
-
-      const statistical = new Set();
-      for(const [k,v] of uni.entries()) if(v >= 2) statistical.add(k);
-      for(const [k,v] of bi.entries()) if(v >= 2) statistical.add(k);
-
-      let out = [];
-      if(mode === "pattern") out = [...linguistic];
-      else if(mode === "stats") out = [...statistical];
-      else out = [...new Set([...linguistic, ...statistical])];
-
-      out = out.slice(0, 28);
-
-      document.getElementById("labOut").innerHTML = out.length
-        ? `<div class="mini">Mode: ${escapeHtml(mode)}</div><div style="margin-top:8px">${out.map(x=>`<span class="pill" style="margin:4px">${escapeHtml(x)}</span>`).join("")}</div>`
-        : "No candidates found. Try longer text.";
-      setStatus("Term extraction complete.");
-    }
-
-    document.getElementById("runPattern").addEventListener("click", ()=>extractTerms("pattern"));
-    document.getElementById("runStats").addEventListener("click", ()=>extractTerms("stats"));
-    document.getElementById("runHybrid").addEventListener("click", ()=>extractTerms("hybrid"));
-
-    function renderGloss(){
-      document.getElementById("glossOut").innerHTML = state.glossary.length
-        ? state.glossary.slice().reverse().map(g=>`
-            <div style="padding:10px 0;border-bottom:1px solid var(--line)">
-              <div><strong>${escapeHtml(g.term)}</strong> → ${escapeHtml(g.eq)}</div>
-              <div class="mini">${escapeHtml(g.note || "—")}</div>
-            </div>
-          `).join("")
-        : "No glossary entries yet.";
-    }
-
-    document.getElementById("addGloss").addEventListener("click", ()=>{
-      const term = document.getElementById("gTerm").value.trim();
-      const eq = document.getElementById("gEq").value.trim();
-      const note = document.getElementById("gNote").value.trim();
-      if(!term || !eq){
-        setStatus("Enter both term and equivalent.");
-        return;
-      }
-      state.glossary.push({term, eq, note});
-      state.daily.gloss += 1;
-      saveState();
-      renderGloss();
-      document.getElementById("gTerm").value = "";
-      document.getElementById("gEq").value = "";
-      document.getElementById("gNote").value = "";
-      award(6, 2, "Glossary entry added");
-    });
-
-    document.getElementById("exportGloss").addEventListener("click", ()=>{
-      if(!state.glossary.length){
-        setStatus("No glossary to export.");
-        return;
-      }
-      const rows = ["TERM\tEQUIVALENT\tNOTE", ...state.glossary.map(g => `${g.term}\t${g.eq}\t${g.note||""}`)];
-      document.getElementById("glossOut").innerHTML = `<pre style="margin:0;white-space:pre-wrap">${escapeHtml(rows.join("\n"))}</pre>`;
-      setStatus("Glossary exported.");
-    });
-
-    document.getElementById("clearGloss").addEventListener("click", ()=>{
-      state.glossary = [];
-      saveState();
-      renderGloss();
-      setStatus("Glossary cleared.");
-    });
-
-    function searchAll(q){
-      const query = q.trim().toLowerCase();
-      if(!query){
-        document.getElementById("searchOut").textContent = "Enter a search term.";
-        return;
-      }
-
-      const hits = [];
-
-      TOPICS.forEach(t=>{
-        const hay = `${t.code} ${t.title} ${t.summary} ${t.bullets.join(" ")}`.toLowerCase();
-        if(hay.includes(query)) hits.push({type:"Topic", title:t.title, extra:t.file});
-      });
-
-      CARDS.forEach(c=>{
-        const hay = `${c.q} ${c.a} ${c.ref}`.toLowerCase();
-        if(hay.includes(query)) hits.push({type:"Flashcard", title:c.q, extra:c.ref});
-      });
-
-      QUIZZES.forEach(qz=>{
-        const hay = `${qz.q} ${qz.opts.join(" ")} ${qz.why} ${qz.ref}`.toLowerCase();
-        if(hay.includes(query)) hits.push({type:"Quiz", title:qz.q, extra:qz.ref});
-      });
-
-      if(!hits.length){
-        document.getElementById("searchOut").innerHTML = `No matches for <strong>${escapeHtml(query)}</strong>.`;
-        return;
-      }
-
-      document.getElementById("searchOut").innerHTML = hits.slice(0,12).map(h=>`
-        <div style="padding:8px 0;border-bottom:1px solid var(--line)">
-          <div><strong>${escapeHtml(h.type)}</strong> — ${escapeHtml(h.title)}</div>
-          <div class="mini">${escapeHtml(h.extra)}</div>
-        </div>
-      `).join("");
-    }
-
-    document.getElementById("searchBtn").addEventListener("click", ()=>{
-      searchAll(document.getElementById("searchInput").value);
-    });
-    document.getElementById("searchInput").addEventListener("keydown", e=>{
-      if(e.key === "Enter") searchAll(document.getElementById("searchInput").value);
-    });
-
-    document.getElementById("dailyBtn").addEventListener("click", ()=>{
-      const ch = dailyChallenge();
-      go(ch.route);
-    });
-    document.getElementById("goDaily").addEventListener("click", ()=>{
-      const ch = dailyChallenge();
-      go(ch.route);
-    });
-
-    document.getElementById("resetBtn").addEventListener("click", ()=>{
-      if(!confirm("Reset all saved progress on this device?")) return;
-      state = defaultState();
-      touchDay();
-      renderAll();
-      setStatus("Progress reset.");
-    });
-
-    let musicOn = false;
-    let htmlAudio = null;
-    let audioCtx = null;
-    let masterGain = null;
-    let ambientNodes = [];
-
-    function stopAmbient(){
-      ambientNodes.forEach(n=>{
-        try{ n.stop && n.stop(); }catch(e){}
-      });
-      ambientNodes = [];
-    }
-
-    function ensureAudio(){
-      if(htmlAudio) return;
-      htmlAudio = new Audio("./audio/serene.mp3");
-      htmlAudio.loop = true;
-      htmlAudio.volume = Number(document.getElementById("volume").value)/100;
-    }
-
-    function startAmbient(){
-      if(!audioCtx){
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = audioCtx.createGain();
-        masterGain.connect(audioCtx.destination);
-      }
-      if(audioCtx.state === "suspended") audioCtx.resume();
-      masterGain.gain.value = (Number(document.getElementById("volume").value)/100) * 0.45;
-
-      const bufferSize = 2 * audioCtx.sampleRate;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * 0.25;
-
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      noise.loop = true;
-
-      const low = audioCtx.createBiquadFilter();
-      low.type = "lowpass";
-      low.frequency.value = 700;
-
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0.14;
-
-      const osc1 = audioCtx.createOscillator();
-      osc1.type = "sine";
-      osc1.frequency.value = 196;
-
-      const osc2 = audioCtx.createOscillator();
-      osc2.type = "sine";
-      osc2.frequency.value = 246.94;
-
-      const osc3 = audioCtx.createOscillator();
-      osc3.type = "sine";
-      osc3.frequency.value = 293.66;
-
-      const padGain = audioCtx.createGain();
-      padGain.gain.value = 0.05;
-
-      noise.connect(low);
-      low.connect(gain);
-      gain.connect(masterGain);
-
-      osc1.connect(padGain);
-      osc2.connect(padGain);
-      osc3.connect(padGain);
-      padGain.connect(masterGain);
-
-      noise.start();
-      osc1.start();
-      osc2.start();
-      osc3.start();
-
-      ambientNodes = [noise, osc1, osc2, osc3];
-    }
-
-    async function startMusic(){
-      ensureAudio();
-      try{
-        await htmlAudio.play();
-      }catch(e){
-        startAmbient();
-      }
-      musicOn = true;
-      document.getElementById("musicBtn").textContent = "❚❚ Music";
-      setStatus("Music on.");
-    }
-
-    function stopMusic(){
-      if(htmlAudio){
-        htmlAudio.pause();
-        htmlAudio.currentTime = 0;
-      }
-      stopAmbient();
-      musicOn = false;
-      document.getElementById("musicBtn").textContent = "♪ Music";
-      setStatus("Music off.");
-    }
-
-    document.getElementById("musicBtn").addEventListener("click", ()=>{
-      if(musicOn) stopMusic();
-      else startMusic();
-    });
-
-    document.getElementById("volume").addEventListener("input", e=>{
-      const v = Number(e.target.value)/100;
-      if(htmlAudio) htmlAudio.volume = v;
-      if(masterGain) masterGain.gain.value = v * 0.45;
-    });
-
-    const welcome = document.getElementById("welcome");
-    document.getElementById("enterBtn").addEventListener("click", async ()=>{
-      touchDay();
-      welcome.classList.add("hide");
-      await startMusic();
-    });
-    document.getElementById("enterMutedBtn").addEventListener("click", ()=>{
-      touchDay();
-      welcome.classList.add("hide");
-      stopMusic();
-    });
-
-    const canvas = document.getElementById("catalyst");
-    const ctx = canvas.getContext("2d");
-    let particles = [];
-
-    function resizeCanvas(){
-      canvas.width = window.innerWidth * devicePixelRatio;
-      canvas.height = window.innerHeight * devicePixelRatio;
-      canvas.style.width = window.innerWidth + "px";
-      canvas.style.height = window.innerHeight + "px";
-      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-      initParticles();
-    }
-
-    function initParticles(){
-      const count = Math.max(36, Math.floor(window.innerWidth / 28));
-      particles = Array.from({length:count}, ()=>({
-        x:Math.random()*window.innerWidth,
-        y:Math.random()*window.innerHeight,
-        vx:(Math.random()-.5)*0.55,
-        vy:(Math.random()-.5)*0.55,
-        r:1.4 + Math.random()*2.3
-      }));
-    }
-
-    function animateCatalyst(){
-      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-
-      for(const p of particles){
-        p.x += p.vx;
-        p.y += p.vy;
-        if(p.x < 0 || p.x > window.innerWidth) p.vx *= -1;
-        if(p.y < 0 || p.y > window.innerHeight) p.vy *= -1;
-
-        const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*6);
-        g.addColorStop(0,"rgba(23,181,156,.28)");
-        g.addColorStop(.6,"rgba(97,139,255,.12)");
-        g.addColorStop(1,"rgba(97,139,255,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r*6,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.fillStyle = "rgba(23,181,156,.35)";
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fill();
-      }
-
-      for(let i=0;i<particles.length;i++){
-        for(let j=i+1;j<particles.length;j++){
-          const a = particles[i], b = particles[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const d = Math.hypot(dx,dy);
-          if(d < 120){
-            ctx.strokeStyle = `rgba(97,139,255,${0.10*(1-d/120)})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x,a.y);
-            ctx.lineTo(b.x,b.y);
-            ctx.stroke();
-          }
-        }
-      }
-      requestAnimationFrame(animateCatalyst);
-    }
-
-    window.addEventListener("resize", resizeCanvas);
-
-    function renderAll(){
-      renderStats();
-      renderDaily();
-      renderSnapshot();
-      renderTopics();
-      renderSources();
-      renderWeak();
-      renderGloss();
-      renderGameBest();
-      fillSelects();
-      buildFlashDeck();
-      newQuizSet();
-      renderMap(document.getElementById("mapSelect")?.value || TOPICS[0].id);
-    }
-
-    touchDay();
-    resizeCanvas();
-    animateCatalyst();
-    fillSelects();
-    renderStats();
-    renderDaily();
-    renderSnapshot();
-    renderTopics();
-    renderSources();
-    renderWeak();
-    renderGloss();
-    renderGameBest();
-    buildFlashDeck();
-    newQuizSet();
-    renderMap(TOPICS[0].id);
-    checkBadges();
-    setStatus("Ready.");
-  </script>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>CATalyst Academy</strong> — ENGL465 Interactive CAT Learning Platform
+      </div>
+      <div id="statusLine">Ready.</div>
+    </div>
+  </footer>
 </body>
 </html>
