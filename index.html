@@ -2,1873 +2,1064 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ENGL465 — Computer-Assisted Translation (CAT)</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ENGL465 Interactive Platform — CAT</title>
   <style>
-    :root{
-      --bg0:#061812;
-      --bg1:#08271b;
-      --bg2:#0b3a2a;
-      --card:rgba(255,255,255,.10);
-      --card2:rgba(255,255,255,.14);
-      --stroke:rgba(255,255,255,.18);
-      --text:#ecfff6;
-      --muted:rgba(236,255,246,.78);
-      --muted2:rgba(236,255,246,.60);
-      --accent:#38f2b0;
-      --accent2:#7ad7ff;
-      --warn:#ffd166;
-      --danger:#ff5c7c;
-      --ok:#4dff9a;
-      --shadow: 0 20px 60px rgba(0,0,0,.35);
-      --r:18px;
-
-      /* Requested */
-      --font: 22px;
-      --font2: 20px;
-      --font3: 16px;
-
-      /* PDF file names (place these PDFs next to this HTML file) */
-      --pdf11: "ENGL465-Topic 11.pdf";
-      --pdf12: "ENGL465-Topic 12.pdf";
-      --pdf13: "ENGL465-Topic 13.pdf";
-      --pdf14: "ENGL465-Topic 14.pdf";
+    @font-face{
+      font-family:"KermitSemiBold";
+      src:url("./fonts/Kermit-SemiBold.woff2") format("woff2"),
+          url("./fonts/Kermit-SemiBold.ttf") format("truetype");
+      font-weight:600;
+      font-style:normal;
+      font-display:swap;
     }
-
+    :root{
+      --bg:#f7fcfb;
+      --bg2:#eef8f6;
+      --card:#ffffffea;
+      --line:#d7ebe6;
+      --ink:#183734;
+      --muted:#68857f;
+      --accent:#17b59c;
+      --accent2:#618bff;
+      --gold:#f1b84e;
+      --ok:#139a55;
+      --bad:#dc4c4c;
+      --shadow:0 18px 40px rgba(24,55,52,.08);
+      --r:20px;
+      --font:"KermitSemiBold","Segoe UI",Inter,Arial,sans-serif;
+    }
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     html,body{height:100%}
-
     body{
       margin:0;
-      color:var(--text);
-      font: 600 var(--font)/1.6 Calibri, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-      letter-spacing:.2px;
+      font-family:var(--font);
+      color:var(--ink);
       background:
-        radial-gradient(1200px 800px at 18% 10%, rgba(56,242,176,.22), transparent 60%),
-        radial-gradient(1100px 700px at 78% 12%, rgba(122,215,255,.18), transparent 60%),
-        radial-gradient(900px 600px at 55% 82%, rgba(255,209,102,.10), transparent 58%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
+        radial-gradient(circle at 10% 10%, rgba(23,181,156,.08), transparent 28%),
+        radial-gradient(circle at 90% 12%, rgba(97,139,255,.08), transparent 28%),
+        linear-gradient(180deg,#fbfffe 0%, #f5fbfa 100%);
       overflow-x:hidden;
     }
-
-    /* Developer badge (upper right) */
-    .devbadge{
-      position:fixed;
-      top:10px; right:12px;
-      z-index:120;
-      padding:10px 12px;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.25);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 14px 36px rgba(0,0,0,.28);
-      font-size: var(--font3);
-      color: rgba(236,255,246,.88);
-      font-weight:800;
-      line-height:1.25;
-      max-width: 360px;
+    #catalyst{
+      position:fixed; inset:0; z-index:-2; pointer-events:none;
     }
-    .devbadge strong{ color: var(--text) }
-
-    /* Scenic animated background layers */
-    .scene{
-      position:fixed; inset:0;
-      z-index:-3;
-      pointer-events:none;
-      overflow:hidden;
-    }
-
-    .mist{
-      position:absolute; inset:-25%;
-      background:
-        radial-gradient(700px 350px at 20% 30%, rgba(255,255,255,.10), transparent 66%),
-        radial-gradient(650px 360px at 75% 38%, rgba(255,255,255,.08), transparent 68%),
-        radial-gradient(820px 440px at 45% 74%, rgba(255,255,255,.06), transparent 70%);
-      filter: blur(18px);
-      animation: drift 20s ease-in-out infinite alternate;
-      opacity:.55;
-    }
-    @keyframes drift{
-      from{ transform: translate3d(-2%, -1%, 0) scale(1.03) }
-      to{ transform: translate3d(2%, 1%, 0) scale(1.06) }
-    }
-
-    .hills{
-      position:absolute; left:-10%; right:-10%; bottom:-14%;
-      height:48vh;
-      background:
-        radial-gradient(60% 90% at 10% 90%, rgba(56,242,176,.10), transparent 62%),
-        radial-gradient(55% 90% at 55% 95%, rgba(122,215,255,.10), transparent 62%),
-        radial-gradient(50% 90% at 90% 92%, rgba(255,209,102,.08), transparent 64%),
-        linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.22));
-      filter: blur(0px);
-      opacity:.9;
-    }
-    .hills:before,
-    .hills:after{
+    body::before{
       content:"";
-      position:absolute; inset:0;
+      position:fixed; inset:0; z-index:-1; pointer-events:none;
       background:
-        radial-gradient(120% 90% at 15% 100%, rgba(10,58,42,.85), transparent 62%),
-        radial-gradient(120% 90% at 55% 108%, rgba(9,45,34,.92), transparent 64%),
-        radial-gradient(120% 90% at 88% 102%, rgba(8,39,30,.88), transparent 66%);
-      transform: translateY(10px);
-      opacity:.95;
+        radial-gradient(900px 480px at 18% 90%, rgba(23,181,156,.05), transparent 70%),
+        radial-gradient(900px 460px at 82% 88%, rgba(97,139,255,.04), transparent 72%);
     }
-    .hills:after{
-      background:
-        radial-gradient(120% 90% at 20% 112%, rgba(6,26,20,.92), transparent 66%),
-        radial-gradient(120% 90% at 55% 118%, rgba(7,32,24,.96), transparent 68%),
-        radial-gradient(120% 90% at 86% 114%, rgba(6,26,20,.92), transparent 66%);
-      transform: translateY(26px);
-      opacity:1;
+    .hidden{display:none!important}
+    .welcome{
+      position:fixed; inset:0; z-index:999;
+      display:grid; place-items:center;
+      background:rgba(247,252,251,.92);
+      backdrop-filter:blur(10px);
+      transition:.35s ease;
     }
-
-    /* Fireflies */
-    .fly{
-      position:absolute;
-      width:10px;height:10px;border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2) 35%, rgba(56,242,176,.00) 70%);
-      box-shadow: 0 0 14px rgba(56,242,176,.55), 0 0 28px rgba(122,215,255,.25);
-      opacity:0;
-      animation: float 10s linear infinite;
+    .welcome.hide{opacity:0; pointer-events:none; visibility:hidden}
+    .welcome-card{
+      width:min(760px,92vw);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:0 30px 60px rgba(24,55,52,.12);
+      padding:28px;
+      text-align:center;
     }
-    @keyframes float{
-      0%{ transform: translate3d(0, 24vh, 0) scale(.8); opacity:0 }
-      10%{opacity:.85}
-      50%{opacity:.55}
-      90%{opacity:.80}
-      100%{ transform: translate3d(22vw, -32vh, 0) scale(1.15); opacity:0 }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 14px; border-radius:999px;
+      background:#ebfaf7; color:var(--accent);
+      font-size:14px; margin-bottom:12px;
     }
-
+    .welcome h1{
+      margin:0 0 10px; line-height:1.1;
+      font-size:clamp(28px,4vw,46px);
+    }
+    .welcome p{
+      margin:0 auto 16px; max-width:60ch;
+      color:var(--muted); line-height:1.75;
+    }
     header{
       position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(6,24,18,.82), rgba(6,24,18,.52));
-      border-bottom: 1px solid var(--stroke);
+      background:rgba(255,255,255,.86);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--line);
     }
-
+    .topbar,.navwrap,.mainwrap,.foot{
+      width:min(1360px,96vw); margin:0 auto;
+    }
     .topbar{
-      max-width:1200px;
-      margin:0 auto;
-      padding:14px 18px 10px;
-      display:flex;
-      gap:14px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
+      padding:14px 0 10px; display:flex; gap:14px;
+      align-items:center; justify-content:space-between; flex-wrap:wrap;
     }
-
-    .brand{
-      display:flex; gap:12px; align-items:center;
-      min-width:280px;
-    }
+    .brand{display:flex; gap:14px; align-items:center}
     .logo{
-      width:44px; height:44px; border-radius:14px;
+      width:54px; height:54px; border-radius:18px; position:relative;
       background:
-        radial-gradient(20px 20px at 30% 30%, rgba(255,255,255,.80), rgba(255,255,255,.10) 60%, transparent 70%),
-        linear-gradient(135deg, rgba(56,242,176,.95), rgba(122,215,255,.85));
-      box-shadow: 0 14px 30px rgba(56,242,176,.18);
-      border: 1px solid rgba(255,255,255,.22);
-      position:relative;
+        radial-gradient(circle at 34% 34%, #fff, rgba(255,255,255,.35) 28%, transparent 32%),
+        linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 16px 30px rgba(23,181,156,.18);
+      overflow:hidden;
     }
-    .logo:after{
-      content:"";
-      position:absolute; inset:10px;
-      border-radius:12px;
-      border:1px dashed rgba(255,255,255,.35);
-      opacity:.55;
+    .logo:before,.logo:after{
+      content:""; position:absolute; border-radius:50%;
+      border:2px solid rgba(255,255,255,.7);
     }
-    .titleblock{display:flex; flex-direction:column; gap:2px}
-    .course{
-      font-size: 24px;
-      letter-spacing:.3px;
-      line-height:1.2;
-      margin:0;
-      font-weight:900;
+    .logo:before{inset:10px}
+    .logo:after{inset:18px 8px 8px 18px; opacity:.6}
+    .brand h1{margin:0; font-size:clamp(20px,2.2vw,30px); line-height:1.15}
+    .brand p{margin:4px 0 0; font-size:14px; color:var(--muted)}
+    .headtools{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .search{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:14px;
+      background:#fff; border:1px solid var(--line); box-shadow:var(--shadow);
     }
-    .dev{
-      font-size: var(--font3);
-      color: var(--muted2);
-      margin:0;
-      font-weight:800;
+    .search input{
+      border:0; outline:0; background:transparent; min-width:220px;
+      color:var(--ink); font-family:var(--font);
     }
-
-    .controls{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    }
-
-    .chip{
-      display:flex; align-items:center; gap:10px;
-      padding:10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: 0 10px 25px rgba(0,0,0,.18);
-    }
-    .chip label{
-      font-size: var(--font3);
-      color: var(--muted);
-      font-weight:900;
-      letter-spacing:.2px;
-      margin-right:2px;
-    }
-    .chip input[type="range"]{
-      width:140px;
-      accent-color: var(--accent);
-    }
-
     .btn{
-      appearance:none;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      padding:10px 14px;
-      border-radius: 14px;
-      cursor:pointer;
-      font-weight:900;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      box-shadow: 0 10px 26px rgba(0,0,0,.20);
-      font-size: var(--font2);
-      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+      border:1px solid var(--line); background:#fff; color:var(--ink);
+      padding:10px 14px; border-radius:14px; cursor:pointer;
+      box-shadow:var(--shadow); transition:.18s ease;
+      font-family:var(--font);
     }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.26) }
-    .btn:active{ transform: translateY(0px) scale(.99) }
-    .btn.primary{
-      background: linear-gradient(135deg, rgba(56,242,176,.95), rgba(122,215,255,.90));
-      color:#042016;
-      border-color: rgba(255,255,255,.35);
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),#42c8b3); color:#fff; border-color:transparent}
+    .btn.secondary{background:linear-gradient(135deg,var(--accent2),#8ea8ff); color:#fff; border-color:transparent}
+    .btn.gold{background:linear-gradient(135deg,var(--gold),#f5cc7b); color:#664200; border-color:transparent}
+    .btn.small{padding:8px 12px; font-size:14px}
+    .volume{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:14px;
+      border:1px solid var(--line); background:#fff;
     }
-    .btn.danger{
-      background: rgba(255,92,124,.13);
-      border-color: rgba(255,92,124,.35);
-    }
-    .btn.ghost{
-      background: transparent;
-      border-color: rgba(255,255,255,.14);
-      box-shadow:none;
-    }
-
-    .navwrap{
-      max-width:1200px;
-      margin:0 auto;
-      padding: 0 18px 14px;
-    }
+    .volume input{accent-color:var(--accent)}
     nav{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+      display:flex; gap:10px; flex-wrap:wrap; padding:0 0 14px;
     }
     .tab{
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      cursor:pointer;
-      font-weight:950;
-      font-size: var(--font2);
-      transition: .14s ease;
-      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+      border:1px solid var(--line); background:#fff;
+      padding:10px 14px; border-radius:999px; cursor:pointer;
+      box-shadow:var(--shadow); color:var(--ink);
+      transition:.18s ease; font-family:var(--font);
     }
-    .tab:hover{ background: rgba(255,255,255,.10) }
     .tab.active{
-      background: rgba(56,242,176,.18);
-      border-color: rgba(56,242,176,.42);
-      box-shadow: 0 12px 30px rgba(56,242,176,.14);
+      background:linear-gradient(135deg,rgba(23,181,156,.14),rgba(97,139,255,.12));
+      color:var(--accent); border-color:#bfe5dd;
     }
-
-    main{
-      max-width:1200px;
-      margin:0 auto;
-      padding: 22px 18px 90px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.25fr .75fr;
-      gap:18px;
-      align-items:start;
-    }
-    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
-
+    main.mainwrap{padding:22px 0 88px}
+    .section{display:none}
+    .section.active{display:block}
+    .grid{display:grid; gap:18px}
+    .hero{grid-template-columns:1.35fr .85fr}
+    .two{grid-template-columns:1fr 1fr}
+    @media (max-width:980px){.hero,.two{grid-template-columns:1fr}}
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.07));
-      border:1px solid rgba(255,255,255,.16);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--r); box-shadow:var(--shadow);
       overflow:hidden;
     }
-    .card h2, .card h3{
-      margin:0 0 10px;
-      line-height:1.25;
-      letter-spacing:.2px;
+    .pad{padding:18px 20px}
+    .heroBox{
+      padding:24px;
+      background:
+        radial-gradient(circle at top left, rgba(23,181,156,.12), transparent 34%),
+        radial-gradient(circle at top right, rgba(97,139,255,.12), transparent 34%),
+        linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.82));
     }
-    .card h2{ font-size: 30px; font-weight:1000 }
-    .card h3{ font-size: 24px; color: var(--text); font-weight:1000 }
-
-    .card .pad{ padding:18px }
-    .muted{ color: var(--muted) }
-    .muted2{ color: var(--muted2) }
-    .mini{ font-size: var(--font3); color: var(--muted2) }
-    .pillrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px }
+    h2,h3,h4{margin:0 0 10px; line-height:1.2}
+    p{margin:0; color:var(--muted); line-height:1.72}
+    .actions,.toolbar,.pills,.flash-controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .stats{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .stat{
+      padding:16px; border-radius:18px; background:#fff;
+      border:1px solid var(--line);
+    }
+    .label{font-size:13px; color:var(--muted); margin-bottom:6px}
+    .value{font-size:28px}
+    .bar{height:12px; background:#e9f2ef; border-radius:999px; overflow:hidden; margin-top:10px}
+    .bar span{
+      display:block; height:100%; width:0%;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      transition:.3s ease;
+    }
+    .badgeWrap{display:flex; gap:10px; flex-wrap:wrap}
+    .badge{
+      padding:10px 12px; border-radius:999px;
+      background:#fff7e7; color:#8d5c00;
+      border:1px solid #f0d28b; font-size:13px;
+    }
+    .notice{
+      margin-top:16px; padding:14px 16px; border-radius:16px;
+      background:#edf9f6; border:1px solid #ccebe2; color:#28695f;
+      line-height:1.7;
+    }
+    .mini{font-size:13px; color:var(--muted)}
+    .topicGrid{
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;
+    }
+    .topic{
+      padding:18px; border-radius:20px; background:#fff;
+      border:1px solid var(--line); box-shadow:var(--shadow);
+      display:grid; gap:12px;
+    }
+    .topicCode{
+      display:inline-flex; padding:6px 10px; border-radius:999px;
+      background:#ebfaf7; color:var(--accent); font-size:13px;
+    }
+    .tags{display:flex; gap:8px; flex-wrap:wrap}
+    .tag{
+      padding:6px 10px; border-radius:999px; font-size:12px;
+      background:#f3f8f7; border:1px solid var(--line); color:var(--muted);
+    }
+    .bullets{display:grid; gap:8px}
+    .bullet{display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.65}
+    .dot{
+      width:9px; height:9px; border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      margin-top:8px; flex:0 0 auto;
+    }
+    select,input[type="text"],textarea{
+      width:100%; border:1px solid var(--line); background:#fff;
+      padding:12px 14px; border-radius:14px; outline:none;
+      color:var(--ink); font-family:var(--font);
+    }
+    textarea{min-height:140px; resize:vertical; line-height:1.7}
     .pill{
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.14);
-      color: var(--muted);
-      font-size: var(--font3);
-      font-weight:900;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border-radius:999px;
+      background:#f2f8f7; border:1px solid var(--line); color:var(--muted);
+      font-size:13px;
     }
-
-    .sidecard .stat{
-      display:flex; justify-content:space-between; align-items:center;
-      padding:12px 14px;
-      border-top:1px solid rgba(255,255,255,.12);
-      font-size: var(--font2);
-      font-weight:850;
+    .flashStage{display:grid; gap:16px}
+    .flashCard{position:relative; height:300px; perspective:1400px}
+    .flashCardInner{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+    .flashCard.flipped .flashCardInner{transform:rotateY(180deg)}
+    .face{
+      position:absolute; inset:0; backface-visibility:hidden;
+      border-radius:24px; border:1px solid var(--line);
+      box-shadow:var(--shadow); padding:24px; display:flex;
+      flex-direction:column; justify-content:space-between; background:
+        radial-gradient(circle at top left, rgba(23,181,156,.11), transparent 35%),
+        radial-gradient(circle at top right, rgba(97,139,255,.11), transparent 35%),
+        rgba(255,255,255,.97);
     }
-    .sidecard .stat:first-child{ border-top:0 }
-    .kpi{ font-weight:1000; color: var(--accent) }
-
-    .section{ display:none }
-    .section.active{ display:block }
-
+    .face.back{transform:rotateY(180deg)}
+    .big{font-size:clamp(22px,3vw,34px); line-height:1.3}
+    .ref{font-size:13px; color:var(--muted)}
+    .quizQ{font-size:22px; line-height:1.5; color:var(--ink)}
+    .options{display:grid; gap:10px}
+    .option{
+      border:1px solid var(--line); background:#fff; padding:14px;
+      border-radius:16px; cursor:pointer; transition:.15s ease; line-height:1.65;
+    }
+    .option:hover{border-color:#bde5db}
+    .option.selected{border-color:var(--accent); background:#ecfaf7}
+    .option.correct{border-color:#a8ddb9; background:#edfdf2}
+    .option.wrong{border-color:#efbbbb; background:#fff1f1}
+    .explain,.resultBox{
+      border:1px solid var(--line); border-radius:16px; background:#fcfffe;
+      padding:14px; line-height:1.75; min-height:72px;
+    }
+    .mapStage{display:grid; gap:18px}
+    .mapCore{
+      text-align:center; padding:18px; border-radius:24px;
+      background:linear-gradient(135deg,rgba(23,181,156,.12),rgba(97,139,255,.10));
+      border:1px solid var(--line); font-size:24px;
+    }
+    .mapGrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+    .branch{
+      border:1px solid var(--line); background:#fff; border-radius:20px; overflow:hidden; box-shadow:var(--shadow);
+    }
+    .branchHead{
+      width:100%; border:0; background:#fff; text-align:left;
+      padding:16px; cursor:pointer; color:var(--ink); font-family:var(--font);
+      display:flex; justify-content:space-between; gap:10px;
+    }
+    .branchBody{display:none; padding:0 16px 16px}
+    .branch.open .branchBody{display:block}
+    .branchItem{
+      border:1px solid var(--line); border-radius:14px; padding:10px 12px;
+      margin-top:10px; background:#fbfffe; color:var(--muted); line-height:1.65;
+    }
     details{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.14);
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin: 10px 0;
-      overflow:hidden;
+      border:1px solid var(--line); background:#fff; border-radius:16px; padding:14px 16px;
     }
-    details[open]{ background: rgba(0,0,0,.16); border-color: rgba(56,242,176,.22) }
-    summary{
-      cursor:pointer;
-      list-style:none;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      font-weight:1000;
-      color: var(--text);
-      font-size: 22px;
-    }
-    summary::-webkit-details-marker{ display:none }
-    .chev{
-      width:12px;height:12px;border-right:3px solid rgba(255,255,255,.75);border-bottom:3px solid rgba(255,255,255,.75);
-      transform: rotate(-45deg);
-      transition: transform .12s ease;
-      opacity:.8;
-      flex:0 0 auto;
-    }
-    details[open] .chev{ transform: rotate(45deg) }
-
-    .toolrow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      margin-top:12px;
-    }
-
-    .search{
-      flex:1;
-      min-width:240px;
-      padding:12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      font-weight:900;
-      font-size: var(--font2);
-      outline:none;
-      font-family: Calibri, "Segoe UI", Arial, sans-serif;
-    }
-    .search::placeholder{ color: rgba(236,255,246,.55) }
-
-    /* Footer */
-    footer{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      background: linear-gradient(180deg, rgba(6,24,18,.08), rgba(6,24,18,.86));
-      border-top:1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(14px);
-      z-index:60;
+    summary{cursor:pointer}
+    .sourceItem{
+      border:1px solid var(--line); border-radius:18px; background:#fff;
+      box-shadow:var(--shadow); padding:16px; display:grid; gap:10px;
     }
     .foot{
-      max-width:1200px;
-      margin:0 auto;
-      padding:10px 18px;
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-      flex-wrap:wrap;
-      font-size: var(--font3);
-      color: var(--muted2);
-      font-weight:900;
+      position:fixed; left:0; right:0; bottom:0; z-index:60;
+      background:rgba(255,255,255,.9); backdrop-filter:blur(12px);
+      border-top:1px solid var(--line); padding:10px 0;
+      display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap;
+      color:var(--muted); font-size:14px;
     }
-    .foot strong{ color: var(--muted) }
-
-    /* PDF Library */
-    .pdfgrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-      padding:18px;
+    .confetti{
+      position:fixed; top:-20px; width:10px; height:14px; border-radius:2px;
+      z-index:999; pointer-events:none; animation:drop 1.8s linear forwards;
     }
-    @media (max-width: 980px){ .pdfgrid{ grid-template-columns: 1fr; } }
-
-    .pdfcard{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.14);
-      border-radius: 16px;
-      padding:14px;
+    @keyframes drop{
+      to{transform:translateY(110vh) rotate(720deg); opacity:0}
     }
-    .pdftitle{
-      margin:0 0 6px;
-      font-size: 22px;
-      font-weight:1000;
-      letter-spacing:.2px;
-    }
-    .pdfmeta{
-      margin:0 0 12px;
-      color: var(--muted2);
-      font-size: var(--font3);
-      font-weight:850;
-    }
-    .pdfviewer{
-      width:100%;
-      height: 68vh;
-      border:1px solid rgba(255,255,255,.14);
-      border-radius: 16px;
-      background: rgba(0,0,0,.12);
-      overflow:hidden;
-    }
-    iframe{
-      width:100%;
-      height:100%;
-      border:0;
-    }
-    .note{
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid rgba(255,209,102,.25);
-      background: rgba(255,209,102,.08);
-      color: rgba(236,255,246,.92);
-      font-size: var(--font3);
-      font-weight:900;
-      margin: 14px 18px 0;
-    }
-    a.link{
-      color: var(--text);
-      font-weight:950;
-      text-decoration:none;
-      border-bottom:1px dashed rgba(255,255,255,.35);
-    }
-    a.link:hover{ border-bottom-color: rgba(56,242,176,.75) }
   </style>
 </head>
-
 <body>
-  <!-- Upper-right developer credit (requested) -->
-  <div class="devbadge">
-    <strong>Developer</strong><br/>
-    Halim Faroug A. Elhag.<br/>
-    BA (Honours), MA<br/>
-    Lecturer at UHB l UofK
-  </div>
+  <canvas id="catalyst" aria-hidden="true"></canvas>
 
-  <div class="scene" aria-hidden="true">
-    <div class="mist"></div>
-    <div class="hills"></div>
-    <!-- Fireflies injected by JS -->
+  <div class="welcome" id="welcome">
+    <div class="welcome-card">
+      <div class="chip">✦ ENGL465 Interactive Educational Platform</div>
+      <h1>Computer-Assisted Translation</h1>
+      <p>
+        Built from your attached ENGL465 topics. Includes topic cards, flashcards,
+        quizzes, mind maps, glossary lab, gamified learning, moving catalyst background,
+        and serene study audio.
+      </p>
+      <div class="actions" style="justify-content:center">
+        <button class="btn primary" id="enterBtn">Enter Platform</button>
+        <button class="btn" id="enterMutedBtn">Enter Muted</button>
+      </div>
+      <p class="mini" style="margin-top:12px">
+        Optional files: <strong>./fonts/Kermit-SemiBold.woff2</strong> and <strong>./audio/serene.mp3</strong>
+      </p>
+    </div>
   </div>
 
   <header>
     <div class="topbar">
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
-        <div class="titleblock">
-          <h1 class="course">ENGL465 — Computer-Assisted Translation (CAT)</h1>
-          <p class="dev">Developed by <strong>Ms. Halim Faroug A. Elhag, BA (Honours), MA — UHB/UofK</strong></p>
+        <div>
+          <h1>ENGL465 — Computer-Assisted Translation (CAT)</h1>
+          <p>Interactive study hub based on Topics 1–8 and 11–13 from your attached files</p>
         </div>
       </div>
 
-      <div class="controls">
-        <button class="btn ghost" id="musicBtn" title="Play/Pause Ambient Audio">♪ Audio</button>
-        <div class="chip" title="Adjust audio volume">
-          <label for="vol">Volume</label>
-          <input id="vol" type="range" min="0" max="100" value="35" />
+      <div class="headtools">
+        <div class="search">
+          <input id="searchInput" type="text" placeholder="Search topics, cards, quizzes, sources..." />
+          <button class="btn small" id="searchBtn">Search</button>
         </div>
-        <button class="btn" id="resetBtn" title="Reset progress on this device">Reset Progress</button>
-        <button class="btn primary" id="quickStartBtn" title="Jump to today’s study flow">Study Flow</button>
+        <button class="btn small" id="musicBtn">♪ Music</button>
+        <div class="volume">
+          <span class="mini">Volume</span>
+          <input type="range" id="volume" min="0" max="100" value="35">
+        </div>
+        <button class="btn small gold" id="dailyBtn">Daily Challenge</button>
+        <button class="btn small" id="resetBtn">Reset</button>
       </div>
     </div>
 
     <div class="navwrap">
-      <nav aria-label="Course navigation">
-        <button class="tab active" data-target="home">Home</button>
-        <button class="tab" data-target="terminology-tools">Terminology Tools for Translators</button>
-        <button class="tab" data-target="minority-languages">Translation Technologies and Minority Languages</button>
-        <button class="tab" data-target="commercial-mt">Inside Commercial Machine Translation</button>
-        <button class="tab" data-target="pdf-lessons">Topics 11–14 (PDF Lessons)</button>
+      <nav>
+        <button class="tab active" data-target="dashboard">Dashboard</button>
+        <button class="tab" data-target="topics">Topics</button>
         <button class="tab" data-target="flashcards">Flashcards</button>
         <button class="tab" data-target="quizzes">Quizzes</button>
         <button class="tab" data-target="mindmaps">Mind Maps</button>
-        <button class="tab" data-target="studio">CAT Studio</button>
+        <button class="tab" data-target="games">Game Lab</button>
+        <button class="tab" data-target="lab">Glossary Lab</button>
+        <button class="tab" data-target="sources">Sources</button>
         <button class="tab" data-target="review">Review</button>
       </nav>
     </div>
   </header>
 
-  <main>
-    <!-- HOME -->
-    <section id="home" class="section active">
-      <div class="grid">
+  <main class="mainwrap">
+    <section id="dashboard" class="section active">
+      <div class="grid hero">
+        <div class="card heroBox">
+          <h2>Study smarter with interactive CAT learning.</h2>
+          <p>
+            This platform turns your course content into an active study environment.
+            You can review all attached topics, practice flashcards, answer quizzes,
+            expand mind maps, build glossaries, and earn XP, coins, streaks, and badges.
+          </p>
+          <div class="actions" style="margin-top:18px">
+            <button class="btn primary" id="dashFlash">Start Flashcards</button>
+            <button class="btn secondary" id="dashQuiz">Start Mixed Quiz</button>
+            <button class="btn" id="dashTopics">Browse Topics</button>
+          </div>
+          <div class="notice">
+            <strong>Included source set:</strong> ENGL465 Topic 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, and 13. 
+            Topic 14 was not attached, so it is not included in the data model.
+          </div>
+        </div>
+
         <div class="card">
           <div class="pad">
-            <h2>Course Hub</h2>
-            <p class="muted">
-              This hub supports structured learning of core CAT themes with interactive practice:
-              terminology management, technology gaps for minority languages, and commercial machine translation.
-              New: Topics 11–14 PDFs are now built-in under <strong>Topics 11–14 (PDF Lessons)</strong>.
-            </p>
-
-            <details open>
-              <summary>Learning Outcomes <span class="chev" aria-hidden="true"></span></summary>
-              <div class="muted">
-                <ul>
-                  <li>Explain how terminology tools improve consistency, speed, and collaboration.</li>
-                  <li>Distinguish term banks vs. termbases; identify what a complete term record contains.</li>
-                  <li>Recognize why minority languages are underserved technologically and how resources can be built.</li>
-                  <li>Describe how commercial MT is built, evaluated, and refined over time.</li>
-                  <li>Use Topics 11–14 PDFs as your official reference content for study and review.</li>
-                </ul>
-              </div>
-            </details>
-
-            <details>
-              <summary>How to Use This Hub <span class="chev" aria-hidden="true"></span></summary>
-              <div class="muted">
-                <ol>
-                  <li>Use the PDF Lessons tab for Topics 11–14.</li>
-                  <li>Use flashcards/quizzes/mind maps for drilling.</li>
-                  <li>Use CAT Studio for term extraction and quick glossary building.</li>
-                  <li>Progress saves automatically on this device.</li>
-                </ol>
-              </div>
-            </details>
-
-            <div class="pillrow">
-              <span class="pill">Calibri 22 layout</span>
-              <span class="pill">Offline audio</span>
-              <span class="pill">PDF Lessons built-in</span>
-              <span class="pill">Progress tracking</span>
+            <h3>Your Progress</h3>
+            <p>Saved locally on this device.</p>
+            <div class="stats" style="margin-top:16px">
+              <div class="stat"><div class="label">Level</div><div class="value" id="levelOut">1</div></div>
+              <div class="stat"><div class="label">XP</div><div class="value" id="xpOut">0</div></div>
+              <div class="stat"><div class="label">Coins</div><div class="value" id="coinsOut">0</div></div>
+              <div class="stat"><div class="label">Streak</div><div class="value" id="streakOut">0</div></div>
             </div>
-          </div>
-
-          <div class="deckbar" style="padding:14px;border-top:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.10)">
-            <div class="toolrow" style="margin-top:0">
-              <input id="globalSearch" class="search" placeholder="Search flashcards, quizzes, mind maps…" />
-              <button class="btn primary" id="searchBtn">Search</button>
-              <button class="btn" id="randomBtn">Random Practice</button>
-              <button class="btn" onclick="go('pdf-lessons')">Open PDF Lessons</button>
+            <div style="margin-top:16px">
+              <div class="mini">Mastery</div>
+              <div class="bar"><span id="masterBar"></span></div>
+              <div class="mini" id="masterText" style="margin-top:8px">0% mastered</div>
             </div>
+            <div class="badgeWrap" id="badgeOut" style="margin-top:16px"></div>
           </div>
         </div>
+      </div>
 
-        <div class="card sidecard">
+      <div class="grid two" style="margin-top:18px">
+        <div class="card">
           <div class="pad">
-            <h3>Progress Snapshot</h3>
-            <p class="mini">Saved locally on this device.</p>
+            <h3>Daily Challenge</h3>
+            <p>Complete today’s mission for bonus XP.</p>
+            <div class="notice" id="dailyBox" style="margin-top:14px"></div>
+            <div class="actions" style="margin-top:14px">
+              <button class="btn primary" id="goDaily">Go to Challenge</button>
+            </div>
           </div>
-          <div class="stat"><span>Flashcards mastered</span><span class="kpi" id="sMastered">0</span></div>
-          <div class="stat"><span>Quiz correct</span><span class="kpi" id="sCorrect">0</span></div>
-          <div class="stat"><span>Quiz attempted</span><span class="kpi" id="sAttempted">0</span></div>
-          <div class="stat"><span>Last activity</span><span class="kpi" id="sLast">—</span></div>
+        </div>
+        <div class="card">
+          <div class="pad">
+            <h3>Course Snapshot</h3>
+            <div id="snapshot" class="bullets" style="margin-top:10px"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="pad">
+          <h3>Search Results / Smart Notes</h3>
+          <div id="searchOut" class="resultBox" style="margin-top:14px">No search yet.</div>
         </div>
       </div>
     </section>
 
-    <!-- TERMINOLOGY TOOLS FOR TRANSLATORS -->
-    <section id="terminology-tools" class="section">
+    <section id="topics" class="section">
       <div class="card">
         <div class="pad">
-          <h2>Terminology Tools for Translators</h2>
-          <p class="muted">
-            Terminology work is time-consuming but non-negotiable. Clients often require preferred terms; good tooling prevents repeated research and improves clarity.
-          </p>
-
-          <details open>
-            <summary>Introduction <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <ul>
-                <li><strong>Terminology</strong> = collecting, organizing, and using specialized terms (e.g., engineering, medicine, law).</li>
-                <li>Accurate equivalents matter because specialized terms drive meaning, compliance, and user trust.</li>
-                <li>Tools store/retrieve/update term records to keep usage consistent, reduce misunderstandings, and improve quality.</li>
-              </ul>
-            </div>
-          </details>
-
-          <details>
-            <summary>Key Takeaway <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              Humans need fast and flexible entries; machines need strict and explicit data (POS, sense, constraints).
-            </div>
-          </details>
-
-          <div class="toolrow">
-            <button class="btn primary" onclick="openPractice('flashcards','terminology')">Flashcards</button>
-            <button class="btn primary" onclick="openPractice('quizzes','terminology')">Quizzes</button>
-            <button class="btn" onclick="openPractice('mindmaps','terminology')">Mind Map</button>
-            <button class="btn" onclick="openPractice('studio','term')">CAT Studio</button>
+          <h2>Topic Explorer</h2>
+          <p>Every topic card below is based on the attached ENGL465 source files.</p>
+          <div class="toolbar" style="margin-top:14px">
+            <button class="btn small primary filterBtn" data-filter="all">All</button>
+            <button class="btn small filterBtn" data-filter="foundation">Foundation</button>
+            <button class="btn small filterBtn" data-filter="tools">Tools</button>
+            <button class="btn small filterBtn" data-filter="technology">Technology</button>
+            <button class="btn small filterBtn" data-filter="practice">Practice</button>
           </div>
+          <div id="topicsOut" class="topicGrid" style="margin-top:16px"></div>
         </div>
       </div>
     </section>
 
-    <!-- TRANSLATION TECHNOLOGIES AND MINORITY LANGUAGES -->
-    <section id="minority-languages" class="section">
+    <section id="flashcards" class="section">
       <div class="card">
         <div class="pad">
-          <h2>Translation Technologies and Minority Languages</h2>
-          <p class="muted">
-            Translation technology tracks economic power. Major languages get MT/CAT ecosystems; many others lack even basic digital support.
-          </p>
+          <h2>Flashcards</h2>
+          <p>Flip, rate, and master cards topic by topic.</p>
 
-          <details open>
-            <summary>Key Points <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <ul>
-                <li>Minority language: <strong>&lt; 50%</strong> in a geopolitical area + often non-official status.</li>
-                <li>Resource tiers: high / mid / low-resource.</li>
-                <li>Build resources: corpora → word lists → dictionaries → bilingual corpora/TM → richer tools.</li>
-              </ul>
+          <div class="toolbar" style="margin-top:14px">
+            <select id="flashSelect" style="max-width:320px"></select>
+            <button class="btn small" id="flashShuffle">Shuffle</button>
+            <button class="btn small" id="flashWeak">Focus Weak</button>
+          </div>
+
+          <div class="flashStage" style="margin-top:16px">
+            <div class="pills">
+              <span class="pill" id="flashDeck">Deck: All</span>
+              <span class="pill" id="flashPos">Card 1 / 1</span>
+              <span class="pill" id="flashState">Status: New</span>
             </div>
-          </details>
 
-          <div class="toolrow">
-            <button class="btn primary" onclick="openPractice('flashcards','minority')">Flashcards</button>
-            <button class="btn primary" onclick="openPractice('quizzes','minority')">Quizzes</button>
-            <button class="btn" onclick="openPractice('mindmaps','minority')">Mind Map</button>
-            <button class="btn" onclick="openPractice('studio','resources')">CAT Studio</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- INSIDE COMMERCIAL MACHINE TRANSLATION -->
-    <section id="commercial-mt" class="section">
-      <div class="card">
-        <div class="pad">
-          <h2>Inside Commercial Machine Translation</h2>
-          <p class="muted">
-            MT is built in two major phases: creation (engine building) and continuous development (evaluation, refinement, user feedback).
-          </p>
-
-          <details open>
-            <summary>Key Points <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <ul>
-                <li>Phase 1: RBMT / data-driven / hybrid, plus language-pair resource challenges.</li>
-                <li>Phase 2: evaluation depends on purpose (gisting/dissemination/communication) + continuous refinement.</li>
-                <li>Reality: MT assists; humans still decide meaning and appropriateness.</li>
-              </ul>
-            </div>
-          </details>
-
-          <div class="toolrow">
-            <button class="btn primary" onclick="openPractice('flashcards','mt')">Flashcards</button>
-            <button class="btn primary" onclick="openPractice('quizzes','mt')">Quizzes</button>
-            <button class="btn" onclick="openPractice('mindmaps','mt')">Mind Map</button>
-            <button class="btn" onclick="openPractice('studio','mt')">CAT Studio</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PDF LESSONS (Topics 11–14) -->
-    <section id="pdf-lessons" class="section">
-      <div class="card">
-        <div class="pad">
-          <h2>Topics 11–14 (PDF Lessons)</h2>
-          <p class="muted">
-            These are your official lesson files. To work offline, keep the PDFs in the <strong>same folder</strong> as this HTML file.
-          </p>
-        </div>
-
-        <div class="note">
-          If the PDF viewer shows blank: open the HTML via a local server (e.g., VS Code “Live Server”) or open the PDF directly.
-        </div>
-
-        <div class="pdfgrid">
-          <div class="pdfcard">
-            <p class="pdftitle">Topic 11</p>
-            <p class="pdfmeta">File: <span id="f11"></span></p>
-            <div class="toolrow">
-              <button class="btn primary" onclick="loadPDF(pdfFiles.t11)">Open in Viewer</button>
-              <a class="link" id="a11" href="#" target="_blank" rel="noopener">Open directly</a>
-            </div>
-          </div>
-
-          <div class="pdfcard">
-            <p class="pdftitle">Topic 12</p>
-            <p class="pdfmeta">File: <span id="f12"></span></p>
-            <div class="toolrow">
-              <button class="btn primary" onclick="loadPDF(pdfFiles.t12)">Open in Viewer</button>
-              <a class="link" id="a12" href="#" target="_blank" rel="noopener">Open directly</a>
-            </div>
-          </div>
-
-          <div class="pdfcard">
-            <p class="pdftitle">Topic 13</p>
-            <p class="pdfmeta">File: <span id="f13"></span></p>
-            <div class="toolrow">
-              <button class="btn primary" onclick="loadPDF(pdfFiles.t13)">Open in Viewer</button>
-              <a class="link" id="a13" href="#" target="_blank" rel="noopener">Open directly</a>
-            </div>
-          </div>
-
-          <div class="pdfcard">
-            <p class="pdftitle">Topic 14</p>
-            <p class="pdfmeta">File: <span id="f14"></span></p>
-            <div class="toolrow">
-              <button class="btn primary" onclick="loadPDF(pdfFiles.t14)">Open in Viewer</button>
-              <a class="link" id="a14" href="#" target="_blank" rel="noopener">Open directly</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="pad">
-          <h3>PDF Viewer</h3>
-          <p class="mini muted2">Pick a topic above to load it here.</p>
-          <div class="pdfviewer">
-            <iframe id="pdfFrame" title="PDF Viewer"></iframe>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FLASHCARDS / QUIZZES / MINDMAPS / STUDIO / REVIEW -->
-    <!-- Kept from your original build (logic below). -->
-    <section id="flashcards" class="section"><div class="card"><div class="pad"><h2>Flashcards</h2><p class="muted">Flip to reveal answers. Rate recall to train spaced review. Your progress saves automatically.</p><div class="toolrow"><button class="btn primary" onclick="setDeck('all')">All</button><button class="btn" onclick="setDeck('terminology')">Terminology</button><button class="btn" onclick="setDeck('minority')">Minority Languages</button><button class="btn" onclick="setDeck('mt')">Commercial MT</button><button class="btn" onclick="setDeck('weak')">Focus: Weak</button><button class="btn" onclick="shuffleDeck()">Shuffle</button></div></div><div class="deckbar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px;border-top:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.10)"><div class="deckmeta" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:var(--font2);font-weight:900;color:var(--muted)"><span class="pill" id="deckName">Deck: All</span><span class="pill" id="deckCount">Cards: 0</span><span class="pill" id="deckPos">Card: 0 / 0</span></div><div class="toolrow" style="margin-top:0"><button class="btn" onclick="prevCard()">◀</button><button class="btn primary" onclick="flipCard()">Flip</button><button class="btn" onclick="nextCard()">▶</button></div></div><div class="flashwrap" id="flashMount" style="display:grid;grid-template-columns:1fr;gap:14px;padding:18px"></div></div></section>
-
-    <section id="quizzes" class="section"><div class="card"><div class="pad"><h2>Quizzes</h2><p class="muted">Answer, submit, and get instant explanations. Questions rotate by theme or mixed mode.</p><div class="toolrow"><button class="btn primary" onclick="setQuizMode('mixed')">Mixed</button><button class="btn" onclick="setQuizMode('terminology')">Terminology</button><button class="btn" onclick="setQuizMode('minority')">Minority Languages</button><button class="btn" onclick="setQuizMode('mt')">Commercial MT</button><button class="btn" onclick="newQuiz()">New Set</button></div></div><div class="quizwrap" id="quizMount" style="padding:18px;display:grid;gap:14px"></div></div></section>
-
-    <section id="mindmaps" class="section"><div class="card"><div class="pad"><h2>Mind Maps</h2><p class="muted">Click nodes to expand. Use them to revise quickly and link concepts across the course.</p><div class="toolrow"><button class="btn primary" onclick="setMap('all')">All</button><button class="btn" onclick="setMap('terminology')">Terminology</button><button class="btn" onclick="setMap('minority')">Minority Languages</button><button class="btn" onclick="setMap('mt')">Commercial MT</button></div></div><div class="mapwrap" id="mapMount" style="padding:18px;display:grid;gap:12px"></div></div></section>
-
-    <section id="studio" class="section">
-      <div class="card">
-        <div class="pad">
-          <h2>CAT Studio</h2>
-          <p class="muted">Practical micro-tools: simulate term extraction, build a quick glossary, and practice MT evaluation choices.</p>
-        </div>
-        <div style="padding:18px;display:grid;gap:12px">
-          <details open>
-            <summary>Term Extraction Simulator <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <p class="muted2 mini">Simulation only. Validate terms manually.</p>
-              <textarea id="termText" placeholder="Paste a short source text here…" style="width:100%;min-height:140px;border-radius:16px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.16);color:var(--text);padding:12px 14px;font:900 var(--font2)/1.5 Calibri, Arial, sans-serif;outline:none;resize:vertical;"></textarea>
-              <div class="toolrow">
-                <button class="btn primary" onclick="runExtraction('linguistic')">Pattern-Based</button>
-                <button class="btn primary" onclick="runExtraction('statistical')">Frequency-Based</button>
-                <button class="btn" onclick="runExtraction('hybrid')">Hybrid</button>
-                <button class="btn danger" onclick="clearStudio()">Clear</button>
-              </div>
-              <div id="termResult" style="border-radius:16px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.14);padding:12px 14px;font-size:var(--font2);font-weight:850;">
-                <span class="muted2">Candidate terms will appear here.</span>
+            <div class="flashCard" id="flashCard">
+              <div class="flashCardInner">
+                <div class="face">
+                  <div>
+                    <div class="mini">Question / concept</div>
+                    <div class="big" id="flashFront"></div>
+                  </div>
+                  <div>
+                    <div class="ref" id="flashFrontRef"></div>
+                    <div class="flash-controls" style="margin-top:14px">
+                      <button class="btn primary" id="flipCardBtn">Flip</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="face back">
+                  <div>
+                    <div class="mini">Answer / explanation</div>
+                    <div class="big" id="flashBack"></div>
+                  </div>
+                  <div>
+                    <div class="ref" id="flashBackRef"></div>
+                    <div class="flash-controls" style="margin-top:14px">
+                      <button class="btn" id="rateHard">Hard</button>
+                      <button class="btn secondary" id="rateGood">Good</button>
+                      <button class="btn primary" id="rateMaster">Mastered</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </details>
 
-          <details>
-            <summary>Quick Glossary Builder <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <p class="mini muted2">Add terms and export as a simple table (copy/paste).</p>
-              <div class="toolrow">
-                <input class="search" id="gTerm" placeholder="Term (source)" />
-                <input class="search" id="gEq" placeholder="Equivalent (target)" />
-                <input class="search" id="gNote" placeholder="Note (domain / usage / context)" />
-                <button class="btn primary" onclick="addGloss()">Add</button>
-                <button class="btn" onclick="exportGloss()">Export</button>
-                <button class="btn danger" onclick="clearGloss()">Clear</button>
-              </div>
-              <div id="glossOut" style="border-radius:16px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.14);padding:12px 14px;font-size:var(--font2);font-weight:850;">
-                <span class="muted2">No entries yet.</span>
-              </div>
+            <div class="toolbar">
+              <button class="btn" id="prevCard">◀ Previous</button>
+              <button class="btn" id="nextCard">Next ▶</button>
             </div>
-          </details>
+          </div>
+        </div>
+      </div>
+    </section>
 
-          <details>
-            <summary>MT Evaluation Choice Trainer <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <p class="mini muted2">Select the correct purpose category and see the reasoning.</p>
-              <div id="mtTrainer"></div>
+    <section id="quizzes" class="section">
+      <div class="card">
+        <div class="pad">
+          <h2>Quiz Arena</h2>
+          <p>Mixed or topic-based quizzes with source-based explanations.</p>
+
+          <div class="toolbar" style="margin-top:14px">
+            <select id="quizSelect" style="max-width:320px"></select>
+            <button class="btn primary" id="newQuiz">New Quiz</button>
+          </div>
+
+          <div class="pills" style="margin-top:16px">
+            <span class="pill" id="quizTopicOut">Topic: Mixed</span>
+            <span class="pill" id="quizPosOut">Question 1 / 5</span>
+            <span class="pill" id="quizScoreOut">Score: 0</span>
+          </div>
+
+          <div class="quizQ" id="quizQ" style="margin-top:16px"></div>
+          <div id="quizOpts" class="options" style="margin-top:14px"></div>
+
+          <div class="toolbar" style="margin-top:14px">
+            <button class="btn secondary" id="submitQuiz">Submit</button>
+            <button class="btn" id="nextQuiz">Next Question</button>
+          </div>
+
+          <div id="quizExplain" class="explain" style="margin-top:14px">Select an answer and submit.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mindmaps" class="section">
+      <div class="card">
+        <div class="pad">
+          <h2>Mind Maps</h2>
+          <p>Interactive revision maps for each attached topic.</p>
+          <div class="toolbar" style="margin-top:14px">
+            <select id="mapSelect" style="max-width:380px"></select>
+            <button class="btn primary" id="loadMap">Load Map</button>
+          </div>
+          <div id="mapOut" class="mapStage" style="margin-top:16px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="games" class="section">
+      <div class="grid two">
+        <div class="card">
+          <div class="pad">
+            <h2>Rapid Match</h2>
+            <p>Answer fast and build your streak.</p>
+
+            <div class="pills" style="margin-top:14px">
+              <span class="pill" id="gameStreak">Streak: 0</span>
+              <span class="pill" id="gameBest">Best: 0</span>
             </div>
-          </details>
+
+            <div class="quizQ" id="gameQ" style="margin-top:16px"></div>
+            <div id="gameOpts" class="options" style="margin-top:14px"></div>
+            <div class="toolbar" style="margin-top:14px">
+              <button class="btn primary" id="newGame">New Challenge</button>
+            </div>
+            <div id="gameExplain" class="explain" style="margin-top:14px">Challenge ready.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="pad">
+            <h2>Achievements</h2>
+            <p>Badges unlocked through study behavior.</p>
+            <div id="achievements" class="badgeWrap" style="margin-top:16px"></div>
+            <details style="margin-top:16px">
+              <summary><strong>XP Rules</strong></summary>
+              <div class="mini" style="margin-top:10px; line-height:1.8">
+                Good flashcard = +8 XP • Mastered flashcard = +14 XP • Correct quiz = +20 XP • Rapid Match = +12 XP • Daily challenge = +40 XP
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lab" class="section">
+      <div class="grid two">
+        <div class="card">
+          <div class="pad">
+            <h2>Term Extraction Lab</h2>
+            <p>Paste short text and generate candidate terms.</p>
+            <textarea id="labText" placeholder="Paste source text here..."></textarea>
+            <div class="toolbar" style="margin-top:12px">
+              <button class="btn primary" id="runPattern">Pattern-Based</button>
+              <button class="btn secondary" id="runStats">Frequency-Based</button>
+              <button class="btn gold" id="runHybrid">Hybrid</button>
+            </div>
+            <div id="labOut" class="resultBox" style="margin-top:14px">Candidate terms will appear here.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="pad">
+            <h2>Quick Glossary Builder</h2>
+            <p>Build your own mini termbase while you revise.</p>
+            <div class="grid" style="grid-template-columns:1fr; gap:10px; margin-top:12px">
+              <input type="text" id="gTerm" placeholder="Source term">
+              <input type="text" id="gEq" placeholder="Target equivalent">
+              <input type="text" id="gNote" placeholder="Note / domain / usage">
+            </div>
+            <div class="toolbar" style="margin-top:12px">
+              <button class="btn primary" id="addGloss">Add Entry</button>
+              <button class="btn" id="exportGloss">Export</button>
+              <button class="btn" id="clearGloss">Clear</button>
+            </div>
+            <div id="glossOut" class="resultBox" style="margin-top:14px">No glossary entries yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sources" class="section">
+      <div class="card">
+        <div class="pad">
+          <h2>Source Explorer</h2>
+          <p>Source files and page ranges used to build this platform.</p>
+          <div id="sourcesOut" class="topicGrid" style="margin-top:16px"></div>
         </div>
       </div>
     </section>
 
     <section id="review" class="section">
-      <div class="card">
-        <div class="pad">
-          <h2>Review</h2>
-          <p class="muted">High-yield recap + common traps + exam checklist.</p>
-
-          <details open>
-            <summary>High-Yield Summary <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <ul>
-                <li><strong>Terminology tools:</strong> consistency + speed + collaboration; extraction = linguistic/statistical/hybrid.</li>
-                <li><strong>Minority languages:</strong> definition = size + status; resource tiers; build via corpora → word lists → dictionaries → TM.</li>
-                <li><strong>Commercial MT:</strong> phase 1 creation + phase 2 development; evaluation depends on purpose; humans remain essential.</li>
-                <li><strong>Topics 11–14:</strong> use the PDF Lessons tab as your authoritative reference.</li>
-              </ul>
+      <div class="grid two">
+        <div class="card">
+          <div class="pad">
+            <h2>Weak Areas</h2>
+            <p>Cards not yet mastered appear here.</p>
+            <div id="weakOut" class="resultBox" style="margin-top:14px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="pad">
+            <h2>High-Yield Review</h2>
+            <div class="bullets" style="margin-top:10px">
+              <div class="bullet"><span class="dot"></span><span>Define CAT and distinguish it from MT.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Know the translator’s workstation components.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Understand TM database building and exact/context/fuzzy/fragment matches.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Compare term banks and termbases; explain extraction methods and noise/silence.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Explain localization vs translation and i18n / l10n / g11n.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Describe challenges for minority languages and resource building paths.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Know corpus types and how corpora support translators.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Explain why translation is difficult for computers.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Know MT evaluation methods, BLEU limits, and stakeholder perspectives.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Understand sublanguages and the Météo case.</span></div>
+              <div class="bullet"><span class="dot"></span><span>Differentiate minimal and full post-editing and recall SAE J2450 errors.</span></div>
             </div>
-          </details>
-
-          <details>
-            <summary>Fast Answer Checklist <span class="chev" aria-hidden="true"></span></summary>
-            <div class="muted">
-              <ul>
-                <li>State the definition.</li>
-                <li>List the core categories.</li>
-                <li>Give one concrete example.</li>
-                <li>End with workflow impact (time/quality/cost/feasibility).</li>
-              </ul>
-            </div>
-          </details>
-
-          <div class="toolrow">
-            <button class="btn primary" onclick="go('pdf-lessons')">PDF Lessons</button>
-            <button class="btn primary" onclick="go('flashcards')">Flashcards</button>
-            <button class="btn" onclick="go('quizzes')">Quizzes</button>
-            <button class="btn" onclick="go('mindmaps')">Mind Maps</button>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer>
-    <div class="foot">
-      <div><strong>ENGL465</strong> — Computer-Assisted Translation (CAT)</div>
-      <div id="statusLine">Ready.</div>
-    </div>
-  </footer>
+  <div class="foot">
+    <div>ENGL465 Interactive CAT Platform</div>
+    <div id="status">Ready.</div>
+  </div>
 
   <script>
-    /***********************
-     * Status helper
-     ***********************/
-    function setStatus(msg){
-      document.getElementById('statusLine').textContent = msg;
-      touchActivity();
-    }
+    const TOPICS = [
+      {
+        id:"t1", code:"Topic 1", title:"Introduction to CAT", cat:"foundation",
+        file:"ENGL465-Topic 1.pdf", pages:"pp. 4–12",
+        summary:"CAT uses computer tools to assist human translators rather than replace them.",
+        bullets:[
+          "CAT combines human expertise with TM, terminology tools, QA, and project tools.",
+          "Historically, interest shifted from full MT to translator aids after the ALPAC report.",
+          "Benefits include efficiency, consistency, and collaboration; limits include setup, input quality, and lack of creativity."
+        ]
+      },
+      {
+        id:"t2", code:"Topic 2", title:"The Translator’s Workstation", cat:"tools",
+        file:"ENGL465-Topic 2.pdf", pages:"pp. 4–15",
+        summary:"A translator’s workstation is an integrated environment of tools that support translation workflows.",
+        bullets:[
+          "It includes word processing, terminology management, lexical resources, corpora, and MT support.",
+          "It distinguishes MAHT and HAMT.",
+          "Corpus-based resources and concordances help with consistency and context."
+        ]
+      },
+      {
+        id:"t3", code:"Topic 3", title:"Translation Memory Systems", cat:"tools",
+        file:"ENGL465-Topic 3.pdf", pages:"pp. 4–14",
+        summary:"TM stores previous translations and retrieves matches for new segments.",
+        bullets:[
+          "Databases can be built gradually, imported, or created through alignment.",
+          "Alignment faces boundary, reordering, and language-specific challenges.",
+          "TM offers exact, context, fuzzy, and fragment matches."
+        ]
+      },
+      {
+        id:"t4", code:"Topic 4", title:"Terminology Tools for Translators", cat:"tools",
+        file:"ENGL465-Topic 4.pdf", pages:"pp. 4–11",
+        summary:"Terminology tools help translators manage specialized terms efficiently and consistently.",
+        bullets:[
+          "Term records can be rich term-bank style or brief termbase style.",
+          "Modern tools support multilingual storage, search, and integration with CAT tools.",
+          "Term extraction may be linguistic, statistical, or hybrid; each faces noise and silence."
+        ]
+      },
+      {
+        id:"t5", code:"Topic 5", title:"Localization & Translation", cat:"technology",
+        file:"ENGL465-Topic 5.pdf", pages:"pp. 4–13",
+        summary:"Localization adapts products linguistically, culturally, and technically for target markets.",
+        bullets:[
+          "Localization differs from translation in scope, adaptation level, complexity, and technology.",
+          "Key related terms are i18n, l10n, and g11n.",
+          "Projects involve software, help files, documentation, and web content with specialized teams and workflows."
+        ]
+      },
+      {
+        id:"t6", code:"Topic 6", title:"Translation Technologies and Minority Languages", cat:"technology",
+        file:"ENGL465-Topic 6.pdf", pages:"pp. 4–9",
+        summary:"Minority languages often lack the computational resources available to major languages.",
+        bullets:[
+          "Minority language status depends on numerical size and non-official status in a geopolitical area.",
+          "Resource gaps include keyboards, OCR, spelling tools, dictionaries, CAT, and MT.",
+          "Progress can come from corpora, word lists, bilingual corpora, and linguistic description."
+        ]
+      },
+      {
+        id:"t7", code:"Topic 7", title:"Corpora & the Translator", cat:"tools",
+        file:"ENGL465-Topic 7.pdf", pages:"pp. 4–12",
+        summary:"Corpora are computer-stored text collections used in translation research, training, and professional practice.",
+        bullets:[
+          "Key types include parallel and comparable corpora.",
+          "Corpora support translator training, contrastive analysis, and professional translation decisions.",
+          "The Translational English Corpus (TEC) supports research on translated English."
+        ]
+      },
+      {
+        id:"t8", code:"Topic 8", title:"Why Translation Is Difficult for Computers", cat:"technology",
+        file:"ENGL465-Topic 8.pdf", pages:"pp. 4–9",
+        summary:"Translation is difficult for computers because language requires context, ambiguity resolution, and common sense.",
+        bullets:[
+          "Core limitations include vague task handling, lack of experiential learning, weak common-sense reasoning, and combinatorial explosion.",
+          "Problems include analysis, transfer, synthesis, and knowledge description.",
+          "EBMT and SMT helped, but still have data and selection limits."
+        ]
+      },
+      {
+        id:"t11", code:"Topic 11", title:"How to Evaluate Machine Translation", cat:"practice",
+        file:"ENGL465-Topic 11.pdf", pages:"pp. 4–13",
+        summary:"MT evaluation examines translation quality, usability, and system performance using human and automatic methods.",
+        bullets:[
+          "Methods include error analysis, adequacy/fluency, informativeness, and usability/cost.",
+          "Challenges include subjectivity, multiple valid translations, and balancing accuracy with readability.",
+          "BLEU, METEOR, and TER help automate evaluation but do not replace human judgment."
+        ]
+      },
+      {
+        id:"t12", code:"Topic 12", title:"Sublanguage", cat:"technology",
+        file:"ENGL465-Topic 12.pdf", pages:"pp. 4–10",
+        summary:"A sublanguage is a specialized variety of language used in a restricted field or domain.",
+        bullets:[
+          "Sublanguages are useful for MT because they have limited vocabulary and predictable patterns.",
+          "Features include specialized vocabulary, recurring grammar, and stable document structure.",
+          "The Canadian Météo system is a classic example of successful MT on a sublanguage."
+        ]
+      },
+      {
+        id:"t13", code:"Topic 13", title:"Post-Editing", cat:"practice",
+        file:"ENGL465-Topic 13.pdf", pages:"pp. 4–13",
+        summary:"Post-editing improves MT output so it becomes accurate, fluent, and fit for purpose.",
+        bullets:[
+          "Minimal post-editing focuses on understandability; full post-editing aims for near-human quality.",
+          "Best practices include pre-editing, TM/glossaries, training, and structured error classification.",
+          "SAE J2450 identifies seven common error types used in quality assessment."
+        ]
+      }
+    ];
 
-    /***********************
-     * PDF Lessons (Topics 11–14)
-     * Keep PDFs in same folder as this HTML:
-     * - ENGL465-Topic 11.pdf
-     * - ENGL465-Topic 12.pdf
-     * - ENGL465-Topic 13.pdf
-     * - ENGL465-Topic 14.pdf
-     ***********************/
-    const pdfFiles = {
-      t11: "ENGL465-Topic 11.pdf",
-      t12: "ENGL465-Topic 12.pdf",
-      t13: "ENGL465-Topic 13.pdf",
-      t14: "ENGL465-Topic 14.pdf",
+    const CARDS = [
+      {id:"c1", topic:"t1", q:"What is CAT?", a:"Computer-Assisted Translation is the use of computer tools to help human translators work more accurately, efficiently, and consistently.", ref:"Topic 1, p.4"},
+      {id:"c2", topic:"t1", q:"Why was the ALPAC report important?", a:"It criticized early MT for being slow, inaccurate, and costly, and it pushed the field toward translator aids and CAT tools.", ref:"Topic 1, pp.7–8"},
+      {id:"c3", topic:"t2", q:"What is a translator’s workstation?", a:"An integrated environment of tools such as word processors, termbases, lexical resources, corpora, and MT support used to assist translation.", ref:"Topic 2, pp.4, 7–13, 15"},
+      {id:"c4", topic:"t2", q:"What are MAHT and HAMT?", a:"MAHT = machine-aided human translation; HAMT = human-aided machine translation.", ref:"Topic 2, p.4"},
+      {id:"c5", topic:"t3", q:"What is a Translation Memory?", a:"A TM is a database of previous translations used to retrieve similar segments for reuse in new translations.", ref:"Topic 3, pp.4–5"},
+      {id:"c6", topic:"t3", q:"What are the four main match types in TM?", a:"Exact match, context match, fuzzy match, and fragment match.", ref:"Topic 3, pp.13–14"},
+      {id:"c7", topic:"t4", q:"What is the difference between a term bank and a termbase?", a:"A term bank is rich and encyclopedic; a termbase is shorter, practical, and optimized for fast translation workflows.", ref:"Topic 4, pp.6–7"},
+      {id:"c8", topic:"t4", q:"What do noise and silence mean in term extraction?", a:"Noise = non-terms incorrectly extracted; silence = important terms that were missed.", ref:"Topic 4, p.10"},
+      {id:"c9", topic:"t5", q:"How does localization differ from traditional translation?", a:"Localization goes beyond language transfer to include cultural and technical adaptation, often in larger technology-driven projects.", ref:"Topic 5, pp.4–6"},
+      {id:"c10", topic:"t5", q:"What do i18n, l10n, and g11n mean?", a:"i18n = internationalization, l10n = localization, g11n = globalization.", ref:"Topic 5, p.5"},
+      {id:"c11", topic:"t6", q:"How is a minority language defined here?", a:"A minority language is spoken by fewer than 50% of the population in a geopolitical area and often lacks official status.", ref:"Topic 6, p.5"},
+      {id:"c12", topic:"t6", q:"How can resources for minority languages be developed?", a:"By building corpora, extracting word lists, creating dictionaries, using bilingual corpora, and developing linguistic descriptions.", ref:"Topic 6, p.8"},
+      {id:"c13", topic:"t7", q:"What is a corpus?", a:"A corpus is a collection of texts stored on a computer for automatic or semi-automatic analysis.", ref:"Topic 7, p.4"},
+      {id:"c14", topic:"t7", q:"Name two major corpus types in translation studies.", a:"Parallel corpora and comparable corpora.", ref:"Topic 7, pp.5–6"},
+      {id:"c15", topic:"t8", q:"Why is translation difficult for computers?", a:"Because computers struggle with ambiguity, context, common-sense reasoning, and the huge complexity of linguistic knowledge.", ref:"Topic 8, pp.4–7"},
+      {id:"c16", topic:"t8", q:"What are the four MT problem areas discussed?", a:"Analysis, transfer, synthesis, and the problem of description.", ref:"Topic 8, pp.6–7"},
+      {id:"c17", topic:"t11", q:"What are adequacy and fluency in MT evaluation?", a:"Adequacy measures how much meaning is preserved; fluency measures how natural the translation sounds.", ref:"Topic 11, p.7"},
+      {id:"c18", topic:"t11", q:"Why is BLEU limited?", a:"BLEU measures similarity to reference translations but does not reliably capture meaning or fluency.", ref:"Topic 11, p.12"},
+      {id:"c19", topic:"t12", q:"What is a sublanguage?", a:"A specialized version of a full language used in a restricted field with typical vocabulary, grammar, and text formats.", ref:"Topic 12, p.4"},
+      {id:"c20", topic:"t12", q:"Why was the Météo system successful?", a:"Because weather reports use a small vocabulary, fixed formats, and simple grammar patterns.", ref:"Topic 12, pp.5, 9"},
+      {id:"c21", topic:"t13", q:"What is post-editing?", a:"Post-editing is the process of improving machine-translated text to make it accurate, fluent, and readable.", ref:"Topic 13, p.4"},
+      {id:"c22", topic:"t13", q:"What is the difference between minimal and full post-editing?", a:"Minimal PE aims for understandable text; full PE aims for near-human quality suitable for publication.", ref:"Topic 13, p.5"}
+    ];
+
+    const QUIZZES = [
+      {id:"q1", topic:"t1", q:"Which statement best defines CAT?", opts:["It fully replaces human translators.","It assists human translators with tools like TM and terminology management.","It only checks spelling.","It is the same as localization."], a:1, why:"CAT supports human translators rather than replacing them.", ref:"Topic 1, p.4"},
+      {id:"q2", topic:"t2", q:"Which item is part of a translator’s workstation?", opts:["Only a typewriter","Only a bilingual dictionary","Word processor, term tools, lexical resources, corpora","Only a PDF reader"], a:2, why:"The workstation integrates many tools, not just one.", ref:"Topic 2, pp.7–13"},
+      {id:"q3", topic:"t3", q:"Which TM match type suggests a similar but not identical segment?", opts:["Exact match","Fuzzy match","Context match","Fragment deletion"], a:1, why:"Fuzzy matching is based on similarity rather than identity.", ref:"Topic 3, p.14"},
+      {id:"q4", topic:"t4", q:"Which extraction approach relies on frequency and co-occurrence?", opts:["Linguistic","Statistical","Manual","Graphical"], a:1, why:"Statistical extraction looks for repeated combinations and frequency patterns.", ref:"Topic 4, p.10"},
+      {id:"q5", topic:"t5", q:"Localization adapts products to a target market in which ways?", opts:["Only linguistically","Linguistically, culturally, and technically","Only visually","Only legally"], a:1, why:"Localization includes language, culture, and technical adaptation.", ref:"Topic 5, p.4"},
+      {id:"q6", topic:"t6", q:"A minority language in this topic is mainly identified by:", opts:["Being very old","Having fewer than 50% speakers in an area and often lacking official status","Using Roman script","Having no dialects"], a:1, why:"The topic defines it through numerical size and non-official status.", ref:"Topic 6, p.5"},
+      {id:"q7", topic:"t7", q:"A parallel corpus contains:", opts:["Only one dictionary","Texts and their translations","Only grammar rules","Only spoken data"], a:1, why:"Parallel corpora align source texts with translations.", ref:"Topic 7, p.5"},
+      {id:"q8", topic:"t8", q:"Which is NOT one of the four limitations discussed for computers in translation?", opts:["Inability to perform vaguely defined tasks","Inability to learn from experience","Perfect cultural reasoning","Difficulty with combinatorial explosion"], a:2, why:"Computers do not have perfect cultural reasoning; that is the opposite of the problem.", ref:"Topic 8, p.5"},
+      {id:"q9", topic:"t11", q:"Which MT evaluation method uses human judgments of meaning preservation and naturalness?", opts:["Adequacy and fluency","Only BLEU","Only OCR","Only tokenization"], a:0, why:"Adequacy and fluency are classic human evaluation criteria.", ref:"Topic 11, p.7"},
+      {id:"q10", topic:"t12", q:"Why are sublanguages often MT-friendly?", opts:["They have infinite vocabulary","They avoid all grammar","They use limited vocabulary and predictable patterns","They contain only poetry"], a:2, why:"Restricted domains make processing easier for MT.", ref:"Topic 12, pp.5–7"},
+      {id:"q11", topic:"t13", q:"Which SAE J2450 error type refers to missing content?", opts:["Wrong Term","Omission","Punctuation Error","Misspelling"], a:1, why:"Omission means content from the source is absent in the translation.", ref:"Topic 13, p.8"},
+      {id:"q12", topic:"t13", q:"Which post-editing level aims at publishable quality?", opts:["Minimal post-editing","Full post-editing","No post-editing","Raw MT"], a:1, why:"Full post-editing aims for high-quality output close to human standards.", ref:"Topic 13, p.5"}
+    ];
+
+    const MAPS = {
+      t1:{core:"Introduction to CAT", branches:{
+        "Definition":["CAT assists human translators with digital tools.","It differs from MT because the translator remains central."],
+        "History":["Early ideas go back to Leibniz and Descartes.","The ALPAC report pushed attention toward translator aids."],
+        "Components":["TM","Terminology tools","QA","Project management"]
+      }},
+      t2:{core:"Translator’s Workstation", branches:{
+        "Framework":["Workstation = integrated ecosystem of tools.","Supports MAHT and HAMT."],
+        "Core Tools":["Word processors","Terminology management","Lexical resources","Corpora and concordances"],
+        "Support":["Dictation tools","Desktop publishing","Markup languages","MT integration"]
+      }},
+      t3:{core:"Translation Memory", branches:{
+        "Database Building":["Build as you go","Import existing TM","Align parallel text"],
+        "Alignment Challenges":["Sentence boundaries","Structural mismatch","Sentence reordering","Language-specific differences"],
+        "Match Types":["Exact","Context","Fuzzy","Fragment"]
+      }},
+      t4:{core:"Terminology Tools", branches:{
+        "Records":["Term bank = detailed","Termbase = brief and practical"],
+        "Software Features":["Storage","Search","Auto-suggest","TBX sharing"],
+        "Extraction":["Linguistic","Statistical","Hybrid","Noise and silence"]
+      }},
+      t5:{core:"Localization", branches:{
+        "Definitions":["Localization adapts products for target markets.","It is related to i18n and g11n."],
+        "Project Parts":["Software","Online help","Documentation","Web content"],
+        "Workflow":["Setup","Translation","Review","Production","QA","Closure"]
+      }},
+      t6:{core:"Minority Languages", branches:{
+        "Definition":["<50% in area","Often non-official"],
+        "Resource Gaps":["Keyboards","OCR","Spell-checking","CAT/MT","Dictionaries"],
+        "Development":["Word lists","Bilingual corpora","Linguistic descriptions","Open-source support"]
+      }},
+      t7:{core:"Corpora & the Translator", branches:{
+        "Types":["Parallel corpus","Comparable corpus"],
+        "Uses":["Translation studies","Contrastive linguistics","Training","Professional translation"],
+        "Examples":["TEC","Concordancing","Context retrieval"]
+      }},
+      t8:{core:"Why Translation Is Hard for Computers", branches:{
+        "Limits":["Vague tasks","No experience-based learning","Weak common sense","Combinatorial explosion"],
+        "Problems":["Analysis","Transfer","Synthesis","Description"],
+        "New Approaches":["EBMT","SMT","Still limited by data and choice problems"]
+      }},
+      t11:{core:"MT Evaluation", branches:{
+        "Human Methods":["Error analysis","Adequacy","Fluency","Informativeness"],
+        "System Views":["Black-box","Glass-box","Operational","Usability"],
+        "Automatic Metrics":["BLEU","METEOR","TER","Human judgment still needed"]
+      }},
+      t12:{core:"Sublanguage", branches:{
+        "Nature":["Specialized domain language","Restricted vocabulary and patterns"],
+        "Features":["Vocabulary","Grammar","Text format"],
+        "Case Study":["Météo system","High accuracy","Low cost","Simple patterns"]
+      }},
+      t13:{core:"Post-Editing", branches:{
+        "Types":["Minimal PE","Full PE"],
+        "Best Practices":["Pre-editing","TM and glossaries","Training","Quality categories"],
+        "SAE J2450":["Wrong Term","Syntactic Error","Omission","Agreement","Misspelling","Punctuation","Miscellaneous"]
+      }}
     };
 
-    function initPDFLinks(){
-      const map = [
-        ["f11","a11",pdfFiles.t11],
-        ["f12","a12",pdfFiles.t12],
-        ["f13","a13",pdfFiles.t13],
-        ["f14","a14",pdfFiles.t14],
-      ];
-      map.forEach(([fid, aid, file])=>{
-        const span = document.getElementById(fid);
-        const a = document.getElementById(aid);
-        if(span) span.textContent = file;
-        if(a){
-          a.href = encodeURI(file);
-          a.textContent = "Open directly";
-        }
-      });
+    const SOURCES = TOPICS.map(t => ({
+      title:t.title, file:t.file, pages:t.pages,
+      link:t.file
+    }));
+
+    const DAILY = [
+      {id:"d1", text:"Master 2 flashcards today.", type:"master", goal:2, route:"flashcards"},
+      {id:"d2", text:"Answer 3 quiz questions correctly today.", type:"quizCorrect", goal:3, route:"quizzes"},
+      {id:"d3", text:"Add 2 glossary entries today.", type:"gloss", goal:2, route:"lab"},
+      {id:"d4", text:"Win 2 Rapid Match rounds today.", type:"gameWin", goal:2, route:"games"}
+    ];
+
+    const LS = "ENGL465_INTERACTIVE_CAT_V1";
+
+    function defaultState(){
+      return {
+        xp:0, coins:0, streak:0, lastDay:null,
+        cardScores:{}, quizCorrect:0, quizAttempted:0,
+        glossary:[], badges:[], gameBest:0, sectionVisits:{},
+        daily:{date:null, master:0, quizCorrect:0, gloss:0, gameWin:0, claimed:false}
+      };
     }
 
-    function loadPDF(file){
-      const frame = document.getElementById("pdfFrame");
-      if(!frame) return;
-      frame.src = encodeURI(file);
-      setStatus("Loaded PDF: " + file);
+    function loadState(){
+      try{ return {...defaultState(), ...JSON.parse(localStorage.getItem(LS)||"{}")} }
+      catch{ return defaultState() }
     }
+    let state = loadState();
 
-    /***********************
-     * Ambient “nature” audio (offline) using Web Audio API
-     * Upgraded: wind + soft pad + gentle water shimmer
-     ***********************/
-    let audioCtx = null, master = null, isPlaying = false, nodes = [];
-    const musicBtn = document.getElementById('musicBtn');
-    const vol = document.getElementById('vol');
-
-    function initAudio(){
-      if(audioCtx) return;
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      master = audioCtx.createGain();
-      master.gain.value = (Number(vol.value)/100) * 0.55;
-      master.connect(audioCtx.destination);
-    }
-
-    function makeWind(){
-      const bufferSize = 2 * audioCtx.sampleRate;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i=0;i<bufferSize;i++) output[i] = (Math.random()*2-1) * 0.32;
-
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      noise.loop = true;
-
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 620;
-      filter.Q.value = 0.8;
-
-      const lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.055;
-
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 210;
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(filter.frequency);
-
-      const g = audioCtx.createGain();
-      g.gain.value = 0.22;
-
-      noise.connect(filter);
-      filter.connect(g);
-      g.connect(master);
-
-      return {noise, filter, lfo, lfoGain, g};
-    }
-
-    function makePads(){
-      const g = audioCtx.createGain();
-      g.gain.value = 0.095;
-
-      const chord = [
-        {freq: 196.00, detune: -6}, // G3
-        {freq: 246.94, detune:  3}, // B3
-        {freq: 293.66, detune:  8}, // D4
-      ];
-
-      const osc = chord.map(c=>{
-        const o = audioCtx.createOscillator();
-        o.type = 'sine';
-        o.frequency.value = c.freq;
-        o.detune.value = c.detune;
-        return o;
-      });
-
-      const filt = audioCtx.createBiquadFilter();
-      filt.type = 'lowpass';
-      filt.frequency.value = 880;
-      filt.Q.value = 0.9;
-
-      const trem = audioCtx.createOscillator();
-      trem.type = 'sine';
-      trem.frequency.value = 0.08;
-      const tremGain = audioCtx.createGain();
-      tremGain.gain.value = 0.04;
-      trem.connect(tremGain);
-      tremGain.connect(g.gain);
-
-      osc.forEach(o=>o.connect(filt));
-      filt.connect(g);
-      g.connect(master);
-
-      return {osc, filt, g, trem, tremGain};
-    }
-
-    function makeWater(){
-      // soft “water” shimmer: bandpassed noise with slow amplitude motion
-      const bufferSize = 2 * audioCtx.sampleRate;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i=0;i<bufferSize;i++) output[i] = (Math.random()*2-1) * 0.18;
-
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      noise.loop = true;
-
-      const band = audioCtx.createBiquadFilter();
-      band.type = 'bandpass';
-      band.frequency.value = 950;
-      band.Q.value = 0.9;
-
-      const g = audioCtx.createGain();
-      g.gain.value = 0.06;
-
-      const lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.12;
-
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 0.02;
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(g.gain);
-
-      noise.connect(band);
-      band.connect(g);
-      g.connect(master);
-
-      return {noise, band, g, lfo, lfoGain};
-    }
-
-    function startAudio(){
-      initAudio();
-      if(audioCtx.state === 'suspended') audioCtx.resume();
-
-      const wind = makeWind();
-      const pads = makePads();
-      const water = makeWater();
-
-      nodes = [
-        wind.noise, wind.lfo,
-        ...pads.osc, pads.trem,
-        water.noise, water.lfo
-      ];
-
-      wind.noise.start(); wind.lfo.start();
-      pads.osc.forEach(o=>o.start()); pads.trem.start();
-      water.noise.start(); water.lfo.start();
-
-      isPlaying = true;
-      musicBtn.textContent = "❚❚ Audio";
-      setStatus("Audio on.");
-    }
-
-    function stopAudio(){
-      try{ nodes.forEach(n=>{ try{ n.stop(); }catch(e){} }); }
-      finally{ nodes = []; }
-      isPlaying = false;
-      musicBtn.textContent = "♪ Audio";
-      setStatus("Audio off.");
-    }
-
-    musicBtn.addEventListener('click', ()=>{
-      if(!isPlaying) startAudio();
-      else stopAudio();
-    });
-
-    vol.addEventListener('input', ()=>{
-      if(master) master.gain.value = (Number(vol.value)/100) * 0.55;
-    });
-
-    /***********************
-     * Fireflies
-     ***********************/
-    const scene = document.querySelector('.scene');
-    function spawnFireflies(){
-      for(let i=0;i<16;i++){
-        const d = document.createElement('div');
-        d.className = 'fly';
-        const left = Math.random()*100;
-        const top = 65 + Math.random()*45;
-        const delay = Math.random()*10;
-        const dur = 8 + Math.random()*10;
-        d.style.left = left + 'vw';
-        d.style.top = top + 'vh';
-        d.style.animationDelay = delay + 's';
-        d.style.animationDuration = dur + 's';
-        scene.appendChild(d);
-      }
-    }
-    spawnFireflies();
-
-    /***********************
-     * Navigation
-     ***********************/
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    const sections = Array.from(document.querySelectorAll('.section'));
-
-    function go(id){
-      sections.forEach(s=>s.classList.toggle('active', s.id === id));
-      tabs.forEach(t=>t.classList.toggle('active', t.dataset.target === id));
-      setStatus("Opened: " + tabLabel(id));
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-
-    function tabLabel(id){
-      const t = tabs.find(x=>x.dataset.target===id);
-      return t ? t.textContent.trim() : id;
-    }
-
-    tabs.forEach(t=>t.addEventListener('click', ()=>go(t.dataset.target)));
-
-    document.getElementById('quickStartBtn').addEventListener('click', ()=>{
-      go('terminology-tools');
-      setTimeout(()=>openPractice('flashcards','terminology'), 200);
-    });
-
-    /***********************
-     * Local progress
-     ***********************/
-    const KEY = "ENGL465_CAT_PROGRESS_V2";
-
-    function loadProgress(){
-      try{
-        return JSON.parse(localStorage.getItem(KEY)) || {
-          flash:{},
-          quiz:{attempted:0, correct:0},
-          streak:{count:0, lastDay:null},
-          lastActivity:null,
-          glossary:[]
-        };
-      }catch(e){
-        return {flash:{}, quiz:{attempted:0, correct:0}, streak:{count:0,lastDay:null}, lastActivity:null, glossary:[]};
-      }
-    }
-    function saveProgress(p){
-      localStorage.setItem(KEY, JSON.stringify(p));
-      renderStats();
-    }
+    function saveState(){ localStorage.setItem(LS, JSON.stringify(state)); renderStats(); renderWeak() }
 
     function todayKey(){
       const d = new Date();
-      return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     }
 
-    function touchActivity(){
-      const p = loadProgress();
-      p.lastActivity = new Date().toISOString();
-
+    function touchDay(){
       const tk = todayKey();
-      if(p.streak.lastDay !== tk){
-        if(!p.streak.lastDay){
-          p.streak.count = 1;
-        }else{
-          const last = new Date(p.streak.lastDay+"T00:00:00");
+      if(state.lastDay !== tk){
+        if(state.lastDay){
+          const last = new Date(state.lastDay+"T00:00:00");
           const now = new Date(tk+"T00:00:00");
-          const diffDays = Math.round((now-last)/(1000*60*60*24));
-          if(diffDays === 1) p.streak.count += 1;
-          else p.streak.count = 1;
-        }
-        p.streak.lastDay = tk;
+          const diff = Math.round((now-last)/86400000);
+          state.streak = diff === 1 ? state.streak + 1 : 1;
+        }else state.streak = 1;
+        state.lastDay = tk;
       }
-      saveProgress(p);
+      if(state.daily.date !== tk){
+        state.daily = {date:tk, master:0, quizCorrect:0, gloss:0, gameWin:0, claimed:false};
+      }
+      saveState();
+    }
+
+    function levelOf(xp){ return Math.floor(xp/120)+1 }
+    function masteredCount(){
+      return Object.values(state.cardScores).filter(v=>v>=2).length;
+    }
+
+    function award(xp, coins, reason){
+      state.xp += xp; state.coins += coins;
+      saveState(); setStatus(`+${xp} XP, +${coins} coins — ${reason}`);
+      checkBadges(); checkDaily();
+      if(xp >= 20) confetti();
+    }
+
+    function setStatus(txt){ document.getElementById("status").textContent = txt }
+
+    function confetti(){
+      const colors = ["#17b59c","#618bff","#f1b84e","#ffffff","#8ee0d1"];
+      for(let i=0;i<28;i++){
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = Math.random()*100 + "vw";
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+        c.style.opacity = .9;
+        c.style.transform = `rotate(${Math.random()*180}deg)`;
+        c.style.animationDuration = (1.3 + Math.random()*1.2) + "s";
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(), 2200);
+      }
+    }
+
+    function addBadge(id, label){
+      if(!state.badges.includes(id)){
+        state.badges.push(id);
+        saveState();
+        setStatus(`Badge unlocked: ${label}`);
+        confetti();
+      }
+    }
+
+    function checkBadges(){
+      if(Object.keys(state.sectionVisits).length >= 3) addBadge("explorer","Explorer");
+      if(Object.keys(state.cardScores).length >= 1) addBadge("flashstarter","Flash Starter");
+      if(state.quizCorrect >= 1) addBadge("quizstarter","Quiz Starter");
+      if(state.glossary.length >= 3) addBadge("terminologist","Terminologist");
+      if(masteredCount() >= 5) addBadge("master5","Master 5");
+      if(masteredCount() >= 10) addBadge("master10","Master 10");
+      if(state.streak >= 3) addBadge("streak3","3-Day Streak");
+      if(state.xp >= 500) addBadge("xp500","500 XP Scholar");
+    }
+
+    function dailyChallenge(){
+      const idx = new Date().getDate() % DAILY.length;
+      return DAILY[idx];
+    }
+
+    function checkDaily(){
+      const ch = dailyChallenge();
+      const progress = state.daily[ch.type] || 0;
+      if(progress >= ch.goal && !state.daily.claimed){
+        state.daily.claimed = true;
+        award(40, 15, "Daily challenge completed");
+      }
+      renderDaily();
     }
 
     function renderStats(){
-      const p = loadProgress();
-      const mastered = Object.values(p.flash).filter(x=>x.score>=2).length;
-      const attempted = p.quiz.attempted || 0;
-      const correct = p.quiz.correct || 0;
+      document.getElementById("levelOut").textContent = levelOf(state.xp);
+      document.getElementById("xpOut").textContent = state.xp;
+      document.getElementById("coinsOut").textContent = state.coins;
+      document.getElementById("streakOut").textContent = state.streak;
+      const pct = Math.round((masteredCount()/CARDS.length)*100);
+      document.getElementById("masterBar").style.width = pct + "%";
+      document.getElementById("masterText").textContent = `${pct}% mastered (${masteredCount()}/${CARDS.length} cards)`;
 
-      document.getElementById('sMastered').textContent = mastered;
-      document.getElementById('sAttempted').textContent = attempted;
-      document.getElementById('sCorrect').textContent = correct;
-
-      const last = p.lastActivity ? new Date(p.lastActivity) : null;
-      document.getElementById('sLast').textContent = last ? last.toLocaleString() : "—";
-    }
-    renderStats();
-
-    document.getElementById('resetBtn').addEventListener('click', ()=>{
-      localStorage.removeItem(KEY);
-      renderStats();
-      setStatus("Progress cleared.");
-      mountFlash();
-      newQuiz();
-      renderMaps();
-      renderGloss();
-    });
-
-    /***********************
-     * Data: Flashcards (kept from your original)
-     ***********************/
-    const flashcards = [
-      {id:"t1", deck:"terminology", term:"Terminology", def:"Collecting, organizing, and using specialized terms in specific fields (e.g., medicine, law, engineering).", hint:"Focus: specialized meaning and consistency."},
-      {id:"t2", deck:"terminology", term:"Terminology management", def:"A workflow for storing, retrieving, updating, and enforcing preferred terms across translation projects.", hint:"Impact: time, cost, quality."},
-      {id:"t3", deck:"terminology", term:"Term record", def:"A structured profile for a single concept, possibly multilingual, including definition, equivalents, grammar, and usage notes.", hint:"One concept, many fields."},
-      {id:"t4", deck:"terminology", term:"Term bank", def:"Comprehensive terminology resource (encyclopedic), often with definitions, synonyms, grammar, and usage notes for broad audiences.", hint:"Rich entry."},
-      {id:"t5", deck:"terminology", term:"Termbase", def:"Operational translator-focused list with essential information (equivalent + brief guidance), used in fast workflows like localization.", hint:"Short, practical entry."},
-      {id:"t8", deck:"terminology", term:"Automated term extraction", def:"Software scans documents and proposes candidate terms for glossary building, reducing manual collection time.", hint:"Humans still verify."},
-      {id:"t15", deck:"terminology", term:"Linguistic term extraction", def:"Identifies candidates using grammar patterns (e.g., adjective+noun). Risks: noise and silence; language dependence.", hint:"Pattern, not frequency."},
-      {id:"t16", deck:"terminology", term:"Statistical term extraction", def:"Identifies candidates using frequency/co-occurrence. Works across languages; risks noise/silence; uses thresholds and stop lists.", hint:"Frequency signal."},
-      {id:"t17", deck:"terminology", term:"Hybrid extraction", def:"Combines grammar-pattern and frequency signals to improve precision and recall.", hint:"Best of both."},
-      {id:"t18", deck:"terminology", term:"Noise", def:"Extracted items that are not real terms.", hint:"False positives."},
-      {id:"t19", deck:"terminology", term:"Silence", def:"Important terms that the extraction misses.", hint:"False negatives."},
-
-      {id:"m1", deck:"minority", term:"Minority language", def:"Spoken by fewer than 50% of the population within a geopolitical area; often lacks official institutional support.", hint:"Number + status."},
-      {id:"m3", deck:"minority", term:"High-resource language", def:"Has advanced MT/CAT systems, dictionaries, and spell/grammar checkers (strong digital support).", hint:"Full toolset."},
-      {id:"m5", deck:"minority", term:"Low-resource language", def:"Lacks even basic digital tools; often excluded from technological ecosystems.", hint:"Digital marginalization."},
-      {id:"m13", deck:"minority", term:"Bilingual corpora", def:"Parallel texts in two languages; support vocabulary extraction and translation memory building.", hint:"Parallel data."},
-
-      {id:"x1", deck:"mt", term:"Machine Translation (MT)", def:"Automatic translation by computers; improved over time but still limited by ambiguity, data, and context.", hint:"Automation + limits."},
-      {id:"x4", deck:"mt", term:"Rule-Based MT (RBMT)", def:"Linguists manually encode grammar rules and dictionaries; structured but weak for idioms/informal language.", hint:"Rules-driven."},
-      {id:"x5", deck:"mt", term:"Data-driven MT", def:"Learns translation patterns from large bilingual datasets (statistical/example-based); needs a lot of data.", hint:"Data-hungry."},
-      {id:"x14", deck:"mt", term:"Post-editing", def:"Human correction of MT output to reach required quality and reduce errors.", hint:"Human-in-the-loop."},
-    ];
-
-    /***********************
-     * Flashcards UI (same behavior)
-     ***********************/
-    let deckMode = 'all';
-    let deck = [];
-    let deckIndex = 0;
-
-    function cardScore(id){
-      const p = loadProgress();
-      return p.flash[id]?.score ?? 0;
-    }
-    function scoreLabel(s){
-      if(s>=2) return "Mastered";
-      if(s===1) return "Good";
-      if(s===-1) return "Weak";
-      return "New";
-    }
-    function setDeck(mode){
-      deckMode = mode;
-      buildDeck();
-      deckIndex = 0;
-      mountFlash();
-      go('flashcards');
-      setStatus("Deck set: " + modeLabel(mode));
-    }
-    function modeLabel(mode){
-      if(mode==='all') return "All";
-      if(mode==='terminology') return "Terminology";
-      if(mode==='minority') return "Minority Languages";
-      if(mode==='mt') return "Commercial MT";
-      if(mode==='weak') return "Focus: Weak";
-      if(mode==='mixed') return "Mixed";
-      return mode;
-    }
-    function buildDeck(){
-      if(deckMode==='all') deck = [...flashcards];
-      else if(deckMode==='weak'){
-        deck = flashcards.filter(c=>cardScore(c.id)===-1 || cardScore(c.id)===0);
-      } else {
-        deck = flashcards.filter(c=>c.deck===deckMode);
-      }
-      if(deck.length===0) deck = [...flashcards];
-      document.getElementById('deckName').textContent = "Deck: " + modeLabel(deckMode);
-      document.getElementById('deckCount').textContent = "Cards: " + deck.length;
+      const labels = {
+        explorer:"Explorer",
+        flashstarter:"Flash Starter",
+        quizstarter:"Quiz Starter",
+        terminologist:"Terminologist",
+        master5:"Master 5",
+        master10:"Master 10",
+        streak3:"3-Day Streak",
+        xp500:"500 XP Scholar"
+      };
+      const badgeHTML = state.badges.length
+        ? state.badges.map(b=>`<span class="badge">${labels[b]||b}</span>`).join("")
+        : `<span class="mini">No badges yet.</span>`;
+      document.getElementById("badgeOut").innerHTML = badgeHTML;
+      document.getElementById("achievements").innerHTML = badgeHTML;
     }
 
-    function mountFlash(){
-      buildDeck();
-      const mount = document.getElementById('flashMount');
-      mount.innerHTML = "";
-
-      const c = deck[deckIndex];
-      if(!c){
-        mount.innerHTML = "<div class='muted2'>No cards.</div>";
-        return;
-      }
-
-      const s = cardScore(c.id);
-      const tagText = scoreLabel(s);
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flashcard';
-      wrapper.id = 'activeCard';
-      wrapper.style.perspective = "1200px";
-      wrapper.style.height = "240px";
-      wrapper.style.borderRadius = "18px";
-      wrapper.style.position = "relative";
-
-      wrapper.innerHTML = `
-        <div class="flashinner" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1);border-radius:18px">
-          <div class="face front" style="position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.18);box-shadow:0 18px 40px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(800px 320px at 20% 10%, rgba(56,242,176,.18), transparent 60%),linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));">
-            <div style="padding:16px 16px 10px;border-bottom:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:space-between;gap:10px">
-              <p style="font-size:28px;font-weight:1000;margin:0;line-height:1.2">${escapeHtml(c.term)}</p>
-              <span style="padding:7px 10px;border-radius:999px;font-size:var(--font3);font-weight:950;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.16);color:var(--muted);white-space:nowrap">${escapeHtml(modeLabel(c.deck))}</span>
-            </div>
-            <div style="padding:14px 16px 16px;display:flex;flex:1;flex-direction:column;justify-content:space-between;gap:12px">
-              <div style="font-size:20px;color:var(--muted2);font-weight:900">Tap <strong>Flip</strong> to reveal the answer.</div>
-              <div style="font-size:var(--font3);color:var(--muted2);font-weight:900">Recall rating: <strong>${tagText}</strong></div>
-              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-                <button class="btn danger" onclick="rateCard('${c.id}', -1)">Weak</button>
-                <button class="btn" onclick="rateCard('${c.id}', 1)">Good</button>
-                <button class="btn primary" onclick="rateCard('${c.id}', 2)">Mastered</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="face back" style="position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.18);box-shadow:0 18px 40px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column;transform:rotateY(180deg);background:radial-gradient(800px 320px at 20% 10%, rgba(122,215,255,.18), transparent 60%),linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));">
-            <div style="padding:16px 16px 10px;border-bottom:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:space-between;gap:10px">
-              <p style="font-size:28px;font-weight:1000;margin:0;line-height:1.2">${escapeHtml(c.term)}</p>
-              <span style="padding:7px 10px;border-radius:999px;font-size:var(--font3);font-weight:950;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.16);color:var(--muted);white-space:nowrap">${escapeHtml(tagText)}</span>
-            </div>
-            <div style="padding:14px 16px 16px;display:flex;flex:1;flex-direction:column;justify-content:space-between;gap:12px">
-              <div style="font-size:20px;color:var(--text);font-weight:850">${escapeHtml(c.def)}</div>
-              <div style="font-size:var(--font3);color:var(--muted2);font-weight:900">${escapeHtml(c.hint || "")}</div>
-              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-                <button class="btn danger" onclick="rateCard('${c.id}', -1)">Weak</button>
-                <button class="btn" onclick="rateCard('${c.id}', 1)">Good</button>
-                <button class="btn primary" onclick="rateCard('${c.id}', 2)">Mastered</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      mount.appendChild(wrapper);
-
-      wrapper.addEventListener('click', (e)=>{
-        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-        if(tag === "button" || tag === "a" || tag === "input") return;
-        flipCard();
-      });
-
-      document.getElementById('deckPos').textContent = "Card: " + (deckIndex+1) + " / " + deck.length;
+    function renderDaily(){
+      const ch = dailyChallenge();
+      const value = state.daily[ch.type] || 0;
+      const done = state.daily.claimed ? "✅ Claimed" : `${value}/${ch.goal}`;
+      document.getElementById("dailyBox").innerHTML =
+        `<strong>${escapeHtml(ch.text)}</strong><br><span class="mini">Progress: ${done}</span>`;
     }
 
-    function flipCard(){
-      const el = document.getElementById('activeCard');
-      if(!el) return;
-      const inner = el.querySelector('.flashinner');
-      if(!inner) return;
-      inner.style.transform = inner.style.transform.includes("180") ? "rotateY(0deg)" : "rotateY(180deg)";
-    }
-    function nextCard(){
-      if(deck.length===0) return;
-      deckIndex = (deckIndex+1) % deck.length;
-      mountFlash();
-    }
-    function prevCard(){
-      if(deck.length===0) return;
-      deckIndex = (deckIndex-1 + deck.length) % deck.length;
-      mountFlash();
-    }
-    function shuffleDeck(){
-      for(let i=deck.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-      }
-      deckIndex = 0;
-      mountFlash();
-      setStatus("Deck shuffled.");
-    }
-    function rateCard(id, score){
-      const p = loadProgress();
-      p.flash[id] = {score, last: new Date().toISOString()};
-      saveProgress(p);
-      setStatus("Card rated: " + scoreLabel(score));
-      if(score>=1) setTimeout(()=>nextCard(), 180);
-    }
-
-    /***********************
-     * Quizzes (trimmed set for speed; expand if you want)
-     ***********************/
-    const quizBank = [
-      {id:"q1", theme:"terminology", q:"Terminology tools primarily improve which three outcomes?", opts:["Consistency, speed, collaboration","Creativity, style, humor","Rhythm, rhyme, meter","Pronunciation, intonation, stress"], a:0, why:"They enforce preferred terms, accelerate insertion, and enable shared glossaries."},
-      {id:"q2", theme:"minority", q:"A minority language is defined mainly by:", opts:["Speaker proportion (<50%) and lack of official support","Being unpopular on social media","Having only one dialect","Being used only in poetry"], a:0, why:"Definition includes numerical size and non-official status."},
-      {id:"q3", theme:"mt", q:"Commercial MT is often described in two phases. These are:", opts:["Creation and ongoing development","Writing and publishing","Scanning and printing","Rhyme and meter"], a:0, why:"Phase 1 = building; Phase 2 = refinement over time."},
-      {id:"q4", theme:"terminology", q:"In term extraction, 'noise' refers to:", opts:["Non-terms incorrectly extracted","Terms that appear once","Correct terms only","File corruption"], a:0, why:"Noise = false positives."},
-      {id:"q5", theme:"mt", q:"Which role is most realistic for MT in professional settings?", opts:["A productivity tool that still needs human oversight","A full replacement for translators","A tool only for poems","A tool that never improves"], a:0, why:"MT supports translators; it’s not fully autonomous."},
-    ];
-
-    let quizMode = 'mixed';
-    let quizSet = [];
-
-    function setQuizMode(mode){
-      quizMode = mode;
-      newQuiz();
-      go('quizzes');
-      setStatus("Quiz mode: " + modeLabel(mode));
-    }
-
-    function newQuiz(){
-      const bank = (quizMode === 'mixed') ? quizBank : quizBank.filter(q=>q.theme===quizMode);
-      quizSet = pickRandom(bank, Math.min(5, bank.length));
-      renderQuiz();
-      setStatus("New quiz set loaded.");
-    }
-
-    function renderQuiz(){
-      const mount = document.getElementById('quizMount');
-      mount.innerHTML = "";
-      quizSet.forEach((q, i)=>{
-        const qc = document.createElement('div');
-        qc.style.border = "1px solid rgba(255,255,255,.14)";
-        qc.style.background = "rgba(0,0,0,.14)";
-        qc.style.borderRadius = "16px";
-        qc.style.padding = "14px";
-
-        qc.innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;margin-bottom:10px">
-            <p style="margin:0;font-weight:1000;font-size:22px">${escapeHtml(q.q)}</p>
-            <div style="font-size:var(--font3);color:var(--muted2);font-weight:900;white-space:nowrap">${escapeHtml(modeLabel(q.theme))} • Q${i+1}</div>
-          </div>
-          <div class="opts" style="display:grid;gap:10px;margin-top:10px">
-            ${q.opts.map((o, idx)=>`<div class="opt" role="button" tabindex="0" data-idx="${idx}"
-              style="padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);cursor:pointer;font-weight:900;font-size:var(--font2);transition:.12s ease">${escapeHtml(o)}</div>`).join('')}
-          </div>
-          <div class="toolrow" style="margin-top:12px">
-            <button class="btn primary" data-action="submit">Submit</button>
-            <button class="btn" data-action="reveal">Reveal</button>
-          </div>
-          <div class="feedback" id="fb-${q.id}" style="margin-top:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.16);font-size:var(--font2);font-weight:850;display:none"></div>
-        `;
-
-        qc.querySelectorAll('.opt').forEach(opt=>{
-          opt.addEventListener('click', ()=>{
-            qc.querySelectorAll('.opt').forEach(x=>{
-              x.style.borderColor = "rgba(255,255,255,.14)";
-              x.style.background = "rgba(255,255,255,.06)";
-              x.dataset.sel = "0";
-            });
-            opt.style.borderColor = "rgba(56,242,176,.45)";
-            opt.style.background = "rgba(56,242,176,.12)";
-            opt.dataset.sel = "1";
-          });
-          opt.addEventListener('keydown', (e)=>{
-            if(e.key==="Enter" || e.key===" "){ e.preventDefault(); opt.click(); }
-          });
-        });
-
-        qc.querySelector('[data-action="submit"]').addEventListener('click', ()=>{
-          const selected = Array.from(qc.querySelectorAll('.opt')).find(x=>x.dataset.sel==="1");
-          const fb = document.getElementById('fb-'+q.id);
-          if(!selected){
-            fb.style.display = "block";
-            fb.style.borderColor = "rgba(255,92,124,.45)";
-            fb.style.background = "rgba(255,92,124,.10)";
-            fb.textContent = "Select an option first.";
-            return;
-          }
-          const idx = Number(selected.dataset.idx);
-          const correct = (idx === q.a);
-
-          const p = loadProgress();
-          p.quiz.attempted += 1;
-          if(correct) p.quiz.correct += 1;
-          saveProgress(p);
-
-          fb.style.display = "block";
-          fb.style.borderColor = correct ? "rgba(77,255,154,.40)" : "rgba(255,92,124,.45)";
-          fb.style.background = correct ? "rgba(77,255,154,.10)" : "rgba(255,92,124,.10)";
-          fb.textContent = (correct ? "Correct. " : "Incorrect. ") + q.why;
-
-          setStatus(correct ? "Correct answer logged." : "Attempt logged.");
-        });
-
-        qc.querySelector('[data-action="reveal"]').addEventListener('click', ()=>{
-          const fb = document.getElementById('fb-'+q.id);
-          fb.style.display = "block";
-          fb.style.borderColor = "rgba(77,255,154,.40)";
-          fb.style.background = "rgba(77,255,154,.10)";
-          fb.textContent = "Answer: " + q.opts[q.a] + " — " + q.why;
-          setStatus("Answer revealed.");
-        });
-
-        mount.appendChild(qc);
-      });
-      renderStats();
-    }
-
-    /***********************
-     * Mind maps (kept minimal)
-     ***********************/
-    const maps = [
-      { id:"map1", theme:"terminology", title:"Terminology Tools — Concept Map",
-        nodes:[
-          {label:"Term bank vs termbase", sub:["Term bank: rich entry","Termbase: operational, fast (localization)"]},
-          {label:"Extraction", sub:["Linguistic (patterns)","Statistical (frequency)","Hybrid reduces noise/silence"]},
-          {label:"Benefits", sub:["Consistency","Speed","Collaboration (sharing/TBX)"]},
-        ]
-      },
-      { id:"map2", theme:"minority", title:"Minority Languages — Resource Map",
-        nodes:[
-          {label:"Definition", sub:["<50% speakers in area","Often non-official status"]},
-          {label:"Resource tiers", sub:["High / Mid / Low-resource","Digital inequality follows power/funding"]},
-          {label:"Build", sub:["Corpora → word lists","Dictionaries/spell-checkers","Bilingual corpora → TM"]},
-        ]
-      },
-      { id:"map3", theme:"mt", title:"Commercial MT — Two-Phase Map",
-        nodes:[
-          {label:"Phase 1", sub:["RBMT","Data-driven","Hybrid"]},
-          {label:"Phase 2", sub:["Evaluate by purpose","Refine with data updates","User feedback/post-editing"]},
-          {label:"Reality", sub:["Best for structured text","Humans still judge meaning"]},
-        ]
-      },
-    ];
-
-    let mapMode = "all";
-    function setMap(mode){
-      mapMode = mode;
-      renderMaps();
-      go('mindmaps');
-      setStatus("Mind maps filtered: " + modeLabel(mode));
-    }
-    function renderMaps(){
-      const mount = document.getElementById('mapMount');
-      mount.innerHTML = "";
-      const chosen = (mapMode==="all") ? maps : maps.filter(m=>m.theme===mapMode);
-
-      chosen.forEach(m=>{
-        const wrap = document.createElement('div');
-        wrap.style.borderRadius="16px";
-        wrap.style.border="1px solid rgba(255,255,255,.14)";
-        wrap.style.background="rgba(0,0,0,.14)";
-        wrap.style.overflow="hidden";
-
-        wrap.innerHTML = `
-          <div style="padding:12px 14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.10);font-weight:1000;font-size:22px">
-            <span>${escapeHtml(m.title)}</span>
-            <span class="mini muted2">${escapeHtml(modeLabel(m.theme))}</span>
-          </div>
-          <div style="padding:14px">
-            ${m.nodes.map((n,idx)=>`
-              <div class="node" data-mid="${m.id}" data-idx="${idx}"
-                style="display:inline-flex;align-items:center;gap:8px;padding:10px 12px;margin:8px 8px 0 0;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);cursor:pointer;font-weight:950;font-size:var(--font2);transition:.12s ease">
-                ${escapeHtml(n.label)}
-              </div>
-              <div class="subnodes" id="sub-${m.id}-${idx}" style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.18);display:none">
-                ${n.sub.map(s=>`
-                  <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);margin-top:10px;font-size:var(--font2);font-weight:850;color:var(--text)">
-                    <span style="width:10px;height:10px;border-radius:50%;background:rgba(56,242,176,.9);margin-top:7px;box-shadow:0 0 14px rgba(56,242,176,.35);flex:0 0 auto"></span>
-                    <span>${escapeHtml(s)}</span>
-                  </div>
-                `).join('')}
-              </div>
-            `).join('')}
-          </div>
-        `;
-        wrap.querySelectorAll('.node').forEach(node=>{
-          node.addEventListener('click', ()=>{
-            const mid = node.dataset.mid;
-            const idx = node.dataset.idx;
-            const box = document.getElementById(`sub-${mid}-${idx}`);
-            box.style.display = (box.style.display === "block") ? "none" : "block";
-          });
-        });
-        mount.appendChild(wrap);
-      });
-    }
-
-    /***********************
-     * CAT Studio
-     ***********************/
-    function clearStudio(){
-      document.getElementById('termText').value = "";
-      document.getElementById('termResult').innerHTML = `<span class="muted2">Candidate terms will appear here.</span>`;
-      setStatus("Studio cleared.");
-    }
-
-    function runExtraction(mode){
-      const text = (document.getElementById('termText').value || "").trim();
-      const box = document.getElementById('termResult');
-      if(!text){
-        box.innerHTML = `<span class="muted2">Paste text first.</span>`;
-        return;
-      }
-
-      const tokens = text
-        .replace(/[^\w\s\-’']/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .split(" ");
-
-      const stop = new Set(["the","a","an","and","or","but","to","of","in","on","for","with","by","as","is","are","was","were","be","been","this","that","these","those","it","its","their","they","we","you","i","at","from","into","over","under","than","then","which","who","whom","can","could","should","would","may","might","will","also","not"]);
-
-      const uni = new Map();
-      const bi = new Map();
-
-      for(let i=0;i<tokens.length;i++){
-        const w = tokens[i].toLowerCase();
-        if(w.length>=4 && !stop.has(w)) uni.set(w,(uni.get(w)||0)+1);
-        if(i<tokens.length-1){
-          const w2 = tokens[i+1].toLowerCase();
-          if(!stop.has(w) && !stop.has(w2) && w.length>=3 && w2.length>=3){
-            const pair = w + " " + w2;
-            bi.set(pair,(bi.get(pair)||0)+1);
-          }
-        }
-      }
-
-      const linguistic = new Set();
-      const stat = new Set();
-
-      const capSeq = text.match(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b/g) || [];
-      capSeq.forEach(x=>linguistic.add(x.trim()));
-      (text.match(/\b\w+(?:-\w+)+\b/g) || []).forEach(x=>linguistic.add(x));
-
-      ["term record","term bank","termbase","term extraction","translation memory","machine translation","computer-assisted translation","minority language","low-resource","high-resource","mid-resource","rule-based","data-driven","post-editing"].forEach(p=>{
-        if(text.toLowerCase().includes(p)) linguistic.add(p);
-      });
-
-      for(const [k,v] of bi.entries()) if(v>=2) stat.add(k);
-      for(const [k,v] of uni.entries()) if(v>=3) stat.add(k);
-
-      let out = [];
-      if(mode==='linguistic') out = Array.from(linguistic).slice(0, 24);
-      else if(mode==='statistical') out = Array.from(stat).slice(0, 24);
-      else{
-        const both = new Set([...Array.from(stat).filter(x=>linguistic.has(x))]);
-        const merged = [...both, ...Array.from(linguistic), ...Array.from(stat)];
-        out = Array.from(new Set(merged)).slice(0, 28);
-      }
-
-      if(out.length===0){
-        box.innerHTML = `<span class="muted2">No candidates found. Try a longer text.</span>`;
-        return;
-      }
-
-      const cls = (mode==='statistical') ? "hl2" : (mode==='hybrid' ? "hl3" : "hl");
-      const badgeStyle = (c)=>({
-        hl:"border:1px solid rgba(56,242,176,.35);background:rgba(56,242,176,.10)",
-        hl2:"border:1px solid rgba(122,215,255,.40);background:rgba(122,215,255,.10)",
-        hl3:"border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.10)",
-      })[c] || "";
-
-      box.innerHTML = `
-        <div class="mini muted2" style="margin-bottom:8px">
-          Mode: <strong>${mode==="linguistic" ? "Pattern-Based" : mode==="statistical" ? "Frequency-Based" : "Hybrid"}</strong>
-          • Candidates shown: <strong>${out.length}</strong>
-        </div>
-        <div>
-          ${out.map(t=>`<span style="display:inline-block;padding:6px 10px;margin:6px 6px 0 0;border-radius:999px;font-weight:1000;${badgeStyle(cls)}">${escapeHtml(t)}</span>`).join("")}
-        </div>
-      `;
-      setStatus("Extraction complete.");
-    }
-
-    /***********************
-     * Glossary builder (same logic)
-     ***********************/
-    function addGloss(){
-      const term = (document.getElementById('gTerm').value || "").trim();
-      const eq = (document.getElementById('gEq').value || "").trim();
-      const note = (document.getElementById('gNote').value || "").trim();
-      if(!term || !eq){
-        setStatus("Add both a term and an equivalent.");
-        return;
-      }
-      const p = loadProgress();
-      p.glossary.push({term, eq, note, at: new Date().toISOString()});
-      saveProgress(p);
-
-      document.getElementById('gTerm').value = "";
-      document.getElementById('gEq').value = "";
-      document.getElementById('gNote').value = "";
-      renderGloss();
-      setStatus("Glossary entry added.");
-    }
-
-    function renderGloss(){
-      const p = loadProgress();
-      const out = document.getElementById('glossOut');
-      if(!p.glossary || p.glossary.length===0){
-        out.innerHTML = `<span class="muted2">No entries yet.</span>`;
-        return;
-      }
-      const rows = p.glossary.slice().reverse().map((x)=>`
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);margin-top:10px">
-          <span style="width:10px;height:10px;border-radius:50%;background:rgba(56,242,176,.9);margin-top:7px;box-shadow:0 0 14px rgba(56,242,176,.35);flex:0 0 auto"></span>
-          <div>
-            <div style="font-weight:1000"><strong>${escapeHtml(x.term)}</strong> → ${escapeHtml(x.eq)}</div>
-            <div class="mini muted2">${escapeHtml(x.note || "—")}</div>
-          </div>
-        </div>
-      `).join("");
-      out.innerHTML = rows;
-    }
-    function exportGloss(){
-      const p = loadProgress();
-      if(!p.glossary || p.glossary.length===0){
-        setStatus("No glossary entries to export.");
-        return;
-      }
-      const lines = ["TERM\tEQUIVALENT\tNOTE"];
-      p.glossary.forEach(x=>lines.push(`${x.term}\t${x.eq}\t${x.note || ""}`));
-      document.getElementById('glossOut').innerHTML =
-        `<pre style="white-space:pre-wrap;margin:0;font-weight:900;font-family:Calibri,Arial,sans-serif">${escapeHtml(lines.join("\n"))}</pre>`;
-      setStatus("Glossary exported (copy/paste).");
-    }
-    function clearGloss(){
-      const p = loadProgress();
-      p.glossary = [];
-      saveProgress(p);
-      renderGloss();
-      setStatus("Glossary cleared.");
-    }
-
-    /***********************
-     * MT evaluation trainer
-     ***********************/
-    const mtCases = [
-      {id:"c1", scenario:"You need a fast understanding of a foreign news article to decide whether it is relevant.", correct:"Gisting", why:"Goal is quick comprehension; speed matters more than perfect style."},
-      {id:"c2", scenario:"You are preparing an official policy document for publication where accuracy is critical.", correct:"Dissemination", why:"Publication-quality output demands high accuracy and careful review."},
-      {id:"c3", scenario:"You are translating a live chat conversation between two users in real time.", correct:"Communication", why:"Real-time use needs speed while keeping meaning."},
-    ];
-
-    function renderMTTrainer(){
-      const mount = document.getElementById('mtTrainer');
-      mount.innerHTML = "";
-      mtCases.forEach(c=>{
-        const box = document.createElement('div');
-        box.style.border = "1px solid rgba(255,255,255,.14)";
-        box.style.background = "rgba(0,0,0,.14)";
-        box.style.borderRadius = "16px";
-        box.style.padding = "14px";
-        box.style.marginTop = "12px";
-
-        box.innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;margin-bottom:10px">
-            <p style="margin:0;font-weight:1000;font-size:22px">${escapeHtml(c.scenario)}</p>
-            <div style="font-size:var(--font3);color:var(--muted2);font-weight:900;white-space:nowrap">Choose purpose</div>
-          </div>
-          <div style="display:grid;gap:10px;margin-top:10px">
-            ${["Gisting","Dissemination","Communication"].map(x=>`<div class="opt" role="button" tabindex="0"
-              style="padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);cursor:pointer;font-weight:900;font-size:var(--font2)">${x}</div>`).join("")}
-          </div>
-          <div id="mtfb-${c.id}" style="margin-top:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.16);font-size:var(--font2);font-weight:850;display:none"></div>
-        `;
-
-        box.querySelectorAll('.opt').forEach(opt=>{
-          opt.addEventListener('click', ()=>{
-            const ans = opt.textContent.trim();
-            const fb = document.getElementById('mtfb-'+c.id);
-            const ok = (ans === c.correct);
-            fb.style.display = "block";
-            fb.style.borderColor = ok ? "rgba(77,255,154,.40)" : "rgba(255,92,124,.45)";
-            fb.style.background = ok ? "rgba(77,255,154,.10)" : "rgba(255,92,124,.10)";
-            fb.textContent = (ok ? "Correct. " : "Not best choice. ") + c.why;
-            setStatus("MT trainer answered.");
-          });
-        });
-
-        mount.appendChild(box);
-      });
-    }
-
-    /***********************
-     * Global search (flashcards + quizzes + mind maps)
-     ***********************/
-    function searchAll(q){
-      q = (q||"").trim().toLowerCase();
-      if(!q){
-        setStatus("Enter a search query.");
-        return;
-      }
-
-      const hits = [];
-
-      flashcards.forEach(c=>{
-        if((c.term+" "+c.def+" "+c.hint).toLowerCase().includes(q)){
-          hits.push({type:"Flashcard", where: modeLabel(c.deck), title: c.term, extra: c.def});
-        }
-      });
-
-      quizBank.forEach(x=>{
-        if((x.q+" "+x.opts.join(" ")+" "+x.why).toLowerCase().includes(q)){
-          hits.push({type:"Quiz", where: modeLabel(x.theme), title: x.q, extra: "Answer: " + x.opts[x.a]});
-        }
-      });
-
-      maps.forEach(m=>{
-        const full = (m.title + " " + m.nodes.map(n=>n.label+" "+(n.sub||[]).join(" ")).join(" ")).toLowerCase();
-        if(full.includes(q)){
-          hits.push({type:"Mind Map", where: modeLabel(m.theme), title: m.title, extra: "Contains matching node(s)."});
-        }
-      });
-
-      go('home');
-      let box = document.getElementById('searchResultsBox');
-      if(!box){
-        box = document.createElement('div');
-        box.id = 'searchResultsBox';
-        box.style.padding = "18px";
-        box.style.borderTop = "1px solid rgba(255,255,255,.12)";
-        box.style.background = "rgba(0,0,0,.10)";
-        document.querySelector('#home .card').appendChild(box);
-      }
-
-      if(hits.length===0){
-        box.innerHTML = `<div class="muted2">No matches for <strong>${escapeHtml(q)}</strong>.</div>`;
-        setStatus("No search results.");
-        return;
-      }
-
-      const top = hits.slice(0, 12).map(h=>`
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);margin-top:10px">
-          <span style="width:10px;height:10px;border-radius:50%;background:rgba(56,242,176,.9);margin-top:7px;box-shadow:0 0 14px rgba(56,242,176,.35);flex:0 0 auto"></span>
-          <div>
-            <div><strong>${escapeHtml(h.type)}</strong> • ${escapeHtml(h.where)}</div>
-            <div class="muted" style="font-weight:1000">${escapeHtml(h.title)}</div>
-            <div class="mini muted2">${escapeHtml(h.extra)}</div>
-          </div>
-        </div>
-      `).join("");
-
-      box.innerHTML = `
-        <div class="mini muted2" style="margin-bottom:10px">
-          Results for <strong>${escapeHtml(q)}</strong> • Showing <strong>${Math.min(12,hits.length)}</strong> of <strong>${hits.length}</strong>
-        </div>
-        ${top}
-      `;
-      setStatus("Search results ready.");
-    }
-
-    document.getElementById('searchBtn').addEventListener('click', ()=>{
-      searchAll(document.getElementById('globalSearch').value);
-    });
-    document.getElementById('globalSearch').addEventListener('keydown', (e)=>{
-      if(e.key === "Enter") searchAll(document.getElementById('globalSearch').value);
-    });
-
-    /***********************
-     * Random practice button
-     ***********************/
-    document.getElementById('randomBtn').addEventListener('click', ()=>{
-      const pick = Math.random();
-      if(pick < 0.40) setDeck('weak');
-      else if(pick < 0.70) setQuizMode('mixed');
-      else setMap('all');
-      setStatus("Random practice launched.");
-    });
-
-    /***********************
-     * Practice routing helper
-     ***********************/
-    function openPractice(target, theme){
-      if(target === 'flashcards'){
-        setDeck(theme === 'term' ? 'terminology' : (theme||'all'));
-      }else if(target === 'quizzes'){
-        setQuizMode(theme || 'mixed');
-      }else if(target === 'mindmaps'){
-        setMap(theme || 'all');
-      }else if(target === 'studio'){
-        go('studio');
-        setStatus("Studio opened.");
-      }else{
-        go(target);
-      }
-    }
-
-    /***********************
-     * Utilities
-     ***********************/
-    function pickRandom(arr, n){
-      const a = [...arr];
-      const out = [];
-      while(a.length && out.length < n){
-        out.push(a.splice(Math.floor(Math.random()*a.length), 1)[0]);
-      }
-      return out;
+    function renderSnapshot(){
+      const items = [
+        "CAT supports human translators with TM, terminology, QA, and project tools.",
+        "Workstations combine lexical resources, corpora, concordancing, and MT support.",
+        "TM works through aligned examples and different match types.",
+        "Terminology tools improve consistency, speed, and collaboration.",
+        "Localization adapts language, culture, and technical features.",
+        "Minority languages often lack digital resources and tool support.",
+        "Corpora help in training, research, and professional translation.",
+        "MT evaluation needs both human and automatic methods.",
+        "Sublanguages and post-editing are key practical areas in CAT."
+      ];
+      document.getElementById("snapshot").innerHTML =
+        items.map(x => `<div class="bullet"><span class="dot"></span><span>${escapeHtml(x)}</span></div>`).join("");
     }
 
     function escapeHtml(s){
@@ -1880,15 +1071,785 @@
         .replaceAll("'","&#039;");
     }
 
-    /***********************
-     * First mount
-     ***********************/
-    initPDFLinks();
-    mountFlash();
-    newQuiz();
-    renderMaps();
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
+
+    function sample(arr, n){
+      return shuffle(arr).slice(0, n);
+    }
+
+    function renderTopics(filter="all"){
+      const mount = document.getElementById("topicsOut");
+      const data = filter==="all" ? TOPICS : TOPICS.filter(t=>t.cat===filter);
+      mount.innerHTML = data.map(t => `
+        <div class="topic">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+            <span class="topicCode">${escapeHtml(t.code)}</span>
+            <div class="tags">
+              <span class="tag">${escapeHtml(t.cat)}</span>
+              <span class="tag">${escapeHtml(t.pages)}</span>
+            </div>
+          </div>
+          <div>
+            <h3>${escapeHtml(t.title)}</h3>
+            <p>${escapeHtml(t.summary)}</p>
+          </div>
+          <div class="bullets">
+            ${t.bullets.map(b=>`<div class="bullet"><span class="dot"></span><span>${escapeHtml(b)}</span></div>`).join("")}
+          </div>
+          <div class="mini">Source: ${escapeHtml(t.file)} • ${escapeHtml(t.pages)}</div>
+          <div class="toolbar">
+            <button class="btn small primary topicGo" data-go="flashcards" data-topic="${t.id}">Flashcards</button>
+            <button class="btn small secondary topicGo" data-go="quizzes" data-topic="${t.id}">Quiz</button>
+            <button class="btn small topicGo" data-go="mindmaps" data-topic="${t.id}">Mind Map</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderSources(){
+      document.getElementById("sourcesOut").innerHTML = SOURCES.map(s => `
+        <div class="sourceItem">
+          <h3>${escapeHtml(s.title)}</h3>
+          <div class="mini">File: ${escapeHtml(s.file)}</div>
+          <div class="mini">Pages used: ${escapeHtml(s.pages)}</div>
+          <div class="toolbar">
+            <a class="btn small" href="${encodeURI(s.link)}" target="_blank" rel="noopener">Open PDF</a>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderWeak(){
+      const weak = CARDS.filter(c => (state.cardScores[c.id] || 0) < 2);
+      document.getElementById("weakOut").innerHTML = weak.length
+        ? weak.map(c => `
+            <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+              <div><strong>${escapeHtml(c.q)}</strong></div>
+              <div class="mini">${escapeHtml(c.ref)}</div>
+            </div>
+          `).join("")
+        : `<strong>Excellent.</strong> All current flashcards are mastered.`;
+    }
+
+    function fillSelects(){
+      const flash = document.getElementById("flashSelect");
+      const quiz = document.getElementById("quizSelect");
+      const map = document.getElementById("mapSelect");
+
+      flash.innerHTML =
+        `<option value="all">All Topics</option>
+         <option value="weak">Weak Cards Only</option>` +
+        TOPICS.map(t=>`<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`).join("");
+
+      quiz.innerHTML =
+        `<option value="mixed">Mixed Quiz</option>` +
+        TOPICS.map(t=>`<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`).join("");
+
+      map.innerHTML =
+        TOPICS.map(t=>`<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`).join("");
+    }
+
+    const tabs = [...document.querySelectorAll(".tab")];
+    const sections = [...document.querySelectorAll(".section")];
+
+    function go(id){
+      sections.forEach(s=>s.classList.toggle("active", s.id===id));
+      tabs.forEach(t=>t.classList.toggle("active", t.dataset.target===id));
+      state.sectionVisits[id] = (state.sectionVisits[id] || 0) + 1;
+      saveState();
+      setStatus(`Opened: ${id}`);
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    tabs.forEach(t => t.addEventListener("click", ()=>go(t.dataset.target)));
+
+    document.getElementById("dashFlash").addEventListener("click", ()=>{
+      go("flashcards");
+    });
+    document.getElementById("dashQuiz").addEventListener("click", ()=>{
+      document.getElementById("quizSelect").value = "mixed";
+      newQuizSet();
+      go("quizzes");
+    });
+    document.getElementById("dashTopics").addEventListener("click", ()=>go("topics"));
+
+    document.querySelectorAll(".filterBtn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        document.querySelectorAll(".filterBtn").forEach(x=>x.classList.remove("primary"));
+        btn.classList.add("primary");
+        renderTopics(btn.dataset.filter);
+      });
+    });
+
+    document.getElementById("topicsOut").addEventListener("click", (e)=>{
+      const btn = e.target.closest(".topicGo");
+      if(!btn) return;
+      const topic = btn.dataset.topic;
+      const target = btn.dataset.go;
+
+      if(target==="flashcards"){
+        document.getElementById("flashSelect").value = topic;
+        buildFlashDeck();
+      }
+      if(target==="quizzes"){
+        document.getElementById("quizSelect").value = topic;
+        newQuizSet();
+      }
+      if(target==="mindmaps"){
+        document.getElementById("mapSelect").value = topic;
+        renderMap(topic);
+      }
+      go(target);
+    });
+
+    let flashDeck = [];
+    let flashIndex = 0;
+
+    function scoreLabel(v){
+      if(v >= 2) return "Mastered";
+      if(v === 1) return "Good";
+      if(v === -1) return "Hard";
+      return "New";
+    }
+
+    function buildFlashDeck(){
+      const mode = document.getElementById("flashSelect").value;
+      if(mode === "all") flashDeck = [...CARDS];
+      else if(mode === "weak") flashDeck = CARDS.filter(c => (state.cardScores[c.id] || 0) < 2);
+      else flashDeck = CARDS.filter(c => c.topic === mode);
+
+      if(!flashDeck.length) flashDeck = [...CARDS];
+      flashIndex = 0;
+      renderFlash();
+    }
+
+    function renderFlash(){
+      const c = flashDeck[flashIndex];
+      if(!c) return;
+
+      document.getElementById("flashCard").classList.remove("flipped");
+      document.getElementById("flashFront").textContent = c.q;
+      document.getElementById("flashBack").textContent = c.a;
+      document.getElementById("flashFrontRef").textContent = c.ref;
+      document.getElementById("flashBackRef").textContent = c.ref;
+
+      const deckLabel = document.getElementById("flashSelect").selectedOptions[0].textContent;
+      document.getElementById("flashDeck").textContent = `Deck: ${deckLabel}`;
+      document.getElementById("flashPos").textContent = `Card ${flashIndex+1} / ${flashDeck.length}`;
+      document.getElementById("flashState").textContent = `Status: ${scoreLabel(state.cardScores[c.id] || 0)}`;
+    }
+
+    function rateFlash(value){
+      const c = flashDeck[flashIndex];
+      if(!c) return;
+      const old = state.cardScores[c.id] || 0;
+      state.cardScores[c.id] = value;
+
+      if(value === 1) award(8, 2, "Good flashcard");
+      if(value >= 2) award(14, 4, "Mastered flashcard");
+      if(value >= 2 && old < 2){
+        state.daily.master += 1;
+      }
+
+      saveState();
+      renderFlash();
+      setTimeout(nextFlash, 180);
+    }
+
+    function nextFlash(){
+      if(!flashDeck.length) return;
+      flashIndex = (flashIndex + 1) % flashDeck.length;
+      renderFlash();
+    }
+
+    function prevFlash(){
+      if(!flashDeck.length) return;
+      flashIndex = (flashIndex - 1 + flashDeck.length) % flashDeck.length;
+      renderFlash();
+    }
+
+    document.getElementById("flashSelect").addEventListener("change", buildFlashDeck);
+    document.getElementById("flashShuffle").addEventListener("click", ()=>{
+      flashDeck = shuffle(flashDeck);
+      flashIndex = 0;
+      renderFlash();
+      setStatus("Flashcards shuffled.");
+    });
+    document.getElementById("flashWeak").addEventListener("click", ()=>{
+      document.getElementById("flashSelect").value = "weak";
+      buildFlashDeck();
+    });
+    document.getElementById("flipCardBtn").addEventListener("click", ()=>{
+      document.getElementById("flashCard").classList.toggle("flipped");
+    });
+    document.getElementById("flashCard").addEventListener("click", (e)=>{
+      if(e.target.closest("button")) return;
+      document.getElementById("flashCard").classList.toggle("flipped");
+    });
+    document.getElementById("prevCard").addEventListener("click", prevFlash);
+    document.getElementById("nextCard").addEventListener("click", nextFlash);
+    document.getElementById("rateHard").addEventListener("click", ()=>rateFlash(-1));
+    document.getElementById("rateGood").addEventListener("click", ()=>rateFlash(1));
+    document.getElementById("rateMaster").addEventListener("click", ()=>rateFlash(2));
+
+    let quizSet = [];
+    let quizIndex = 0;
+    let quizScore = 0;
+    let quizSelected = null;
+    let quizLocked = false;
+
+    function newQuizSet(){
+      const mode = document.getElementById("quizSelect").value;
+      const pool = mode === "mixed" ? QUIZZES : QUIZZES.filter(q => q.topic === mode);
+      quizSet = sample(pool.length ? pool : QUIZZES, Math.min(5, pool.length || QUIZZES.length));
+      quizIndex = 0;
+      quizScore = 0;
+      renderQuiz();
+    }
+
+    function renderQuiz(){
+      const q = quizSet[quizIndex];
+      if(!q) return;
+
+      quizSelected = null;
+      quizLocked = false;
+      document.getElementById("quizQ").textContent = q.q;
+      document.getElementById("quizTopicOut").textContent =
+        `Topic: ${document.getElementById("quizSelect").selectedOptions[0].textContent}`;
+      document.getElementById("quizPosOut").textContent = `Question ${quizIndex+1} / ${quizSet.length}`;
+      document.getElementById("quizScoreOut").textContent = `Score: ${quizScore}`;
+      document.getElementById("quizExplain").innerHTML = `Select an answer and submit. <div class="mini" style="margin-top:8px">${escapeHtml(q.ref)}</div>`;
+
+      const wrap = document.getElementById("quizOpts");
+      wrap.innerHTML = q.opts.map((opt, i)=>`
+        <div class="option" data-i="${i}">${escapeHtml(opt)}</div>
+      `).join("");
+
+      wrap.querySelectorAll(".option").forEach(el=>{
+        el.addEventListener("click", ()=>{
+          if(quizLocked) return;
+          wrap.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
+          el.classList.add("selected");
+          quizSelected = Number(el.dataset.i);
+        });
+      });
+    }
+
+    function submitQuiz(){
+      if(quizLocked) return;
+      const q = quizSet[quizIndex];
+      if(quizSelected === null){
+        setStatus("Select an option first.");
+        return;
+      }
+
+      quizLocked = true;
+      state.quizAttempted += 1;
+
+      const opts = [...document.querySelectorAll("#quizOpts .option")];
+      opts.forEach((o, i)=>{
+        if(i === q.a) o.classList.add("correct");
+      });
+
+      if(quizSelected === q.a){
+        quizScore += 1;
+        state.quizCorrect += 1;
+        state.daily.quizCorrect += 1;
+        opts[quizSelected].classList.add("correct");
+        award(20, 5, "Correct quiz answer");
+        document.getElementById("quizExplain").innerHTML =
+          `<strong>Correct.</strong> ${escapeHtml(q.why)}<div class="mini" style="margin-top:8px">${escapeHtml(q.ref)}</div>`;
+      }else{
+        opts[quizSelected].classList.add("wrong");
+        document.getElementById("quizExplain").innerHTML =
+          `<strong>Incorrect.</strong> ${escapeHtml(q.why)}<div class="mini" style="margin-top:8px">Correct answer: ${escapeHtml(q.opts[q.a])} • ${escapeHtml(q.ref)}</div>`;
+      }
+
+      saveState();
+      document.getElementById("quizScoreOut").textContent = `Score: ${quizScore}`;
+    }
+
+    function nextQuiz(){
+      if(quizIndex < quizSet.length - 1){
+        quizIndex++;
+        renderQuiz();
+      }else{
+        document.getElementById("quizExplain").innerHTML =
+          `<strong>Quiz complete.</strong> Final score: ${quizScore}/${quizSet.length}.`;
+        setStatus(`Quiz finished: ${quizScore}/${quizSet.length}`);
+      }
+    }
+
+    document.getElementById("quizSelect").addEventListener("change", newQuizSet);
+    document.getElementById("newQuiz").addEventListener("click", newQuizSet);
+    document.getElementById("submitQuiz").addEventListener("click", submitQuiz);
+    document.getElementById("nextQuiz").addEventListener("click", nextQuiz);
+
+    function renderMap(topicId){
+      const m = MAPS[topicId] || MAPS.t1;
+      const mount = document.getElementById("mapOut");
+      mount.innerHTML = `
+        <div class="mapCore">${escapeHtml(m.core)}</div>
+        <div class="mapGrid">
+          ${Object.entries(m.branches).map(([k, items], idx)=>`
+            <div class="branch" id="branch-${idx}">
+              <button class="branchHead" data-branch="${idx}">
+                <strong>${escapeHtml(k)}</strong>
+                <span>＋</span>
+              </button>
+              <div class="branchBody">
+                ${items.map(x=>`<div class="branchItem">${escapeHtml(x)}</div>`).join("")}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      mount.querySelectorAll(".branchHead").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const box = document.getElementById(`branch-${btn.dataset.branch}`);
+          box.classList.toggle("open");
+        });
+      });
+    }
+
+    document.getElementById("loadMap").addEventListener("click", ()=>{
+      renderMap(document.getElementById("mapSelect").value);
+    });
+
+    let gameStreak = 0;
+    function renderGameBest(){
+      document.getElementById("gameBest").textContent = `Best: ${state.gameBest || 0}`;
+    }
+
+    function newGameRound(){
+      const correct = CARDS[Math.floor(Math.random()*CARDS.length)];
+      const wrongs = sample(CARDS.filter(c => c.id !== correct.id), 3).map(c => c.a);
+      const opts = shuffle([correct.a, ...wrongs]);
+      document.getElementById("gameQ").textContent = correct.q;
+      document.getElementById("gameOpts").innerHTML = opts.map(o=>`
+        <div class="option">${escapeHtml(o)}</div>
+      `).join("");
+      document.getElementById("gameExplain").textContent = "Choose the correct answer.";
+      document.getElementById("gameStreak").textContent = `Streak: ${gameStreak}`;
+
+      [...document.querySelectorAll("#gameOpts .option")].forEach(opt=>{
+        opt.addEventListener("click", ()=>{
+          const ok = opt.textContent === correct.a;
+          if(ok){
+            gameStreak++;
+            state.daily.gameWin += 1;
+            award(12, 3, "Rapid Match win");
+            document.getElementById("gameExplain").innerHTML =
+              `<strong>Correct.</strong> ${escapeHtml(correct.ref)}`;
+          }else{
+            gameStreak = 0;
+            document.getElementById("gameExplain").innerHTML =
+              `<strong>Incorrect.</strong> Correct answer: ${escapeHtml(correct.a)}<div class="mini" style="margin-top:8px">${escapeHtml(correct.ref)}</div>`;
+          }
+          if(gameStreak > (state.gameBest || 0)) state.gameBest = gameStreak;
+          saveState();
+          document.getElementById("gameStreak").textContent = `Streak: ${gameStreak}`;
+          renderGameBest();
+
+          [...document.querySelectorAll("#gameOpts .option")].forEach(x=>{
+            x.style.pointerEvents = "none";
+            if(x.textContent === correct.a) x.classList.add("correct");
+            else if(x === opt && !ok) x.classList.add("wrong");
+          });
+        });
+      });
+    }
+
+    document.getElementById("newGame").addEventListener("click", newGameRound);
+
+    function extractTerms(mode){
+      const text = document.getElementById("labText").value.trim();
+      if(!text){
+        document.getElementById("labOut").textContent = "Paste text first.";
+        return;
+      }
+
+      const stop = new Set(["the","a","an","and","or","but","to","of","in","on","for","with","by","as","is","are","was","were","be","been","this","that","these","those","it","its","their","they","we","you","i","at","from","into","over","under","than","then","which","who","whom","can","could","should","would","may","might","will","also","not"]);
+      const clean = text.replace(/[^\w\s\-']/g," ").replace(/\s+/g," ").trim();
+      const tokens = clean.split(" ").filter(Boolean);
+      const uni = new Map();
+      const bi = new Map();
+
+      for(let i=0;i<tokens.length;i++){
+        const w = tokens[i].toLowerCase();
+        if(w.length > 3 && !stop.has(w)) uni.set(w, (uni.get(w)||0)+1);
+        if(i < tokens.length-1){
+          const pair = `${tokens[i].toLowerCase()} ${tokens[i+1].toLowerCase()}`;
+          if(pair.split(" ").every(x => x.length > 2 && !stop.has(x))) bi.set(pair, (bi.get(pair)||0)+1);
+        }
+      }
+
+      const linguistic = new Set();
+      (text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\b/g) || []).forEach(x=>linguistic.add(x));
+      (text.match(/\b\w+(?:-\w+)+\b/g) || []).forEach(x=>linguistic.add(x));
+      ["translation memory","machine translation","term bank","termbase","post-editing","minority language","computer-assisted translation","localization","sublanguage"].forEach(p=>{
+        if(text.toLowerCase().includes(p)) linguistic.add(p);
+      });
+
+      const statistical = new Set();
+      for(const [k,v] of uni.entries()) if(v >= 2) statistical.add(k);
+      for(const [k,v] of bi.entries()) if(v >= 2) statistical.add(k);
+
+      let out = [];
+      if(mode === "pattern") out = [...linguistic];
+      else if(mode === "stats") out = [...statistical];
+      else out = [...new Set([...linguistic, ...statistical])];
+
+      out = out.slice(0, 28);
+
+      document.getElementById("labOut").innerHTML = out.length
+        ? `<div class="mini">Mode: ${escapeHtml(mode)}</div><div style="margin-top:8px">${out.map(x=>`<span class="pill" style="margin:4px">${escapeHtml(x)}</span>`).join("")}</div>`
+        : "No candidates found. Try longer text.";
+      setStatus("Term extraction complete.");
+    }
+
+    document.getElementById("runPattern").addEventListener("click", ()=>extractTerms("pattern"));
+    document.getElementById("runStats").addEventListener("click", ()=>extractTerms("stats"));
+    document.getElementById("runHybrid").addEventListener("click", ()=>extractTerms("hybrid"));
+
+    function renderGloss(){
+      document.getElementById("glossOut").innerHTML = state.glossary.length
+        ? state.glossary.slice().reverse().map(g=>`
+            <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+              <div><strong>${escapeHtml(g.term)}</strong> → ${escapeHtml(g.eq)}</div>
+              <div class="mini">${escapeHtml(g.note || "—")}</div>
+            </div>
+          `).join("")
+        : "No glossary entries yet.";
+    }
+
+    document.getElementById("addGloss").addEventListener("click", ()=>{
+      const term = document.getElementById("gTerm").value.trim();
+      const eq = document.getElementById("gEq").value.trim();
+      const note = document.getElementById("gNote").value.trim();
+      if(!term || !eq){
+        setStatus("Enter both term and equivalent.");
+        return;
+      }
+      state.glossary.push({term, eq, note});
+      state.daily.gloss += 1;
+      saveState();
+      renderGloss();
+      document.getElementById("gTerm").value = "";
+      document.getElementById("gEq").value = "";
+      document.getElementById("gNote").value = "";
+      award(6, 2, "Glossary entry added");
+    });
+
+    document.getElementById("exportGloss").addEventListener("click", ()=>{
+      if(!state.glossary.length){
+        setStatus("No glossary to export.");
+        return;
+      }
+      const rows = ["TERM\tEQUIVALENT\tNOTE", ...state.glossary.map(g => `${g.term}\t${g.eq}\t${g.note||""}`)];
+      document.getElementById("glossOut").innerHTML = `<pre style="margin:0;white-space:pre-wrap">${escapeHtml(rows.join("\n"))}</pre>`;
+      setStatus("Glossary exported.");
+    });
+
+    document.getElementById("clearGloss").addEventListener("click", ()=>{
+      state.glossary = [];
+      saveState();
+      renderGloss();
+      setStatus("Glossary cleared.");
+    });
+
+    function searchAll(q){
+      const query = q.trim().toLowerCase();
+      if(!query){
+        document.getElementById("searchOut").textContent = "Enter a search term.";
+        return;
+      }
+
+      const hits = [];
+
+      TOPICS.forEach(t=>{
+        const hay = `${t.code} ${t.title} ${t.summary} ${t.bullets.join(" ")}`.toLowerCase();
+        if(hay.includes(query)) hits.push({type:"Topic", title:t.title, extra:t.file});
+      });
+
+      CARDS.forEach(c=>{
+        const hay = `${c.q} ${c.a} ${c.ref}`.toLowerCase();
+        if(hay.includes(query)) hits.push({type:"Flashcard", title:c.q, extra:c.ref});
+      });
+
+      QUIZZES.forEach(qz=>{
+        const hay = `${qz.q} ${qz.opts.join(" ")} ${qz.why} ${qz.ref}`.toLowerCase();
+        if(hay.includes(query)) hits.push({type:"Quiz", title:qz.q, extra:qz.ref});
+      });
+
+      if(!hits.length){
+        document.getElementById("searchOut").innerHTML = `No matches for <strong>${escapeHtml(query)}</strong>.`;
+        return;
+      }
+
+      document.getElementById("searchOut").innerHTML = hits.slice(0,12).map(h=>`
+        <div style="padding:8px 0;border-bottom:1px solid var(--line)">
+          <div><strong>${escapeHtml(h.type)}</strong> — ${escapeHtml(h.title)}</div>
+          <div class="mini">${escapeHtml(h.extra)}</div>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", ()=>{
+      searchAll(document.getElementById("searchInput").value);
+    });
+    document.getElementById("searchInput").addEventListener("keydown", e=>{
+      if(e.key === "Enter") searchAll(document.getElementById("searchInput").value);
+    });
+
+    document.getElementById("dailyBtn").addEventListener("click", ()=>{
+      const ch = dailyChallenge();
+      go(ch.route);
+    });
+    document.getElementById("goDaily").addEventListener("click", ()=>{
+      const ch = dailyChallenge();
+      go(ch.route);
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", ()=>{
+      if(!confirm("Reset all saved progress on this device?")) return;
+      state = defaultState();
+      touchDay();
+      renderAll();
+      setStatus("Progress reset.");
+    });
+
+    let musicOn = false;
+    let htmlAudio = null;
+    let audioCtx = null;
+    let masterGain = null;
+    let ambientNodes = [];
+
+    function stopAmbient(){
+      ambientNodes.forEach(n=>{
+        try{ n.stop && n.stop(); }catch(e){}
+      });
+      ambientNodes = [];
+    }
+
+    function ensureAudio(){
+      if(htmlAudio) return;
+      htmlAudio = new Audio("./audio/serene.mp3");
+      htmlAudio.loop = true;
+      htmlAudio.volume = Number(document.getElementById("volume").value)/100;
+    }
+
+    function startAmbient(){
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.connect(audioCtx.destination);
+      }
+      if(audioCtx.state === "suspended") audioCtx.resume();
+      masterGain.gain.value = (Number(document.getElementById("volume").value)/100) * 0.45;
+
+      const bufferSize = 2 * audioCtx.sampleRate;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * 0.25;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const low = audioCtx.createBiquadFilter();
+      low.type = "lowpass";
+      low.frequency.value = 700;
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.14;
+
+      const osc1 = audioCtx.createOscillator();
+      osc1.type = "sine";
+      osc1.frequency.value = 196;
+
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = "sine";
+      osc2.frequency.value = 246.94;
+
+      const osc3 = audioCtx.createOscillator();
+      osc3.type = "sine";
+      osc3.frequency.value = 293.66;
+
+      const padGain = audioCtx.createGain();
+      padGain.gain.value = 0.05;
+
+      noise.connect(low);
+      low.connect(gain);
+      gain.connect(masterGain);
+
+      osc1.connect(padGain);
+      osc2.connect(padGain);
+      osc3.connect(padGain);
+      padGain.connect(masterGain);
+
+      noise.start();
+      osc1.start();
+      osc2.start();
+      osc3.start();
+
+      ambientNodes = [noise, osc1, osc2, osc3];
+    }
+
+    async function startMusic(){
+      ensureAudio();
+      try{
+        await htmlAudio.play();
+      }catch(e){
+        startAmbient();
+      }
+      musicOn = true;
+      document.getElementById("musicBtn").textContent = "❚❚ Music";
+      setStatus("Music on.");
+    }
+
+    function stopMusic(){
+      if(htmlAudio){
+        htmlAudio.pause();
+        htmlAudio.currentTime = 0;
+      }
+      stopAmbient();
+      musicOn = false;
+      document.getElementById("musicBtn").textContent = "♪ Music";
+      setStatus("Music off.");
+    }
+
+    document.getElementById("musicBtn").addEventListener("click", ()=>{
+      if(musicOn) stopMusic();
+      else startMusic();
+    });
+
+    document.getElementById("volume").addEventListener("input", e=>{
+      const v = Number(e.target.value)/100;
+      if(htmlAudio) htmlAudio.volume = v;
+      if(masterGain) masterGain.gain.value = v * 0.45;
+    });
+
+    const welcome = document.getElementById("welcome");
+    document.getElementById("enterBtn").addEventListener("click", async ()=>{
+      touchDay();
+      welcome.classList.add("hide");
+      await startMusic();
+    });
+    document.getElementById("enterMutedBtn").addEventListener("click", ()=>{
+      touchDay();
+      welcome.classList.add("hide");
+      stopMusic();
+    });
+
+    const canvas = document.getElementById("catalyst");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      initParticles();
+    }
+
+    function initParticles(){
+      const count = Math.max(36, Math.floor(window.innerWidth / 28));
+      particles = Array.from({length:count}, ()=>({
+        x:Math.random()*window.innerWidth,
+        y:Math.random()*window.innerHeight,
+        vx:(Math.random()-.5)*0.55,
+        vy:(Math.random()-.5)*0.55,
+        r:1.4 + Math.random()*2.3
+      }));
+    }
+
+    function animateCatalyst(){
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+      for(const p of particles){
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0 || p.x > window.innerWidth) p.vx *= -1;
+        if(p.y < 0 || p.y > window.innerHeight) p.vy *= -1;
+
+        const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*6);
+        g.addColorStop(0,"rgba(23,181,156,.28)");
+        g.addColorStop(.6,"rgba(97,139,255,.12)");
+        g.addColorStop(1,"rgba(97,139,255,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r*6,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(23,181,156,.35)";
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+      }
+
+      for(let i=0;i<particles.length;i++){
+        for(let j=i+1;j<particles.length;j++){
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d = Math.hypot(dx,dy);
+          if(d < 120){
+            ctx.strokeStyle = `rgba(97,139,255,${0.10*(1-d/120)})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x,a.y);
+            ctx.lineTo(b.x,b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateCatalyst);
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    function renderAll(){
+      renderStats();
+      renderDaily();
+      renderSnapshot();
+      renderTopics();
+      renderSources();
+      renderWeak();
+      renderGloss();
+      renderGameBest();
+      fillSelects();
+      buildFlashDeck();
+      newQuizSet();
+      renderMap(document.getElementById("mapSelect")?.value || TOPICS[0].id);
+    }
+
+    touchDay();
+    resizeCanvas();
+    animateCatalyst();
+    fillSelects();
+    renderStats();
+    renderDaily();
+    renderSnapshot();
+    renderTopics();
+    renderSources();
+    renderWeak();
     renderGloss();
-    renderMTTrainer();
+    renderGameBest();
+    buildFlashDeck();
+    newQuizSet();
+    renderMap(TOPICS[0].id);
+    checkBadges();
+    setStatus("Ready.");
   </script>
 </body>
 </html>
