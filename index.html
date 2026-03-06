@@ -9,667 +9,2005 @@
   />
   <title>CATalyst Academy — ENGL465 Interactive CAT Platform</title>
 
-  <!-- Optional local font -->
   <link rel="preload" href="./fonts/Kermit-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
 
-  <!-- Main stylesheet -->
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+/* =========================================
+   CATalyst Academy — styles.css
+   ENGL465 Interactive CAT Learning Platform
+   ========================================= */
 
-  <!-- Data and App -->
-  <script src="./data.js" defer></script>
-  <script src="./app.js" defer></script>
+/* ---------- FONT ---------- */
+@font-face {
+  font-family: "KermitSemiBold";
+  src:
+    url("./fonts/Kermit-SemiBold.woff2") format("woff2"),
+    url("./fonts/Kermit-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- ROOT ---------- */
+:root {
+  --bg: #f7fcfb;
+  --bg-soft: #eef8f6;
+  --bg-soft-2: #e6f6f2;
+  --card: rgba(255, 255, 255, 0.92);
+  --card-solid: #ffffff;
+  --line: #d8ece6;
+  --line-strong: #c4e3da;
+  --ink: #173733;
+  --ink-soft: #2d5550;
+  --muted: #6c8781;
+  --muted-2: #8aa19c;
+
+  --accent: #17b59c;
+  --accent-2: #618bff;
+  --accent-3: #f1b84e;
+
+  --ok: #15975a;
+  --warn: #c68000;
+  --danger: #d74a4a;
+
+  --shadow-sm: 0 6px 18px rgba(23, 55, 51, 0.06);
+  --shadow: 0 18px 40px rgba(23, 55, 51, 0.08);
+  --shadow-lg: 0 28px 60px rgba(23, 55, 51, 0.12);
+
+  --radius-xs: 12px;
+  --radius-sm: 16px;
+  --radius: 20px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
+
+  --font-main: "KermitSemiBold", "Segoe UI", Inter, Arial, sans-serif;
+  --transition: 0.2s ease;
+}
+
+/* ---------- RESET ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(23,181,156,0.08), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(97,139,255,0.08), transparent 28%),
+    linear-gradient(180deg, #fbfffe 0%, #f5fbfa 100%);
+  overflow-x: hidden;
+}
+
+img, svg, canvas { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+
+/* ---------- BACKGROUND CANVAS ---------- */
+#catalystCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* ---------- GLOBAL LAYOUT ---------- */
+.container {
+  width: min(1420px, 96vw);
+  margin: 0 auto;
+}
+
+.page-main { padding: 24px 0 88px; }
+
+.page-section { display: none; }
+
+.page-section.active {
+  display: block;
+  animation: fadeIn 0.24s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.grid { display: grid; gap: 18px; margin-bottom: 18px; }
+.grid-hero    { grid-template-columns: 1.35fr 0.85fr; }
+.grid-2       { grid-template-columns: 1fr 1fr; }
+.grid-topic-detail {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+/* ---------- CARDS ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.card-head { padding: 18px 20px 0; }
+.card-head h2,
+.card-head h3,
+.card-head h4 { margin: 0 0 8px; line-height: 1.2; color: var(--ink); }
+.card-head p  { margin: 0; color: var(--muted); line-height: 1.7; }
+.card-body    { padding: 18px 20px 20px; }
+
+.hero-card { overflow: hidden; }
+.hero-card-inner {
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(23,181,156,0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(97,139,255,0.10), transparent 36%),
+    linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.84));
+}
+.hero-card h2 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.15;
+}
+.hero-card p { margin: 0; color: var(--ink-soft); line-height: 1.8; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eafaf6;
+  color: var(--accent);
+  font-size: 13px;
+  border: 1px solid #cfeee6;
+}
+
+.hero-actions,
+.toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.hero-actions { margin-top: 18px; }
+.hero-highlights {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.highlight-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.88);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- WELCOME ---------- */
+.welcome-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(247,252,251,0.96);
+  backdrop-filter: blur(12px);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.welcome-screen.hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  display: grid !important; /* override .hidden so transition plays */
+}
+
+.welcome-card {
+  width: min(820px, 96vw);
+  background: rgba(255,255,255,0.98);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+  text-align: center;
+}
+.welcome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ebfaf7;
+  color: var(--accent);
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.welcome-card h1 {
+  margin: 0 0 10px;
+  font-size: clamp(30px, 4.5vw, 50px);
+  line-height: 1.1;
+}
+.welcome-subtitle {
+  max-width: 62ch;
+  margin: 0 auto;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.welcome-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 22px 0 18px;
+}
+.welcome-points span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #f3faf8;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+.welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.mini-note { margin-top: 14px; color: var(--muted); font-size: 13px; }
+.mini-note code {
+  background: #f2f8f7;
+  border: 1px solid var(--line);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+/* ---------- HEADER ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.86);
+  border-bottom: 1px solid var(--line);
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 0 12px;
+}
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 280px;
+}
+.brand-logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 34% 34%, #fff, rgba(255,255,255,0.35) 28%, transparent 32%),
+    linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 16px 30px rgba(23,181,156,0.16);
+  position: relative;
+  overflow: hidden;
+}
+.brand-logo::before,
+.brand-logo::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.72);
+}
+.brand-logo::before { inset: 10px; }
+.brand-logo::after  { inset: 18px 8px 8px 18px; opacity: 0.6; }
+
+.brand-text h1 { margin: 0; font-size: clamp(20px,2.2vw,30px); line-height: 1.15; }
+.brand-text p  { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+.header-tools {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+  padding: 10px 12px;
+  background: var(--card-solid);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.search-box span  { color: var(--muted); font-size: 15px; }
+.search-box input { width: 100%; border: none; background: transparent; outline: none; color: var(--ink); }
+
+.music-controls.compact {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--card-solid);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.range-wrap span  { color: var(--muted); font-size: 13px; }
+.range-wrap input { accent-color: var(--accent); }
+
+/* ---------- NAV ---------- */
+.main-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 0 0 14px;
+}
+.nav-tab {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.85);
+  color: var(--ink);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  font-family: var(--font-main);
+}
+.nav-tab:hover  { transform: translateY(-1px); border-color: var(--line-strong); }
+.nav-tab.active {
+  background: linear-gradient(135deg, rgba(23,181,156,0.14), rgba(97,139,255,0.12));
+  color: var(--accent);
+  border-color: #bfe7dd;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  border: 1px solid var(--line);
+  background: var(--card-solid);
+  color: var(--ink);
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  font-family: var(--font-main);
+}
+.btn:hover   { transform: translateY(-1px); }
+.btn:active  { transform: translateY(0); }
+.btn-small   { padding: 8px 12px; font-size: 14px; }
+.btn-primary  { background: linear-gradient(135deg, var(--accent), #43c8b3); color: #fff; border-color: transparent; }
+.btn-secondary{ background: linear-gradient(135deg, var(--accent-2), #90a9ff); color: #fff; border-color: transparent; }
+.btn-gold     { background: linear-gradient(135deg, var(--accent-3), #f7cf7b); color: #6b4800; border-color: transparent; }
+.btn-ghost    { background: rgba(255,255,255,0.7); }
+
+/* ---------- STATS / METERS ---------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.stat-box {
+  padding: 16px;
+  background: rgba(255,255,255,0.88);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+.stat-label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.stat-value { font-size: 28px; color: var(--ink); }
+
+.meter-block { margin-top: 16px; }
+.meter-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.meter {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #e8f2ef;
+  overflow: hidden;
+}
+.meter span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: 0.3s ease;
+}
+.meter-alt span { background: linear-gradient(90deg, var(--accent-3), var(--accent)); }
+
+.badges-area { margin-top: 18px; }
+.badges-area h4 { margin: 0 0 10px; }
+.badge-wrap { display: flex; gap: 10px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: #fff7e8;
+  border: 1px solid #f2d79b;
+  color: #8f5d00;
+  font-size: 13px;
+}
+
+/* ---------- LISTS / PANELS ---------- */
+.bullet-list { display: grid; gap: 10px; }
+.bullet-list .item,
+.bullet-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.bullet-list .item::before,
+.bullet-item::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  margin-top: 9px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.rich-list,
+.definition-list,
+.timeline-list,
+.compare-table-wrap,
+.citation-list,
+.stack-list,
+.results-panel,
+.details-panel,
+.feedback-box,
+.notice-box,
+.challenge-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fbfffe;
+  padding: 14px;
+}
+.results-panel,
+.details-panel,
+.feedback-box { min-height: 84px; }
+.notice-box { background: #edf9f6; border-color: #caebe2; color: #26695f; line-height: 1.75; }
+.challenge-card {
+  background:
+    radial-gradient(circle at top right, rgba(241,184,78,0.14), transparent 30%),
+    rgba(255,255,255,0.94);
+  line-height: 1.75;
+}
+.stack-list { display: grid; gap: 10px; }
+.stack-item {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+
+/* ---------- TOPICS ---------- */
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 16px;
+}
+.topic-card {
+  background: rgba(255,255,255,0.94);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 12px;
+  transition: var(--transition);
+}
+.topic-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+.topic-card h3 { margin: 0; line-height: 1.3; }
+.topic-card p  { margin: 0; color: var(--muted); line-height: 1.7; }
+.topic-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #ebfaf7;
+  color: var(--accent);
+  font-size: 13px;
+}
+.lesson-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.lesson-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.lesson-block + .lesson-block { margin-top: 16px; }
+.definition-list { display: grid; gap: 10px; }
+.definition-item {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.definition-term { color: var(--ink); margin-bottom: 6px; }
+
+.timeline-list { display: grid; gap: 12px; }
+.timeline-step {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.timeline-marker {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+}
+.timeline-content {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.compare-table-wrap { overflow-x: auto; }
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+.compare-table th,
+.compare-table td {
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.65;
+}
+.compare-table th { background: #f1faf7; color: var(--ink); }
+
+.citation-list { display: grid; gap: 10px; }
+.citation-item {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.citation-item .source-file { color: var(--ink); margin-bottom: 4px; }
+.citation-item .source-page { color: var(--muted); font-size: 13px; }
+
+/* ---------- INPUTS ---------- */
+.input-select,
+.text-input,
+.text-area {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+  transition: var(--transition);
+  font-family: var(--font-main);
+}
+.input-select:hover,
+.text-input:hover,
+.text-area:hover { border-color: var(--line-strong); }
+.form-grid { display: grid; gap: 10px; }
+.text-area { min-height: 160px; resize: vertical; line-height: 1.75; }
+
+/* ---------- PILLS ---------- */
+.flash-meta,
+.quiz-meta,
+.rapid-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: #f3faf8;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+/* ---------- FLASHCARDS ---------- */
+.flashcard-shell { margin-bottom: 16px; }
+.flashcard {
+  position: relative;
+  min-height: 320px;
+  perspective: 1400px;
+}
+.flashcard-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.2,.75,.2,1);
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flash-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at top left, rgba(23,181,156,0.10), transparent 35%),
+    radial-gradient(circle at top right, rgba(97,139,255,0.10), transparent 35%),
+    rgba(255,255,255,0.97);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.flash-back { transform: rotateY(180deg); }
+.flash-label { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.flash-main-text { font-size: clamp(22px,2.8vw,34px); line-height: 1.35; color: var(--ink); }
+.flash-meta-text { color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+/* ---------- QUIZ ---------- */
+.quiz-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.5fr;
+  gap: 18px;
+}
+.quiz-main, .quiz-side { min-width: 0; }
+.side-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.side-panel h4 { margin: 0 0 10px; }
+.quiz-question { font-size: 24px; line-height: 1.45; color: var(--ink); }
+.quiz-options { display: grid; gap: 10px; margin: 16px 0; }
+.quiz-option {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px;
+  line-height: 1.7;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.quiz-option:hover   { border-color: var(--line-strong); }
+.quiz-option.selected{ border-color: var(--accent); background: #ecfaf7; }
+.quiz-option.correct { border-color: #a9ddb9; background: #edfdf2; }
+.quiz-option.wrong   { border-color: #efb3b3; background: #fff1f1; }
+.feedback-box { line-height: 1.8; }
+
+/* ---------- MIND MAP ---------- */
+.mindmap-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.5fr;
+  gap: 18px;
+}
+.mindmap-stage-wrap {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at top left, rgba(23,181,156,0.05), transparent 28%),
+    radial-gradient(circle at top right, rgba(97,139,255,0.05), transparent 32%),
+    #fbfffe;
+  min-height: 640px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.mindmap-stage {
+  position: relative;
+  width: 100%;
+  min-height: 640px;
+  overflow: auto;
+}
+.mindmap-svg {
+  position: absolute;
+  inset: 0;
+  width: 1600px;
+  height: 1000px;
+  pointer-events: none;
+  overflow: visible;
+}
+.mindmap-nodes-layer { position: relative; width: 1600px; height: 1000px; }
+.mindmap-node {
+  position: absolute;
+  min-width: 150px;
+  max-width: 260px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.96);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition);
+}
+.mindmap-node:hover  { transform: translateY(-2px); border-color: var(--line-strong); }
+.mindmap-node.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(23,181,156,0.10), var(--shadow); }
+.mindmap-node.center { background: linear-gradient(135deg, rgba(23,181,156,0.16), rgba(97,139,255,0.14)); font-size: 18px; }
+.mindmap-node.primary   { background: #ffffff; }
+.mindmap-node.secondary { background: #f9fdfc; }
+.mindmap-node.leaf      { background: #fcfffe; }
+.mindmap-node .node-title { font-size: 15px; line-height: 1.45; color: var(--ink); }
+.mindmap-node .node-mini  { font-size: 12px; margin-top: 6px; color: var(--muted); }
+.mindmap-sidebar .side-panel { min-height: 640px; }
+.details-panel { line-height: 1.8; }
+.details-panel h4,
+.details-panel h5 { margin: 0 0 8px; }
+.details-panel .node-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.details-panel .node-tag {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f2f8f7;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- GAME ---------- */
+.info-box {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 14px 16px;
+}
+.info-box summary { cursor: pointer; }
+.details-content { margin-top: 10px; color: var(--ink-soft); line-height: 1.8; }
+
+/* ---------- MODAL ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(13,31,29,0.35);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.modal-card {
+  width: min(860px, 96vw);
+  max-height: 88vh;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 18px 20px 0;
+}
+.modal-head h3 { margin: 0; }
+.modal-body { padding: 18px 20px 20px; line-height: 1.8; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- TOAST ---------- */
+.toast-stack {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 300;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 36px));
+}
+.toast {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.97);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  line-height: 1.6;
+  animation: toastIn 0.22s ease;
+}
+.toast.success { border-color: #bfe7d0; background: #f2fff7; }
+.toast.warning { border-color: #f0d392; background: #fff9ed; }
+.toast.error   { border-color: #efb8b8; background: #fff2f2; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-6px) translateX(12px); }
+  to   { opacity: 1; transform: translateY(0) translateX(0); }
+}
+
+/* ---------- FOOTER ---------- */
+.site-footer {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  background: rgba(255,255,255,0.90);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1180px) {
+  .grid-hero,
+  .grid-topic-detail,
+  .quiz-layout,
+  .mindmap-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .header-top { align-items: flex-start; }
+  .header-tools { justify-content: flex-start; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .flash-main-text { font-size: clamp(20px,4.5vw,28px); }
+  .mindmap-stage-wrap,
+  .mindmap-stage,
+  .mindmap-sidebar .side-panel { min-height: 540px; }
+}
+@media (max-width: 720px) {
+  .container { width: min(96vw, 100%); }
+  .welcome-card { padding: 24px 18px; }
+  .brand-wrap { width: 100%; }
+  .search-box { width: 100%; min-width: 0; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .lesson-header { flex-direction: column; align-items: stretch; }
+  .flashcard { min-height: 360px; }
+  .flash-face { padding: 18px; }
+  .quiz-question { font-size: 20px; }
+  .topic-grid { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .mindmap-stage-wrap,
+  .mindmap-stage,
+  .mindmap-sidebar .side-panel { min-height: 500px; }
+  .footer-inner { font-size: 13px; }
+}
+@media (max-width: 540px) {
+  .main-nav { gap: 8px; }
+  .nav-tab, .btn, .btn-small { font-size: 13px; }
+  .hero-card h2 { font-size: 28px; }
+  .flash-main-text { font-size: 20px; }
+}
+  </style>
 </head>
 <body>
-  <!-- Animated catalyst background -->
-  <canvas id="catalystCanvas" aria-hidden="true"></canvas>
 
-  <!-- Optional real music player -->
-  <!-- Add real audio files in ./audio/ -->
-  <audio id="bgAudio" preload="none"></audio>
+<!-- Animated catalyst background -->
+<canvas id="catalystCanvas" aria-hidden="true"></canvas>
 
-  <!-- Toasts -->
-  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+<!-- Audio -->
+<audio id="bgAudio" preload="none"></audio>
 
-  <!-- Node / citation / detail modal -->
-  <div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <h3 id="modalTitle">Details</h3>
-        <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">✕</button>
+<!-- Toasts -->
+<div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Modal -->
+<div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h3 id="modalTitle">Details</h3>
+      <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">✕</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- Welcome Screen -->
+<section id="welcomeScreen" class="welcome-screen">
+  <div class="welcome-card">
+    <div class="welcome-badge">✦ ENGL465 / Computer-Assisted Translation</div>
+    <h1>CATalyst Academy</h1>
+    <p class="welcome-subtitle">
+      A comprehensive interactive platform built from your ENGL465 course topics:
+      study, revise, test, map concepts, build glossaries, and track your mastery.
+    </p>
+    <div class="welcome-points">
+      <span>Interactive topic lessons</span>
+      <span>Large flashcard bank</span>
+      <span>Topic quizzes + mixed quizzes</span>
+      <span>Interactive mind maps</span>
+      <span>Gamified learning</span>
+      <span>Real music playlist support</span>
+    </div>
+    <div class="welcome-actions">
+      <button id="enterWithMusicBtn" class="btn btn-primary">Enter with Music</button>
+      <button id="enterMutedBtn" class="btn btn-ghost">Enter Muted</button>
+    </div>
+    <p class="mini-note">
+      Optional folders:
+      <code>/fonts</code>,
+      <code>/audio</code>,
+      <code>/pdf</code>
+    </p>
+  </div>
+</section>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-top container">
+    <div class="brand-wrap">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <h1>CATalyst Academy</h1>
+        <p>ENGL465 — Interactive Computer-Assisted Translation Learning Platform</p>
       </div>
-      <div id="modalBody" class="modal-body"></div>
+    </div>
+    <div class="header-tools">
+      <label class="search-box" aria-label="Search all content">
+        <span>⌕</span>
+        <input id="globalSearchInput" type="text" placeholder="Search topics, concepts, quiz items, citations..." />
+      </label>
+      <button id="globalSearchBtn" class="btn btn-small">Search</button>
+      <div class="music-controls compact">
+        <button id="musicToggleBtn" class="btn btn-small">♪ Music</button>
+        <button id="prevTrackBtn" class="btn btn-small" title="Previous track">⏮</button>
+        <button id="nextTrackBtn" class="btn btn-small" title="Next track">⏭</button>
+        <label class="range-wrap" title="Volume">
+          <span>Vol</span>
+          <input id="musicVolume" type="range" min="0" max="100" value="35" />
+        </label>
+      </div>
+      <button id="dailyChallengeBtn" class="btn btn-small btn-gold">Daily Challenge</button>
+      <button id="resetProgressBtn" class="btn btn-small">Reset Progress</button>
     </div>
   </div>
+  <nav class="main-nav container" aria-label="Main navigation">
+    <button class="nav-tab active" data-target="dashboardSection">Dashboard</button>
+    <button class="nav-tab" data-target="topicsSection">Topics</button>
+    <button class="nav-tab" data-target="flashcardsSection">Flashcards</button>
+    <button class="nav-tab" data-target="quizzesSection">Quizzes</button>
+    <button class="nav-tab" data-target="mindmapsSection">Mind Maps</button>
+    <button class="nav-tab" data-target="gamesSection">Game Lab</button>
+    <button class="nav-tab" data-target="labSection">Glossary Lab</button>
+    <button class="nav-tab" data-target="sourcesSection">Sources</button>
+    <button class="nav-tab" data-target="reviewSection">Review</button>
+  </nav>
+</header>
 
-  <!-- Welcome screen -->
-  <section id="welcomeScreen" class="welcome-screen">
-    <div class="welcome-card">
-      <div class="welcome-badge">✦ ENGL465 / Computer-Assisted Translation</div>
-      <h1>CATalyst Academy</h1>
-      <p class="welcome-subtitle">
-        A comprehensive interactive platform built from your ENGL465 course topics:
-        study, revise, test, map concepts, build glossaries, and track your mastery.
-      </p>
+<!-- Main -->
+<main class="container page-main">
 
-      <div class="welcome-points">
-        <span>Interactive topic lessons</span>
-        <span>Large flashcard bank</span>
-        <span>Topic quizzes + mixed quizzes</span>
-        <span>Interactive mind maps</span>
-        <span>Gamified learning</span>
-        <span>Real music playlist support</span>
+  <!-- DASHBOARD -->
+  <section id="dashboardSection" class="page-section active">
+    <div class="grid grid-hero">
+      <article class="card hero-card">
+        <div class="hero-card-inner">
+          <span class="eyebrow">Interactive revision + practice + gamified mastery</span>
+          <h2>Study CAT in a structured, visual, and active way.</h2>
+          <p>
+            This platform is built from the attached ENGL465 materials and turns them into a
+            comprehensive learning experience with topic lessons, interactive flashcards,
+            quizzes, mind maps, glossary building, and progress tracking.
+          </p>
+          <div class="hero-actions">
+            <button id="startFlashcardsBtn" class="btn btn-primary">Start Flashcards</button>
+            <button id="startMixedQuizBtn" class="btn btn-secondary">Start Mixed Quiz</button>
+            <button id="browseTopicsBtn" class="btn btn-ghost">Browse Topics</button>
+          </div>
+          <div class="hero-highlights">
+            <div class="highlight-pill">Comprehensive topic coverage</div>
+            <div class="highlight-pill">Large question bank</div>
+            <div class="highlight-pill">Interactive mind maps</div>
+            <div class="highlight-pill">XP / Levels / Streaks / Badges</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card">
+        <div class="card-head">
+          <h3>Your Progress</h3>
+          <p>Stored locally in your browser.</p>
+        </div>
+        <div class="card-body">
+          <div class="stats-grid">
+            <div class="stat-box"><div class="stat-label">Level</div><div class="stat-value" id="statLevel">1</div></div>
+            <div class="stat-box"><div class="stat-label">XP</div><div class="stat-value" id="statXP">0</div></div>
+            <div class="stat-box"><div class="stat-label">Coins</div><div class="stat-value" id="statCoins">0</div></div>
+            <div class="stat-box"><div class="stat-label">Streak</div><div class="stat-value" id="statStreak">0</div></div>
+          </div>
+          <div class="meter-block">
+            <div class="meter-top"><span>Mastery</span><span id="masteryText">0%</span></div>
+            <div class="meter"><span id="masteryBar"></span></div>
+          </div>
+          <div class="meter-block">
+            <div class="meter-top"><span>Course Completion</span><span id="completionText">0%</span></div>
+            <div class="meter meter-alt"><span id="completionBar"></span></div>
+          </div>
+          <div class="badges-area">
+            <h4>Badges</h4>
+            <div id="dashboardBadges" class="badge-wrap"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-head">
+          <h3>Daily Challenge</h3>
+          <p>Complete the mission for extra XP and coins.</p>
+        </div>
+        <div class="card-body">
+          <div id="dailyChallengeCard" class="challenge-card"></div>
+          <div class="toolbar" style="margin-top:12px">
+            <button id="openDailyChallengeBtn" class="btn btn-primary">Open Challenge</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>Course Snapshot</h3>
+          <p>High-yield overview of the included ENGL465 material.</p>
+        </div>
+        <div class="card-body">
+          <div id="snapshotList" class="bullet-list"></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Search Results / Smart Notes</h3>
+        <p>Use global search to jump across content instantly.</p>
       </div>
-
-      <div class="welcome-actions">
-        <button id="enterWithMusicBtn" class="btn btn-primary">Enter with Music</button>
-        <button id="enterMutedBtn" class="btn btn-ghost">Enter Muted</button>
+      <div class="card-body">
+        <div id="searchResultsPanel" class="results-panel"><p class="muted">No search yet.</p></div>
       </div>
-
-      <p class="mini-note">
-        Optional folders:
-        <code>/fonts</code>,
-        <code>/audio</code>,
-        <code>/pdf</code>
-      </p>
     </div>
   </section>
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-top container">
-      <div class="brand-wrap">
-        <div class="brand-logo" aria-hidden="true"></div>
-        <div class="brand-text">
-          <h1>CATalyst Academy</h1>
-          <p>ENGL465 — Interactive Computer-Assisted Translation Learning Platform</p>
-        </div>
+  <!-- TOPICS -->
+  <section id="topicsSection" class="page-section">
+    <div class="card">
+      <div class="card-head">
+        <h2>Topic Explorer</h2>
+        <p>Full topic lesson cards and detailed lesson view based on the attached ENGL465 topics.</p>
       </div>
-
-      <div class="header-tools">
-        <label class="search-box" aria-label="Search all content">
-          <span>⌕</span>
-          <input
-            id="globalSearchInput"
-            type="text"
-            placeholder="Search topics, concepts, quiz items, citations..."
-          />
-        </label>
-        <button id="globalSearchBtn" class="btn btn-small">Search</button>
-
-        <div class="music-controls compact">
-          <button id="musicToggleBtn" class="btn btn-small">♪ Music</button>
-          <button id="prevTrackBtn" class="btn btn-small" title="Previous track">⏮</button>
-          <button id="nextTrackBtn" class="btn btn-small" title="Next track">⏭</button>
-          <label class="range-wrap" title="Volume">
-            <span>Vol</span>
-            <input id="musicVolume" type="range" min="0" max="100" value="35" />
-          </label>
+      <div class="card-body">
+        <div class="toolbar">
+          <button class="btn btn-small topic-filter active" data-filter="all">All</button>
+          <button class="btn btn-small topic-filter" data-filter="foundation">Foundation</button>
+          <button class="btn btn-small topic-filter" data-filter="tools">Tools</button>
+          <button class="btn btn-small topic-filter" data-filter="technology">Technology</button>
+          <button class="btn btn-small topic-filter" data-filter="practice">Practice</button>
         </div>
-
-        <button id="dailyChallengeBtn" class="btn btn-small btn-gold">Daily Challenge</button>
-        <button id="resetProgressBtn" class="btn btn-small">Reset Progress</button>
+        <div id="topicCardGrid" class="topic-grid" style="margin-top:14px"></div>
       </div>
     </div>
 
-    <nav class="main-nav container" aria-label="Main navigation">
-      <button class="nav-tab active" data-target="dashboardSection">Dashboard</button>
-      <button class="nav-tab" data-target="topicsSection">Topics</button>
-      <button class="nav-tab" data-target="flashcardsSection">Flashcards</button>
-      <button class="nav-tab" data-target="quizzesSection">Quizzes</button>
-      <button class="nav-tab" data-target="mindmapsSection">Mind Maps</button>
-      <button class="nav-tab" data-target="gamesSection">Game Lab</button>
-      <button class="nav-tab" data-target="labSection">Glossary Lab</button>
-      <button class="nav-tab" data-target="sourcesSection">Sources</button>
-      <button class="nav-tab" data-target="reviewSection">Review</button>
-    </nav>
-  </header>
-
-  <!-- Main -->
-  <main class="container page-main">
-    <!-- DASHBOARD -->
-    <section id="dashboardSection" class="page-section active">
-      <div class="grid grid-hero">
-        <article class="card hero-card">
-          <div class="hero-card-inner">
-            <span class="eyebrow">Interactive revision + practice + gamified mastery</span>
-            <h2>Study CAT in a structured, visual, and active way.</h2>
-            <p>
-              This platform is built from the attached ENGL465 materials and turns them into a
-              comprehensive learning experience with topic lessons, interactive flashcards,
-              quizzes, mind maps, glossary building, and progress tracking.
-            </p>
-
-            <div class="hero-actions">
-              <button id="startFlashcardsBtn" class="btn btn-primary">Start Flashcards</button>
-              <button id="startMixedQuizBtn" class="btn btn-secondary">Start Mixed Quiz</button>
-              <button id="browseTopicsBtn" class="btn btn-ghost">Browse Topics</button>
-            </div>
-
-            <div class="hero-highlights">
-              <div class="highlight-pill">Comprehensive topic coverage</div>
-              <div class="highlight-pill">Large question bank</div>
-              <div class="highlight-pill">Interactive mind maps</div>
-              <div class="highlight-pill">XP / Levels / Streaks / Badges</div>
-            </div>
-          </div>
-        </article>
-
-        <aside class="card">
-          <div class="card-head">
-            <h3>Your Progress</h3>
-            <p>Stored locally in your browser.</p>
-          </div>
-          <div class="card-body">
-            <div class="stats-grid">
-              <div class="stat-box">
-                <div class="stat-label">Level</div>
-                <div class="stat-value" id="statLevel">1</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-label">XP</div>
-                <div class="stat-value" id="statXP">0</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-label">Coins</div>
-                <div class="stat-value" id="statCoins">0</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-label">Streak</div>
-                <div class="stat-value" id="statStreak">0</div>
-              </div>
-            </div>
-
-            <div class="meter-block">
-              <div class="meter-top">
-                <span>Mastery</span>
-                <span id="masteryText">0%</span>
-              </div>
-              <div class="meter">
-                <span id="masteryBar"></span>
-              </div>
-            </div>
-
-            <div class="meter-block">
-              <div class="meter-top">
-                <span>Course Completion</span>
-                <span id="completionText">0%</span>
-              </div>
-              <div class="meter meter-alt">
-                <span id="completionBar"></span>
-              </div>
-            </div>
-
-            <div class="badges-area">
-              <h4>Badges</h4>
-              <div id="dashboardBadges" class="badge-wrap"></div>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      <div class="grid grid-2">
-        <article class="card">
-          <div class="card-head">
-            <h3>Daily Challenge</h3>
-            <p>Complete the mission for extra XP and coins.</p>
-          </div>
-          <div class="card-body">
-            <div id="dailyChallengeCard" class="challenge-card"></div>
-            <div class="toolbar">
-              <button id="openDailyChallengeBtn" class="btn btn-primary">Open Challenge</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <h3>Course Snapshot</h3>
-            <p>High-yield overview of the included ENGL465 material.</p>
-          </div>
-          <div class="card-body">
-            <div id="snapshotList" class="bullet-list"></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="card">
+    <div class="grid grid-topic-detail">
+      <article class="card">
         <div class="card-head">
-          <h3>Search Results / Smart Notes</h3>
-          <p>Use global search to jump across content instantly.</p>
+          <h3>Selected Lesson</h3>
+          <p>Click any topic card to load full details.</p>
         </div>
         <div class="card-body">
-          <div id="searchResultsPanel" class="results-panel">
-            <p class="muted">No search yet.</p>
+          <div class="lesson-header">
+            <div>
+              <div id="lessonCode" class="topic-code">Topic</div>
+              <h2 id="lessonTitle">Select a topic</h2>
+              <p id="lessonMeta" class="muted">Source file and page details will appear here.</p>
+            </div>
+            <div class="lesson-actions">
+              <button id="lessonToFlashcardsBtn" class="btn btn-small btn-primary">Flashcards</button>
+              <button id="lessonToQuizBtn" class="btn btn-small btn-secondary">Quiz</button>
+              <button id="lessonToMindmapBtn" class="btn btn-small">Mind Map</button>
+            </div>
           </div>
+          <div class="lesson-block"><h4>Overview</h4><div id="lessonOverview" class="rich-list"></div></div>
+          <div class="lesson-block"><h4>Key Definitions</h4><div id="lessonDefinitions" class="definition-list"></div></div>
+          <div class="lesson-block"><h4>Major Points</h4><div id="lessonKeyPoints" class="bullet-list"></div></div>
+          <div class="lesson-block"><h4>Examples / Cases</h4><div id="lessonExamples" class="bullet-list"></div></div>
+          <div class="lesson-block"><h4>Processes / Workflows</h4><div id="lessonProcess" class="timeline-list"></div></div>
+          <div class="lesson-block"><h4>Compare / Distinguish</h4><div id="lessonCompare" class="compare-table-wrap"></div></div>
+          <div class="lesson-block"><h4>Exam Tips</h4><div id="lessonExamTips" class="bullet-list"></div></div>
+          <div class="lesson-block"><h4>Source Citations</h4><div id="lessonCitations" class="citation-list"></div></div>
         </div>
-      </div>
-    </section>
+      </article>
 
-    <!-- TOPICS -->
-    <section id="topicsSection" class="page-section">
-      <div class="card">
+      <aside class="card">
         <div class="card-head">
-          <h2>Topic Explorer</h2>
-          <p>
-            Full topic lesson cards and detailed lesson view based on the attached ENGL465 topics.
-          </p>
+          <h3>Quick Topic Navigator</h3>
+          <p>Jump directly to any included topic.</p>
         </div>
         <div class="card-body">
-          <div class="toolbar">
-            <button class="btn btn-small topic-filter active" data-filter="all">All</button>
-            <button class="btn btn-small topic-filter" data-filter="foundation">Foundation</button>
-            <button class="btn btn-small topic-filter" data-filter="tools">Tools</button>
-            <button class="btn btn-small topic-filter" data-filter="technology">Technology</button>
-            <button class="btn btn-small topic-filter" data-filter="practice">Practice</button>
-          </div>
-
-          <div id="topicCardGrid" class="topic-grid"></div>
+          <div id="topicQuickList" class="stack-list"></div>
         </div>
-      </div>
-
-      <div class="grid grid-topic-detail">
-        <article class="card">
-          <div class="card-head">
-            <h3>Selected Lesson</h3>
-            <p>Click any topic card to load full details.</p>
-          </div>
-          <div class="card-body">
-            <div class="lesson-header">
-              <div>
-                <div id="lessonCode" class="topic-code">Topic</div>
-                <h2 id="lessonTitle">Select a topic</h2>
-                <p id="lessonMeta" class="muted">Source file and page details will appear here.</p>
-              </div>
-              <div class="lesson-actions">
-                <button id="lessonToFlashcardsBtn" class="btn btn-small btn-primary">Flashcards</button>
-                <button id="lessonToQuizBtn" class="btn btn-small btn-secondary">Quiz</button>
-                <button id="lessonToMindmapBtn" class="btn btn-small">Mind Map</button>
-              </div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Overview</h4>
-              <div id="lessonOverview" class="rich-list"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Key Definitions</h4>
-              <div id="lessonDefinitions" class="definition-list"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Major Points</h4>
-              <div id="lessonKeyPoints" class="bullet-list"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Examples / Cases</h4>
-              <div id="lessonExamples" class="bullet-list"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Processes / Workflows</h4>
-              <div id="lessonProcess" class="timeline-list"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Compare / Distinguish</h4>
-              <div id="lessonCompare" class="compare-table-wrap"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Exam Tips</h4>
-              <div id="lessonExamTips" class="bullet-list"></div>
-            </div>
-
-            <div class="lesson-block">
-              <h4>Source Citations</h4>
-              <div id="lessonCitations" class="citation-list"></div>
-            </div>
-          </div>
-        </article>
-
-        <aside class="card">
-          <div class="card-head">
-            <h3>Quick Topic Navigator</h3>
-            <p>Jump directly to any included topic.</p>
-          </div>
-          <div class="card-body">
-            <div id="topicQuickList" class="stack-list"></div>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- FLASHCARDS -->
-    <section id="flashcardsSection" class="page-section">
-      <div class="card">
-        <div class="card-head">
-          <h2>Flashcards</h2>
-          <p>Comprehensive source-based recall practice for all included topics.</p>
-        </div>
-        <div class="card-body">
-          <div class="toolbar wrap">
-            <select id="flashTopicSelect" class="input-select"></select>
-            <select id="flashDifficultySelect" class="input-select">
-              <option value="all">All Cards</option>
-              <option value="weak">Weak Only</option>
-              <option value="new">New Only</option>
-              <option value="mastered">Mastered Only</option>
-            </select>
-            <button id="shuffleFlashcardsBtn" class="btn btn-small">Shuffle</button>
-            <button id="resetFlashDeckBtn" class="btn btn-small">Restart Deck</button>
-          </div>
-
-          <div class="flash-meta">
-            <span class="meta-pill" id="flashDeckLabel">Deck: All Topics</span>
-            <span class="meta-pill" id="flashPositionLabel">Card 1 / 1</span>
-            <span class="meta-pill" id="flashStatusLabel">Status: New</span>
-          </div>
-
-          <div id="flashcardShell" class="flashcard-shell">
-            <div id="flashcard" class="flashcard">
-              <div class="flashcard-inner">
-                <div class="flash-face flash-front">
-                  <div>
-                    <div class="flash-label">Question / Prompt</div>
-                    <div id="flashFrontText" class="flash-main-text">Loading...</div>
-                  </div>
-                  <div>
-                    <div id="flashFrontMeta" class="flash-meta-text"></div>
-                    <div class="toolbar">
-                      <button id="flipFlashcardBtn" class="btn btn-primary">Flip</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flash-face flash-back">
-                  <div>
-                    <div class="flash-label">Answer / Explanation</div>
-                    <div id="flashBackText" class="flash-main-text">Loading...</div>
-                  </div>
-                  <div>
-                    <div id="flashBackMeta" class="flash-meta-text"></div>
-                    <div class="toolbar">
-                      <button id="flashHardBtn" class="btn">Hard</button>
-                      <button id="flashGoodBtn" class="btn btn-secondary">Good</button>
-                      <button id="flashMasteredBtn" class="btn btn-primary">Mastered</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="toolbar">
-            <button id="prevFlashcardBtn" class="btn">◀ Previous</button>
-            <button id="nextFlashcardBtn" class="btn">Next ▶</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- QUIZZES -->
-    <section id="quizzesSection" class="page-section">
-      <div class="card">
-        <div class="card-head">
-          <h2>Quiz Arena</h2>
-          <p>Topic-based and mixed quizzes with explanations and citations.</p>
-        </div>
-        <div class="card-body">
-          <div class="toolbar wrap">
-            <select id="quizTopicSelect" class="input-select"></select>
-            <select id="quizModeSelect" class="input-select">
-              <option value="topic">Topic Quiz</option>
-              <option value="mixed">Mixed Quiz</option>
-              <option value="exam">Exam Mode</option>
-            </select>
-            <select id="quizLengthSelect" class="input-select">
-              <option value="5">5 Questions</option>
-              <option value="10">10 Questions</option>
-              <option value="15">15 Questions</option>
-            </select>
-            <button id="generateQuizBtn" class="btn btn-primary">Generate Quiz</button>
-          </div>
-
-          <div class="quiz-meta">
-            <span class="meta-pill" id="quizTopicLabel">Topic: —</span>
-            <span class="meta-pill" id="quizProgressLabel">Question 0 / 0</span>
-            <span class="meta-pill" id="quizScoreLabel">Score: 0</span>
-          </div>
-
-          <div class="quiz-layout">
-            <article class="quiz-main">
-              <div id="quizQuestionText" class="quiz-question">Generate a quiz to begin.</div>
-              <div id="quizOptions" class="quiz-options"></div>
-
-              <div class="toolbar">
-                <button id="submitQuizAnswerBtn" class="btn btn-secondary">Submit</button>
-                <button id="nextQuizQuestionBtn" class="btn">Next Question</button>
-              </div>
-
-              <div id="quizFeedback" class="feedback-box">
-                Select an answer and submit to see feedback.
-              </div>
-            </article>
-
-            <aside class="quiz-side">
-              <div class="side-panel">
-                <h4>Quiz Summary</h4>
-                <div id="quizSummaryPanel" class="stack-list"></div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MIND MAPS -->
-    <section id="mindmapsSection" class="page-section">
-      <div class="card">
-        <div class="card-head">
-          <h2>Interactive Mind Maps</h2>
-          <p>Click nodes to expand ideas, reveal notes, and open citations.</p>
-        </div>
-        <div class="card-body">
-          <div class="toolbar wrap">
-            <select id="mindmapTopicSelect" class="input-select"></select>
-            <button id="loadMindmapBtn" class="btn btn-primary">Load Mind Map</button>
-            <button id="resetMindmapBtn" class="btn btn-small">Reset View</button>
-            <button id="zoomInMindmapBtn" class="btn btn-small">Zoom +</button>
-            <button id="zoomOutMindmapBtn" class="btn btn-small">Zoom −</button>
-          </div>
-
-          <div class="mindmap-layout">
-            <div class="mindmap-stage-wrap">
-              <div id="mindmapStage" class="mindmap-stage" aria-label="Interactive mind map stage">
-                <svg id="mindmapSvg" class="mindmap-svg" aria-hidden="true"></svg>
-                <div id="mindmapNodesLayer" class="mindmap-nodes-layer"></div>
-              </div>
-            </div>
-
-            <aside class="mindmap-sidebar">
-              <div class="side-panel">
-                <h4>Node Details</h4>
-                <div id="mindmapNodeDetails" class="details-panel">
-                  Select a node to view its explanation, links, and citation.
-                </div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- GAMES -->
-    <section id="gamesSection" class="page-section">
-      <div class="grid grid-2">
-        <article class="card">
-          <div class="card-head">
-            <h2>Rapid Match</h2>
-            <p>Fast recall challenge based on your course content.</p>
-          </div>
-          <div class="card-body">
-            <div class="toolbar">
-              <button id="startRapidMatchBtn" class="btn btn-primary">Start Challenge</button>
-            </div>
-
-            <div class="rapid-meta">
-              <span class="meta-pill" id="rapidStreakLabel">Streak: 0</span>
-              <span class="meta-pill" id="rapidBestLabel">Best: 0</span>
-              <span class="meta-pill" id="rapidTimerLabel">Time: —</span>
-            </div>
-
-            <div id="rapidPrompt" class="quiz-question">Press “Start Challenge” to begin.</div>
-            <div id="rapidOptions" class="quiz-options"></div>
-            <div id="rapidFeedback" class="feedback-box">Challenge ready.</div>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <h2>Achievements</h2>
-            <p>Your badges, milestones, and unlocked study rewards.</p>
-          </div>
-          <div class="card-body">
-            <div id="achievementPanel" class="badge-wrap"></div>
-
-            <details class="info-box">
-              <summary><strong>XP Rules</strong></summary>
-              <div class="details-content">
-                <ul>
-                  <li>Good flashcard = +8 XP</li>
-                  <li>Mastered flashcard = +14 XP</li>
-                  <li>Correct quiz answer = +20 XP</li>
-                  <li>Rapid Match win = +12 XP</li>
-                  <li>Daily challenge completion = +40 XP</li>
-                </ul>
-              </div>
-            </details>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- LAB -->
-    <section id="labSection" class="page-section">
-      <div class="grid grid-2">
-        <article class="card">
-          <div class="card-head">
-            <h2>Term Extraction Lab</h2>
-            <p>Paste a short text to generate candidate terms for study or glossary building.</p>
-          </div>
-          <div class="card-body">
-            <textarea
-              id="termLabInput"
-              class="text-area"
-              placeholder="Paste source text here..."
-            ></textarea>
-
-            <div class="toolbar">
-              <button id="extractPatternBtn" class="btn btn-primary">Pattern-Based</button>
-              <button id="extractStatBtn" class="btn btn-secondary">Frequency-Based</button>
-              <button id="extractHybridBtn" class="btn btn-gold">Hybrid</button>
-              <button id="clearTermLabBtn" class="btn">Clear</button>
-            </div>
-
-            <div id="termLabOutput" class="results-panel">
-              Candidate terms will appear here.
-            </div>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <h2>Quick Glossary Builder</h2>
-            <p>Build a personal mini-termbase while studying.</p>
-          </div>
-          <div class="card-body">
-            <div class="form-grid">
-              <input id="glossaryTermInput" type="text" class="text-input" placeholder="Source term" />
-              <input id="glossaryEquivalentInput" type="text" class="text-input" placeholder="Target equivalent" />
-              <input id="glossaryNoteInput" type="text" class="text-input" placeholder="Note / domain / usage" />
-            </div>
-
-            <div class="toolbar">
-              <button id="addGlossaryEntryBtn" class="btn btn-primary">Add Entry</button>
-              <button id="exportGlossaryBtn" class="btn">Export</button>
-              <button id="clearGlossaryBtn" class="btn">Clear</button>
-            </div>
-
-            <div id="glossaryOutput" class="results-panel">
-              No glossary entries yet.
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- SOURCES -->
-    <section id="sourcesSection" class="page-section">
-      <div class="card">
-        <div class="card-head">
-          <h2>Source Explorer</h2>
-          <p>All source files and lesson citations used to build the platform.</p>
-        </div>
-        <div class="card-body">
-          <div class="notice-box">
-            For best PDF behavior, place the course PDFs inside the <code>/pdf</code> folder and open the project through a local server such as VS Code Live Server.
-          </div>
-
-          <div id="sourceFileGrid" class="topic-grid"></div>
-
-          <div class="lesson-block">
-            <h4>All Citations</h4>
-            <div id="allCitationsPanel" class="citation-list"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- REVIEW -->
-    <section id="reviewSection" class="page-section">
-      <div class="grid grid-2">
-        <article class="card">
-          <div class="card-head">
-            <h2>Weak Areas</h2>
-            <p>Concepts and cards that need more revision.</p>
-          </div>
-          <div class="card-body">
-            <div id="weakAreasPanel" class="results-panel"></div>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <h2>High-Yield Review Checklist</h2>
-            <p>Final revision points drawn from the included topics.</p>
-          </div>
-          <div class="card-body">
-            <div id="reviewChecklist" class="bullet-list"></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="card">
-        <div class="card-head">
-          <h3>Revision Planner</h3>
-          <p>A quick guide to help you revise efficiently.</p>
-        </div>
-        <div class="card-body">
-          <div id="revisionPlanPanel" class="timeline-list"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div>
-        <strong>CATalyst Academy</strong> — ENGL465 Interactive CAT Learning Platform
-      </div>
-      <div id="statusLine">Ready.</div>
+      </aside>
     </div>
-  </footer>
-</body>
-</html>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="flashcardsSection" class="page-section">
+    <div class="card">
+      <div class="card-head">
+        <h2>Flashcards</h2>
+        <p>Comprehensive source-based recall practice for all included topics.</p>
+      </div>
+      <div class="card-body">
+        <div class="toolbar wrap">
+          <select id="flashTopicSelect" class="input-select" style="max-width:260px"></select>
+          <select id="flashDifficultySelect" class="input-select" style="max-width:180px">
+            <option value="all">All Cards</option>
+            <option value="weak">Weak Only</option>
+            <option value="new">New Only</option>
+            <option value="mastered">Mastered Only</option>
+          </select>
+          <button id="shuffleFlashcardsBtn" class="btn btn-small">Shuffle</button>
+          <button id="resetFlashDeckBtn" class="btn btn-small">Restart Deck</button>
+        </div>
+        <div class="flash-meta" style="margin-top:12px">
+          <span class="meta-pill" id="flashDeckLabel">Deck: All Topics</span>
+          <span class="meta-pill" id="flashPositionLabel">Card 1 / 1</span>
+          <span class="meta-pill" id="flashStatusLabel">Status: New</span>
+        </div>
+        <div id="flashcardShell" class="flashcard-shell">
+          <div id="flashcard" class="flashcard">
+            <div class="flashcard-inner">
+              <div class="flash-face flash-front">
+                <div>
+                  <div class="flash-label">Question / Prompt</div>
+                  <div id="flashFrontText" class="flash-main-text">Loading...</div>
+                </div>
+                <div>
+                  <div id="flashFrontMeta" class="flash-meta-text"></div>
+                  <div class="toolbar"><button id="flipFlashcardBtn" class="btn btn-primary">Flip</button></div>
+                </div>
+              </div>
+              <div class="flash-face flash-back">
+                <div>
+                  <div class="flash-label">Answer / Explanation</div>
+                  <div id="flashBackText" class="flash-main-text">Loading...</div>
+                </div>
+                <div>
+                  <div id="flashBackMeta" class="flash-meta-text"></div>
+                  <div class="toolbar">
+                    <button id="flashHardBtn" class="btn">Hard</button>
+                    <button id="flashGoodBtn" class="btn btn-secondary">Good</button>
+                    <button id="flashMasteredBtn" class="btn btn-primary">Mastered</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button id="prevFlashcardBtn" class="btn">◀ Previous</button>
+          <button id="nextFlashcardBtn" class="btn">Next ▶</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZZES -->
+  <section id="quizzesSection" class="page-section">
+    <div class="card">
+      <div class="card-head">
+        <h2>Quiz Arena</h2>
+        <p>Topic-based and mixed quizzes with explanations and citations.</p>
+      </div>
+      <div class="card-body">
+        <div class="toolbar wrap">
+          <select id="quizTopicSelect" class="input-select" style="max-width:260px"></select>
+          <select id="quizModeSelect" class="input-select" style="max-width:180px">
+            <option value="topic">Topic Quiz</option>
+            <option value="mixed">Mixed Quiz</option>
+            <option value="exam">Exam Mode</option>
+          </select>
+          <select id="quizLengthSelect" class="input-select" style="max-width:160px">
+            <option value="5">5 Questions</option>
+            <option value="10">10 Questions</option>
+            <option value="15">15 Questions</option>
+          </select>
+          <button id="generateQuizBtn" class="btn btn-primary">Generate Quiz</button>
+        </div>
+        <div class="quiz-meta" style="margin-top:12px">
+          <span class="meta-pill" id="quizTopicLabel">Topic: —</span>
+          <span class="meta-pill" id="quizProgressLabel">Question 0 / 0</span>
+          <span class="meta-pill" id="quizScoreLabel">Score: 0</span>
+        </div>
+        <div class="quiz-layout">
+          <article class="quiz-main">
+            <div id="quizQuestionText" class="quiz-question">Generate a quiz to begin.</div>
+            <div id="quizOptions" class="quiz-options"></div>
+            <div class="toolbar">
+              <button id="submitQuizAnswerBtn" class="btn btn-secondary">Submit</button>
+              <button id="nextQuizQuestionBtn" class="btn">Next Question</button>
+            </div>
+            <div id="quizFeedback" class="feedback-box" style="margin-top:14px">
+              Select an answer and submit to see feedback.
+            </div>
+          </article>
+          <aside class="quiz-side">
+            <div class="side-panel">
+              <h4>Quiz Summary</h4>
+              <div id="quizSummaryPanel" class="stack-list"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MIND MAPS -->
+  <section id="mindmapsSection" class="page-section">
+    <div class="card">
+      <div class="card-head">
+        <h2>Interactive Mind Maps</h2>
+        <p>Click nodes to expand ideas, reveal notes, and open citations.</p>
+      </div>
+      <div class="card-body">
+        <div class="toolbar wrap">
+          <select id="mindmapTopicSelect" class="input-select" style="max-width:260px"></select>
+          <button id="loadMindmapBtn" class="btn btn-primary">Load Mind Map</button>
+          <button id="resetMindmapBtn" class="btn btn-small">Reset View</button>
+          <button id="zoomInMindmapBtn" class="btn btn-small">Zoom +</button>
+          <button id="zoomOutMindmapBtn" class="btn btn-small">Zoom −</button>
+        </div>
+        <div class="mindmap-layout" style="margin-top:14px">
+          <div class="mindmap-stage-wrap">
+            <div id="mindmapStage" class="mindmap-stage" aria-label="Interactive mind map stage">
+              <svg id="mindmapSvg" class="mindmap-svg" aria-hidden="true"></svg>
+              <div id="mindmapNodesLayer" class="mindmap-nodes-layer"></div>
+            </div>
+          </div>
+          <aside class="mindmap-sidebar">
+            <div class="side-panel">
+              <h4>Node Details</h4>
+              <div id="mindmapNodeDetails" class="details-panel">
+                Select a node to view its explanation, links, and citation.
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAMES -->
+  <section id="gamesSection" class="page-section">
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-head">
+          <h2>Rapid Match</h2>
+          <p>Fast recall challenge based on your course content.</p>
+        </div>
+        <div class="card-body">
+          <div class="toolbar">
+            <button id="startRapidMatchBtn" class="btn btn-primary">Start Challenge</button>
+          </div>
+          <div class="rapid-meta" style="margin-top:12px">
+            <span class="meta-pill" id="rapidStreakLabel">Streak: 0</span>
+            <span class="meta-pill" id="rapidBestLabel">Best: 0</span>
+            <span class="meta-pill" id="rapidTimerLabel">Time: —</span>
+          </div>
+          <div id="rapidPrompt" class="quiz-question" style="margin-top:14px">Press "Start Challenge" to begin.</div>
+          <div id="rapidOptions" class="quiz-options"></div>
+          <div id="rapidFeedback" class="feedback-box">Challenge ready.</div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Achievements</h2>
+          <p>Your badges, milestones, and unlocked study rewards.</p>
+        </div>
+        <div class="card-body">
+          <div id="achievementPanel" class="badge-wrap"></div>
+          <details class="info-box">
+            <summary><strong>XP Rules</strong></summary>
+            <div class="details-content">
+              <ul>
+                <li>Good flashcard = +8 XP</li>
+                <li>Mastered flashcard = +14 XP</li>
+                <li>Correct quiz answer = +20 XP</li>
+                <li>Rapid Match win = +12 XP</li>
+                <li>Daily challenge completion = +40 XP</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- LAB -->
+  <section id="labSection" class="page-section">
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-head">
+          <h2>Term Extraction Lab</h2>
+          <p>Paste a short text to generate candidate terms for study or glossary building.</p>
+        </div>
+        <div class="card-body">
+          <textarea id="termLabInput" class="text-area" placeholder="Paste source text here..."></textarea>
+          <div class="toolbar" style="margin-top:10px">
+            <button id="extractPatternBtn" class="btn btn-primary">Pattern-Based</button>
+            <button id="extractStatBtn" class="btn btn-secondary">Frequency-Based</button>
+            <button id="extractHybridBtn" class="btn btn-gold">Hybrid</button>
+            <button id="clearTermLabBtn" class="btn">Clear</button>
+          </div>
+          <div id="termLabOutput" class="results-panel" style="margin-top:12px">
+            Candidate terms will appear here.
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Quick Glossary Builder</h2>
+          <p>Build a personal mini-termbase while studying.</p>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <input id="glossaryTermInput" type="text" class="text-input" placeholder="Source term" />
+            <input id="glossaryEquivalentInput" type="text" class="text-input" placeholder="Target equivalent" />
+            <input id="glossaryNoteInput" type="text" class="text-input" placeholder="Note / domain / usage" />
+          </div>
+          <div class="toolbar" style="margin-top:10px">
+            <button id="addGlossaryEntryBtn" class="btn btn-primary">Add Entry</button>
+            <button id="exportGlossaryBtn" class="btn">Export</button>
+            <button id="clearGlossaryBtn" class="btn">Clear</button>
+          </div>
+          <div id="glossaryOutput" class="results-panel" style="margin-top:12px">
+            No glossary entries yet.
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section id="sourcesSection" class="page-section">
+    <div class="card">
+      <div class="card-head">
+        <h2>Source Explorer</h2>
+        <p>All source files and lesson citations used to build the platform.</p>
+      </div>
+      <div class="card-body">
+        <div class="notice-box" style="margin-bottom:14px">
+          For best PDF behavior, place the course PDFs inside the <code>/pdf</code> folder
+          and open the project through a local server such as VS Code Live Server.
+        </div>
+        <div id="sourceFileGrid" class="topic-grid"></div>
+        <div class="lesson-block" style="margin-top:16px">
+          <h4>All Citations</h4>
+          <div id="allCitationsPanel" class="citation-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEW -->
+  <section id="reviewSection" class="page-section">
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-head">
+          <h2>Weak Areas</h2>
+          <p>Concepts and cards that need more revision.</p>
+        </div>
+        <div class="card-body">
+          <div id="weakAreasPanel" class="results-panel"></div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <h2>High-Yield Review Checklist</h2>
+          <p>Final revision points drawn from the included topics.</p>
+        </div>
+        <div class="card-body">
+          <div id="reviewChecklist" class="bullet-list"></div>
+        </div>
+      </article>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="card-head">
+        <h3>Revision Planner</h3>
+        <p>A quick guide to help you revise efficiently.</p>
+      </div>
+      <div class="card-body">
+        <div id="revisionPlanPanel" class="timeline-list"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div><strong>CATalyst Academy</strong> — ENGL465 Interactive CAT Learning Platform</div>
+    <div id="statusLine">Ready.</div>
+  </div>
+</footer>
+
+<!-- =============================================
+     DATA — must come before app script
+     ============================================= -->
+<script>
+window.CATALYST_DATA = {
+  appMeta: {
+    title: "CATalyst Academy",
+    course: "ENGL465 — Computer-Assisted Translation",
+    version: "TEST"
+  },
+
+  musicPlaylist: [],
+
+  snapshotPoints: [
+    "CAT helps human translators using digital tools.",
+    "TM stores previous translations for reuse.",
+    "Terminology tools improve consistency.",
+    "Localization goes beyond translation."
+  ],
+
+  topics: [
+    {
+      id: "topic1",
+      code: "Topic 1",
+      title: "Introduction to CAT",
+      category: "foundation",
+      source: {
+        file: "ENGL465-Topic 1.pdf",
+        path: "./pdf/ENGL465-Topic 1.pdf",
+        pages: "pp. 4–12"
+      },
+      overview: [
+        "CAT supports human translators with digital tools.",
+        "It differs from MT because the human remains central."
+      ],
+      definitions: [
+        { term: "CAT", meaning: "Computer-Assisted Translation." },
+        { term: "MT",  meaning: "Machine Translation." }
+      ],
+      keyPoints: [
+        "CAT improves consistency.",
+        "CAT improves efficiency.",
+        "CAT does not replace the translator."
+      ],
+      examples: [
+        "Using TM to reuse a repeated sentence.",
+        "Using a glossary for technical terms."
+      ],
+      process: [
+        { step: "1", title: "Prepare",   detail: "Set up tools." },
+        { step: "2", title: "Translate", detail: "Translate using CAT support." },
+        { step: "3", title: "Review",    detail: "Check the output." }
+      ],
+      compare: {
+        headers: ["Aspect", "CAT", "MT"],
+        rows: [
+          ["Control", "Human-led", "System-led"],
+          ["Purpose", "Assist",    "Automate"]
+        ]
+      },
+      examTips: [
+        "Define CAT clearly.",
+        "Contrast CAT with MT."
+      ],
+      citations: [
+        { label: "CAT definition", file: "ENGL465-Topic 1.pdf", page: "p. 4" }
+      ]
+    }
+  ],
+
+  flashcards: [
+    {
+      id: "f1",
+      topicId: "topic1",
+      front: "What is CAT?",
+      back: "CAT is the use of computer tools to assist human translators.",
+      ref: "Topic 1, p. 4"
+    },
+    {
+      id: "f2",
+      topicId: "topic1",
+      front: "How does CAT differ from MT?",
+      back: "CAT assists the human translator, while MT automates translation.",
+      ref: "Topic 1, p. 4"
+    }
+  ],
+
+  quizzes: [
+    {
+      id: "q1",
+      topicId: "topic1",
+      question: "Which statement best defines CAT?",
+      options: [
+        "It replaces translators completely.",
+        "It assists human translators with digital tools.",
+        "It is only OCR.",
+        "It is localization."
+      ],
+      answer: 1,
+      explanation: "CAT supports human translators rather than replacing them.",
+      ref: "Topic 1, p. 4",
+      difficulty: "basic"
+    }
+  ],
+
+  mindmaps: {
+    topic1: {
+      center: {
+        label: "Introduction to CAT",
+        note: "CAT supports human translators.",
+        citation: "Topic 1, p. 4"
+      },
+      branches: [
+        {
+          label: "Definition",
+          note: "CAT is tool-assisted translation.",
+          citation: "Topic 1, p. 4",
+          children: [
+            {
+              label: "Human control",
+              note: "Translator remains central.",
+              citation: "Topic 1, p. 4"
+            }
+          ]
+        },
+        {
+          label: "Benefits",
+          note: "CAT improves consistency and speed.",
+          citation: "Topic 1, p. 11",
+          children: [
+            {
+              label: "Consistency",
+              note: "TM and terminology help.",
+              citation: "Topic 1, p. 11"
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  achievements: [
+    { id: "explorer",     label: "Explorer",      desc: "Visit 3 sections." },
+    { id: "flashStarter", label: "Flash Starter",  desc: "Rate your first flashcard." },
+    { id: "flashMaster5", label: "Flash Master ×5",desc: "Master 5 flashcards." },
+    { id: "flashMaster15",label: "Flash Master ×15",desc:"Master 15 flashcards." },
+    { id: "quizStarter",  label: "Quiz Starter",   desc: "Answer one quiz correctly." },
+    { id: "terminologist",label: "Terminologist",  desc: "Add 5 glossary entries." },
+    { id: "streak3",      label: "3-Day Streak",   desc: "Study 3 days in a row." },
+    { id: "scholar500",   label: "Scholar 500",    desc: "Earn 500 XP." },
+    { id: "quizAce",      label: "Quiz Ace",       desc: "Score ≥ 80% on a quiz." },
+    { id: "mindMapper",   label: "Mind Mapper",    desc: "Open a mind map." }
+  ],
+
+  dailyChallenges: [
+    {
+      id: "d1",
+      text: "Master 1 flashcard today.",
+      type: "flashMastered",
+      goal: 1,
+      route: "flashcardsSection"
+    }
+  ],
+
+  reviewChecklist: [
+    "Define CAT.",
+    "Distinguish CAT from MT.",
+    "Know TM and terminology basics."
+  ],
+
+  revisionPlan: [
+    {
+      step: "Day 1",
+      title: "Intro Revision",
+      detail: "Study CAT definition, components, and CAT vs MT."
+    }
+  ]
+};
+</script>
+
+<!-- =============================================
+     APP
+     ============================================= -->
+<script>
+/* =========================================
+   CATalyst Academy — app.js
+   ENGL465 Interactive CAT Learning Platform
+   ========================================= */
+(() => {
+  "use strict";
+
+  const DATA = window.CATALYST_DATA;
+  if (!DATA) {
+    console.error("CATALYST_DATA not found.");
+    return;
+  }
+
+  const STORAGE_KEY = "CATALYST_ACADEMY_STATE_V2";
+
+  const $  = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  const els = {
+    welcomeScreen:         $("#welcomeScreen"),
+    enterWithMusicBtn:     $("#enterWithMusicBtn"),
+    enterMutedBtn:         $("#enterMutedBtn"),
+
+    navTabs:               $$(".nav-tab"),
+    sections:              $$(".page-section"),
+    statusLine:            $("#statusLine"),
+
+    toastStack:            $("#toastStack"),
+
+    modalOverlay:          $("#modalOverlay"),
+    modalTitle:            $("#modalTitle"),
+    modalBody:             $("#modalBody"),
+    closeModalBtn:         $("#closeModalBtn"),
+
+    bgAudio:               $("#bgAudio"),
+    musicToggleBtn:        $("#musicToggleBtn"),
+    prevTrackBtn:          $("#prevTrackBtn"),
+    nextTrackBtn:          $("#nextTrackBtn"),
+    musicVolume:           $("#musicVolume"),
+
+    globalSearchInput:     $("#globalSearchInput"),
+    globalSearchBtn:       $("#globalSearchBtn"),
+    searchResultsPanel:    $("#searchResultsPanel"),
+
+    statLevel:             $("#statLevel"),
+    statXP:                $("#statXP"),
+    statCoins:             $("#statCoins"),
+    statStreak:            $("#statStreak"),
+    masteryText:           $("#masteryText"),
+    masteryBar:            $("#masteryBar"),
+    completionText:        $("#completionText"),
+    completionBar:         $("#completionBar"),
+    dashboardBadges:       $("#dashboardBadges"),
+
+    dailyChallengeCard:    $("#dailyChallengeCard"),
+    dailyChallengeBtn:     $("#dailyChallengeBtn"),
+    openDailyChallengeBtn: $("#openDailyChallengeBtn"),
+
+    snapshotList:          $("#snapshotList"),
+
+    topicCardGrid:         $("#topicCardGrid"),
+    topicQuickList:        $("#topicQuickList"),
+    topicFilters:          $$(".topic-filter"),
+
+    lessonCode:            $("#lessonCode"),
+    lessonTitle:           $("#lessonTitle"),
+    lessonMeta:            $("#lessonMeta"),
+    lessonOverview:        $("#lessonOverview"),
+    lessonDefinitions:     $("#lessonDefinitions"),
+    lessonKeyPoints:       $("#lessonKeyPoints"),
+    lessonExamples:        $("#lessonExamples"),
+    lessonProcess:         $("#lessonProcess"),
+    lessonCompare:         $("#lessonCompare"),
+    lessonExamTips:        $("#lessonExamTips"),
+    lessonCitations:       $("#lessonCitations"),
+    lessonToFlashcardsBtn: $("#lessonToFlashcardsBtn"),
+    lessonToQuizBtn:       $("#lessonToQuizBtn"),
+    lessonToMindmapBtn:    $("#lessonToMindmapBtn"),
+
+    flashTopicSelect:      $("#flashTopicSelect"),
+    flashDifficultySelect: $("#flashDifficultySelect"),
+    shuffleFlashcardsBtn:  $("#shuffleFlashcardsBtn"),
+    resetFlashDeckBtn:     $("#resetFlashDeckBtn"),
+    flashDeckLabel:        $("#flashDeckLabel"),
+    flashPositionLabel:    $("#flashPositionLabel"),
+    flashStatusLabel:      $("#flashStatusLabel"),
+    flashcard:             $("#flashcard"),
+    flipFlashcardBtn:      $("#flipFlashcardBtn"),
+    flashFrontText:        $("#flashFrontText"),
+    flashBackText:         $("#flashBackText"),
+    flashFrontMeta:        $("#flashFrontMeta"),
+    flashBackMeta:         $("#flashBackMeta"),
+    prevFlashcardBtn:      $("#prevFlashcardBtn"),
+    nextFlashcardBtn:      $("#nextFlashcardBtn"),
+    flashHardBtn:          $("#flashHardBtn"),
+    flashGoodBtn:          $("#flashGoodBtn"),
+    flashMasteredBtn:      $("#flashMasteredBtn"),
+
+    quizTopicSelect:       $("#quizTopicSelect"),
+    quizModeSelect:        $("#quizModeSelect"),
+    quizLengthSelect:      $("#quizLengthSelect"),
+    generateQuizBtn:       $("#generateQuizBtn"),
+    quizTopicLabel:        $("#quizTopicLabel"),
+    quizProgressLabel:     $("#quizProgressLabel"),
+    quizScoreLabel:        $("#quizScoreLabel"),
+    quizQuestionText:      $("#quizQuestionText"),
+    quizOptions:           $("#quizOptions"),
+    submitQuizAnswerBtn:   $("#submitQuizAnswerBtn"),
+    nextQuizQuestionBtn:   $("#nextQuizQuestionBtn"),
+    quizFeedback:          $("#quizFeedback"),
+    quizSummaryPanel:      $("#quizSummaryPanel"),
+
+    mindmapTopicSelect:    $("#mindmapTopicSelect"),
+    loadMindmapBtn:        $("#loadMindmapBtn"),
+    resetMindmapBtn:       $("#resetMindmapBtn"),
+    zoomInMindmapBtn:      $("#zoomInMindmapBtn"),
+    zoomOutMindmapBtn:     $("#zoomOutMindmapBtn"),
+    mindmapStage:          $("#mindmapStage"),
+    mindmapSvg:            $("#mindmapSvg"),
+    mindmapNodesLayer:     $("#mindmapNodesLayer"),
+    mindmapNodeDetails:    $("#mindmapNodeDetails"),
+
+    startRapidMatchBtn:    $("#startRapidMatchBtn"),
+    rapidStreakLabel:      $("#rapidStreakLabel"),
+    rapidBestLabel:        $("#rapidBestLabel"),
+    rapidTimerLabel:       $("#rapidTimerLabel"),
+    rapidPrompt:           $("#rapidPrompt"),
+    rapidOptions:          $("#rapidOptions"),
+    rapidFeedback:         $("#rapidFeedback"),
+
+    achievementPanel:      $("#achievementPanel"),
+
+    termLabInput:          $("#termLabInput"),
+    extractPatternBtn:     $("#extractPatternBtn"),
+    extractStatBtn:        $("#extractStatBtn"),
+    extractHybridBtn:      $("#extractHybridBtn"),
+    clearTermLabBtn:       $("#clearTermLabBtn"),
+    termLabOutput:         $("#termLabOutput"),
+
+    glossaryTermInput:       $("#glossaryTermInput"),
+    glossaryEquivalentInput: $("#glossaryEquivalentInput"),
+    glossaryNoteInput:       $("#glossaryNoteInput"),
+    addGlossaryEntryBtn:     $("#addGlossaryEntryBtn"),
+    exportGlossaryBtn:       $("#exportGlossaryBtn"),
+    clearGlossaryBtn:        $("#clearGlossaryBtn"),
+    glossaryOutput:          $("#glossaryOutput"),
+
+    sourceFileGrid:        $("#sourceFileGrid"),
+    allCitationsPanel:     $("#allCitationsPanel"),
+
+    weakAreasPanel:        $("#weakAreasPanel"),
+    reviewChecklist:       $("#reviewChecklist"),
+    revisionPlanPanel:     $("#revisionPlanPanel"),
+
+    startFlashcardsBtn:    $("#startFlashcardsBtn"),
+    startMixedQuizBtn:     $("#startMixedQuizBtn"),
+    browseTopicsBtn:       $("#browseTopicsBtn"),
+    resetProgressBtn:      $("#resetProgressBtn"),
+
+    catalystCanvas:        $("#catalystCanvas")
+  };
+
+  const mapsById        = Object.fromEntries(DATA.topics.map(t => [t.id, t]));
+  const achievementById = Object.fromEntries(DATA.achievements.map(a => [a.id, a]));
+
+  /* ---- State ---- */
+  function createDefaultState() {
+    return {
+      xp: 0, coins: 0, streak: 0, lastStudyDate: null,
+      badges: [], sectionVisits: {}, viewedTopics: {},
+      flashRatings: {}, flashSeen: {},
+      quizAttempted: 0, quizCorrect: 0,
+      glossary: [], rapidBest: 0,
+      currentTrackIndex: 0, musicEnabled: false,
+      daily: {
+        date: null, challengeId: null,
+        progress: { flashMastered: 0, quizCorrect: 0, glossaryAdded: 0, mindmapOpened: 0, rapidWins: 0 },
+        claimed: false
+      }
+    };
+  }
+
+  function loadState() {
+    try { return deepMerge(createDefaultState(), JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")); }
+    catch { return createDefaultState(); }
+  }
+
+  function deepMerge(base, extra) {
+    if (!extra || typeof extra !== "object") return base;
+    const out = { ...base };
+    for (const k of Object.keys(extra)) {
+      if (Array.isArray(extra[k])) out[k] = [...extra[k]];
+      else if (extra[k] && typeof extra[k] === "object" && !Array.isArray(base[k]))
+        out[k] = deepMerge(base[k] || {}, extra[k]);
+      else out[k] = extra[k];
+    }
+    return out;
+  }
+
+  let state = loadState();
+
+  let currentTopicId = DATA.topics[0]?.id || null;
+  let flashDeck = [];
+  let flashIndex = 0;
+
+  let currentQuiz = { items: [], index: 0, score: 0, selected: null, locked: false, summary: [] };
+
+  let musicTrackIndex  = state.currentTrackIndex || 0;
+  let mindmapZoom      = 1;
+  let mindmapNodeRegistry = [];
+  let rapidTimer       = null;
+  let rapidTimeLeft    = 0;
+  let rapidStreak      = 0;
+
+  /* ---- Helpers ---- */
+  function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function sample(arr, n) { return shuffle(arr).slice(0, n); }
+
+  function getLevelFromXP(xp)   { return Math.floor(xp / 120) + 1; }
+  function masteredCount()       { return Object.values(state.flashRatings).filter(v => v >= 2).length; }
+  function uniqueSectionCount()  { return Object.keys(state.sectionVisits).length; }
+  function viewedTopicCount()    { return Object.keys(state.viewedTopics).length; }
+
+  function flashStatusLabel(val) {
+    if (val >= 2) return "Mastered";
+    if (val === 1) return "Good";
+    if (val === -1) return "Hard";
+    return "New";
+  }
+
+  function setStatus(text) { if (els.statusLine) els.statusLine.textContent = text; }
+
+  function toast(message, type = "info", ms = 2600) {
+    const div = document.createElement("div");
+    div.className = `toast ${type}`;
+    div.innerHTML = message;
+    els.toastStack.appendChild(div);
+    setTimeout(() => {
+      div.style.opacity = "0";
+      div.style.transform = "translateY(-4px)";
+      setTimeout(() => div.remove(), 240);
+    }, ms);
+  }
+
+  function openModal(title, html) {
+    els.modalTitle.textContent = title;
+    els.modalBody.innerHTML = html;
+    els.modalOverlay.classList.remove("hidden");
+    els.modalOverlay.setAttribute("aria-hidden","false");
+  }
+
+  function closeModal() {
+    els.modalOverlay.classList.add("hidden");
+    els.modalOverlay.setAttribute("aria-hidden","true");
+  }
+
+  function award(xp, coins, reason) {
+    state.xp += xp;
+    state.coins += coins;
+    saveState();
+    renderProgress();
+    renderAchievements();
+    renderDailyChallenge();
+    maybeUnlockAchievements();
+    setStatus(`+${xp} XP, +${coins} coins — ${reason}`);
+    toast(`<strong>${reason}</strong><br>+${xp} XP • +${coins} coins`, "success");
+  }
+
+  function incrementDailyProgress(type, amount = 1) {
+    ensureDailyChallengeState();
+    if (typeof state.daily.progress[type] === "number") {
+      state.daily.progress[type] += amount;
+      saveState();
+      renderDailyChallenge();
+      maybeClaimDailyChallenge();
+    }
+  }
+
+  function ensureDailyChallengeState() {
+    const today = todayKey();
+    if (state.daily.date !== today) {
+      const challenge = getTodayChallenge();
+      state.daily = {
+        date: today,
+        challengeId: challenge.id,
+        progress: { flashMastered: 0, quizCorrect: 0, glossaryAdded: 0, mindmapOpened: 0, rapidWins: 0 },
+        claimed: false
+      };
+      saveState();
+    }
+  }
+
+  function touchStudyDay() {
+    const today = todayKey();
+    if (!state.lastStudyDate) { state.streak = 1; state.lastStudyDate = today; saveState(); return; }
+    if (state.lastStudyDate === today) return;
+    const last = new Date(state.lastStudyDate + "T00:00:00");
+    const now  = new Date(today + "T00:00:00");
+    const diff = Math.round((now - last) / 86400000);
+    state.streak = diff === 1 ? state.streak + 1 : 1;
+    state.lastStudyDate = today;
+    saveState();
+  }
+
+  function markSectionVisit(id) {
+    state.sectionVisits[id] = (state.sectionVisits[id] || 0) + 1;
+    saveState();
+    maybeUnlockAchievements();
+  }
+
+  function markTopicViewed(topicId) {
+    state.viewedTopics[topicId] = true;
+    saveState();
+    renderProgress();
+  }
+
+  function maybeUnlockAchievements(extra = {}) {
+    const unlocked = new Set(state.badges);
+    const unlock = (id) => {
+      if (!unlocked.has(id)) {
+        unlocked.add(id);
+        state.badges.push(id);
+        toast
