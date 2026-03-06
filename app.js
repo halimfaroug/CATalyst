@@ -1,241 +1,208 @@
-/* =========================================
-   CATalyst Academy — app.js
-   ENGL465 Interactive CAT Learning Platform
-   ========================================= */
-
-(() => {
+/* =========================================================
+   CATalyst Academy — app.js  (Final Corrected Version)
+   ENGL465 Computer-Assisted Translation
+   ========================================================= */
+(function () {
   "use strict";
 
   const DATA = window.CATALYST_DATA;
-  if (!DATA) { console.error("CATALYST_DATA not found. Ensure data.js loads before app.js."); return; }
+  if (!DATA) {
+    document.body.innerHTML =
+      '<div style="padding:3rem;font-family:sans-serif;color:#c00">' +
+      '<h2>⚠️ data.js failed to load.</h2>' +
+      '<p>Run the project through a local server (VS Code Live Server or <code>python -m http.server 8000</code>). ' +
+      'Do NOT open index.html directly via file:///.</p></div>';
+    return;
+  }
 
+  /* ── Constants ── */
   const STORAGE_KEY = "CATALYST_ACADEMY_STATE_V2";
 
-  const $  = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  /* ── Element map ── */
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
   const els = {
-    welcomeScreen:         $("#welcomeScreen"),
-    enterWithMusicBtn:     $("#enterWithMusicBtn"),
-    enterMutedBtn:         $("#enterMutedBtn"),
+    /* welcome */
+    welcomeScreen: $("#welcomeScreen"),
+    startBtn: $("#startBtn"),
 
-    navTabs:               $$(".nav-tab"),
-    sections:              $$(".page-section"),
-    statusLine:            $("#statusLine"),
+    /* header */
+    statusLine: $("#statusLine"),
+    globalSearch: $("#globalSearch"),
+    musicToggleBtn: $("#musicToggleBtn"),
+    prevTrackBtn: $("#prevTrackBtn"),
+    nextTrackBtn: $("#nextTrackBtn"),
+    volumeRange: $("#volumeRange"),
+    dailyChallengeBtn: $("#dailyChallengeBtn"),
+    resetProgressBtn: $("#resetProgressBtn"),
 
-    toastStack:            $("#toastStack"),
-    modalOverlay:          $("#modalOverlay"),
-    modalTitle:            $("#modalTitle"),
-    modalBody:             $("#modalBody"),
-    closeModalBtn:         $("#closeModalBtn"),
+    /* nav */
+    navTabs: $$(".nav-tab"),
 
-    bgAudio:               $("#bgAudio"),
-    musicToggleBtn:        $("#musicToggleBtn"),
-    prevTrackBtn:          $("#prevTrackBtn"),
-    nextTrackBtn:          $("#nextTrackBtn"),
-    musicVolume:           $("#musicVolume"),
+    /* sections */
+    sections: $$("section[id]"),
 
-    globalSearchInput:     $("#globalSearchInput"),
-    globalSearchBtn:       $("#globalSearchBtn"),
-    searchResultsPanel:    $("#searchResultsPanel"),
+    /* toast */
+    toastStack: $("#toastStack"),
 
-    statLevel:             $("#statLevel"),
-    statXP:                $("#statXP"),
-    statCoins:             $("#statCoins"),
-    statStreak:            $("#statStreak"),
-    masteryText:           $("#masteryText"),
-    masteryBar:            $("#masteryBar"),
-    completionText:        $("#completionText"),
-    completionBar:         $("#completionBar"),
-    dashboardBadges:       $("#dashboardBadges"),
+    /* modal */
+    modalOverlay: $("#modalOverlay"),
+    modalTitle: $("#modalTitle"),
+    modalBody: $("#modalBody"),
+    modalClose: $("#modalClose"),
 
-    dailyChallengeCard:    $("#dailyChallengeCard"),
-    dailyChallengeBtn:     $("#dailyChallengeBtn"),
-    openDailyChallengeBtn: $("#openDailyChallengeBtn"),
+    /* dashboard */
+    statLevel: $("#statLevel"),
+    statXP: $("#statXP"),
+    statCoins: $("#statCoins"),
+    statStreak: $("#statStreak"),
+    masteryMeter: $("#masteryMeter"),
+    completionMeter: $("#completionMeter"),
+    badgesArea: $("#badgesArea"),
+    snapshotList: $("#snapshotList"),
+    dailyChallengeCard: $("#dailyChallengeCard"),
+    searchResultsSection: $("#searchResultsSection"),
+    searchResults: $("#searchResults"),
 
-    snapshotList:          $("#snapshotList"),
+    /* topics */
+    topicGrid: $("#topicGrid"),
+    topicFilter: $$(".topic-filter-btn"),
+    lessonView: $("#lessonView"),
+    lessonContent: $("#lessonContent"),
+    closeLessonBtn: $("#closeLessonBtn"),
+    quickTopicList: $("#quickTopicList"),
 
-    topicCardGrid:         $("#topicCardGrid"),
-    topicQuickList:        $("#topicQuickList"),
-    topicFilters:          $$(".topic-filter"),
+    /* flashcards */
+    fcTopicSelect: $("#fcTopicSelect"),
+    fcDiffSelect: $("#fcDiffSelect"),
+    fcMeta: $("#fcMeta"),
+    flashcardEl: $("#flashcard"),
+    fcFront: $("#fcFront"),
+    fcBack: $("#fcBack"),
+    fcHardBtn: $("#fcHardBtn"),
+    fcGoodBtn: $("#fcGoodBtn"),
+    fcMasteredBtn: $("#fcMasteredBtn"),
+    fcPrevBtn: $("#fcPrevBtn"),
+    fcNextBtn: $("#fcNextBtn"),
+    fcShuffleBtn: $("#fcShuffleBtn"),
+    fcRestartBtn: $("#fcRestartBtn"),
 
-    lessonCode:            $("#lessonCode"),
-    lessonTitle:           $("#lessonTitle"),
-    lessonMeta:            $("#lessonMeta"),
-    lessonOverview:        $("#lessonOverview"),
-    lessonDefinitions:     $("#lessonDefinitions"),
-    lessonKeyPoints:       $("#lessonKeyPoints"),
-    lessonExamples:        $("#lessonExamples"),
-    lessonProcess:         $("#lessonProcess"),
-    lessonCompare:         $("#lessonCompare"),
-    lessonExamTips:        $("#lessonExamTips"),
-    lessonCitations:       $("#lessonCitations"),
-    lessonToFlashcardsBtn: $("#lessonToFlashcardsBtn"),
-    lessonToQuizBtn:       $("#lessonToQuizBtn"),
-    lessonToMindmapBtn:    $("#lessonToMindmapBtn"),
+    /* quiz */
+    quizTopicSelect: $("#quizTopicSelect"),
+    quizModeSelect: $("#quizModeSelect"),
+    quizLengthSelect: $("#quizLengthSelect"),
+    generateQuizBtn: $("#generateQuizBtn"),
+    quizMeta: $("#quizMeta"),
+    quizQuestionEl: $("#quizQuestion"),
+    quizOptionsEl: $("#quizOptions"),
+    quizNextBtn: $("#quizNextBtn"),
+    quizSummary: $("#quizSummary"),
 
-    flashTopicSelect:      $("#flashTopicSelect"),
-    flashDifficultySelect: $("#flashDifficultySelect"),
-    shuffleFlashcardsBtn:  $("#shuffleFlashcardsBtn"),
-    resetFlashDeckBtn:     $("#resetFlashDeckBtn"),
-    flashDeckLabel:        $("#flashDeckLabel"),
-    flashPositionLabel:    $("#flashPositionLabel"),
-    flashStatusLabel:      $("#flashStatusLabel"),
-    flashcard:             $("#flashcard"),
-    flipFlashcardBtn:      $("#flipFlashcardBtn"),
-    flashFrontText:        $("#flashFrontText"),
-    flashBackText:         $("#flashBackText"),
-    flashFrontMeta:        $("#flashFrontMeta"),
-    flashBackMeta:         $("#flashBackMeta"),
-    prevFlashcardBtn:      $("#prevFlashcardBtn"),
-    nextFlashcardBtn:      $("#nextFlashcardBtn"),
-    flashHardBtn:          $("#flashHardBtn"),
-    flashGoodBtn:          $("#flashGoodBtn"),
-    flashMasteredBtn:      $("#flashMasteredBtn"),
+    /* mindmap */
+    mmTopicSelect: $("#mmTopicSelect"),
+    mmLoadBtn: $("#mmLoadBtn"),
+    mmResetBtn: $("#mmResetBtn"),
+    mmZoomInBtn: $("#mmZoomInBtn"),
+    mmZoomOutBtn: $("#mmZoomOutBtn"),
+    mmSvg: $("#mmSvg"),
+    mmNodesLayer: $("#mmNodesLayer"),
+    mmSidebar: $("#mmSidebar"),
 
-    quizTopicSelect:       $("#quizTopicSelect"),
-    quizModeSelect:        $("#quizModeSelect"),
-    quizLengthSelect:      $("#quizLengthSelect"),
-    generateQuizBtn:       $("#generateQuizBtn"),
-    quizTopicLabel:        $("#quizTopicLabel"),
-    quizProgressLabel:     $("#quizProgressLabel"),
-    quizScoreLabel:        $("#quizScoreLabel"),
-    quizQuestionText:      $("#quizQuestionText"),
-    quizOptions:           $("#quizOptions"),
-    submitQuizAnswerBtn:   $("#submitQuizAnswerBtn"),
-    nextQuizQuestionBtn:   $("#nextQuizQuestionBtn"),
-    quizFeedback:          $("#quizFeedback"),
-    quizSummaryPanel:      $("#quizSummaryPanel"),
+    /* game lab */
+    rmStartBtn: $("#rmStartBtn"),
+    rmTimer: $("#rmTimer"),
+    rmStreak: $("#rmStreak"),
+    rmBest: $("#rmBest"),
+    rmQuestion: $("#rmQuestion"),
+    rmOptions: $("#rmOptions"),
+    achievementsPanel: $("#achievementsPanel"),
 
-    mindmapTopicSelect:    $("#mindmapTopicSelect"),
-    loadMindmapBtn:        $("#loadMindmapBtn"),
-    resetMindmapBtn:       $("#resetMindmapBtn"),
-    zoomInMindmapBtn:      $("#zoomInMindmapBtn"),
-    zoomOutMindmapBtn:     $("#zoomOutMindmapBtn"),
-    mindmapStage:          $("#mindmapStage"),
-    mindmapSvg:            $("#mindmapSvg"),
-    mindmapNodesLayer:     $("#mindmapNodesLayer"),
-    mindmapNodeDetails:    $("#mindmapNodeDetails"),
+    /* glossary lab */
+    tlText: $("#tlText"),
+    tlModeSelect: $("#tlModeSelect"),
+    tlExtractBtn: $("#tlExtractBtn"),
+    tlResults: $("#tlResults"),
+    glossTermInput: $("#glossTermInput"),
+    glossEquivInput: $("#glossEquivInput"),
+    glossNoteInput: $("#glossNoteInput"),
+    glossAddBtn: $("#glossAddBtn"),
+    glossExportBtn: $("#glossExportBtn"),
+    glossClearBtn: $("#glossClearBtn"),
+    glossList: $("#glossList"),
 
-    startRapidMatchBtn:    $("#startRapidMatchBtn"),
-    rapidStreakLabel:      $("#rapidStreakLabel"),
-    rapidBestLabel:        $("#rapidBestLabel"),
-    rapidTimerLabel:       $("#rapidTimerLabel"),
-    rapidPrompt:           $("#rapidPrompt"),
-    rapidOptions:          $("#rapidOptions"),
-    rapidFeedback:         $("#rapidFeedback"),
+    /* sources */
+    sourceGrid: $("#sourceGrid"),
+    citationsList: $("#citationsList"),
 
-    achievementPanel:      $("#achievementPanel"),
+    /* review */
+    weakAreasList: $("#weakAreasList"),
+    reviewChecklist: $("#reviewChecklist"),
+    revisionPlan: $("#revisionPlan"),
 
-    termLabInput:          $("#termLabInput"),
-    extractPatternBtn:     $("#extractPatternBtn"),
-    extractStatBtn:        $("#extractStatBtn"),
-    extractHybridBtn:      $("#extractHybridBtn"),
-    clearTermLabBtn:       $("#clearTermLabBtn"),
-    termLabOutput:         $("#termLabOutput"),
+    /* audio */
+    bgAudio: $("#bgAudio"),
 
-    glossaryTermInput:       $("#glossaryTermInput"),
-    glossaryEquivalentInput: $("#glossaryEquivalentInput"),
-    glossaryNoteInput:       $("#glossaryNoteInput"),
-    addGlossaryEntryBtn:     $("#addGlossaryEntryBtn"),
-    exportGlossaryBtn:       $("#exportGlossaryBtn"),
-    clearGlossaryBtn:        $("#clearGlossaryBtn"),
-    glossaryOutput:          $("#glossaryOutput"),
-
-    sourceFileGrid:        $("#sourceFileGrid"),
-    allCitationsPanel:     $("#allCitationsPanel"),
-
-    weakAreasPanel:        $("#weakAreasPanel"),
-    reviewChecklist:       $("#reviewChecklist"),
-    revisionPlanPanel:     $("#revisionPlanPanel"),
-
-    startFlashcardsBtn:    $("#startFlashcardsBtn"),
-    startMixedQuizBtn:     $("#startMixedQuizBtn"),
-    browseTopicsBtn:       $("#browseTopicsBtn"),
-    resetProgressBtn:      $("#resetProgressBtn"),
-
-    catalystCanvas:        $("#catalystCanvas")
+    /* canvas */
+    catalystCanvas: $("#catalystCanvas"),
   };
 
-  const mapsById        = Object.fromEntries(DATA.topics.map(t => [t.id, t]));
-  const achievementById = Object.fromEntries(DATA.achievements.map(a => [a.id, a]));
-
-  /* ══════════════════════════════════════════
-     STATE
-  ══════════════════════════════════════════ */
-
+  /* ── State ── */
   function createDefaultState() {
     return {
-      xp: 0, coins: 0, streak: 0, lastStudyDate: null,
+      xp: 0,
+      coins: 0,
+      streak: 0,
+      lastStudyDay: "",
       badges: [],
-      sectionVisits: {}, viewedTopics: {},
-      flashRatings: {}, flashSeen: {},
-      quizAttempted: 0, quizCorrect: 0,
+      sectionVisits: {},
+      topicsOpened: [],
+      fcRatings: {},
+      quizStats: { attempted: 0, correct: 0, byTopic: {} },
       glossary: [],
       rapidBest: 0,
-      currentTrackIndex: 0,
-      musicEnabled: false,
-      daily: {
-        date: null, challengeId: null,
-        progress: { flashMastered: 0, quizCorrect: 0, glossaryAdded: 0, mindmapOpened: 0, rapidWins: 0 },
-        claimed: false
-      }
+      musicTrackIndex: 0,
+      dailyChallengeDay: "",
+      dailyChallengeIndex: 0,
+      dailyChallengeProgress: 0,
+      checkedItems: [],
+      currentSection: "dashboard",
     };
   }
 
-  function deepMerge(base, extra) {
-    if (!extra || typeof extra !== "object") return base;
-    const out = { ...base };
-    for (const k of Object.keys(extra)) {
-      if (Array.isArray(extra[k]))
-        out[k] = [...extra[k]];
-      else if (extra[k] && typeof extra[k] === "object" && !Array.isArray(base[k]))
-        out[k] = deepMerge(base[k] || {}, extra[k]);
-      else
-        out[k] = extra[k];
-    }
-    return out;
-  }
+  let state = createDefaultState();
 
   function loadState() {
-    try { return deepMerge(createDefaultState(), JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")); }
-    catch { return createDefaultState(); }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        state = Object.assign(createDefaultState(), saved);
+      }
+    } catch (e) {
+      console.warn("State load error:", e);
+    }
   }
-
-  let state = loadState();
-
-  /* ── Runtime vars ── */
-  let currentTopicId      = DATA.topics[0]?.id || null;
-  let flashDeck           = [];
-  let flashIndex          = 0;
-  let currentQuiz         = { items: [], index: 0, score: 0, selected: null, locked: false, summary: [] };
-  let musicTrackIndex     = state.currentTrackIndex || 0;
-  let mindmapZoom         = 1;
-  let mindmapNodeRegistry = [];
-  let rapidTimer          = null;
-  let rapidTimeLeft       = 0;
-  let rapidStreak         = 0;
-
-  /* ══════════════════════════════════════════
-     HELPERS
-  ══════════════════════════════════════════ */
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn("State save error:", e);
+    }
   }
 
+  /* ── Helpers ── */
   function todayKey() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return new Date().toISOString().slice(0, 10);
   }
 
   function escapeHtml(str) {
     return String(str)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function shuffle(arr) {
@@ -247,1421 +214,1149 @@
     return a;
   }
 
-  function sample(arr, n) { return shuffle(arr).slice(0, n); }
-
-  function getLevelFromXP(xp)    { return Math.floor(xp / 120) + 1; }
-  function masteredCount()        { return Object.values(state.flashRatings).filter(v => v >= 2).length; }
-  function viewedTopicCount()     { return Object.keys(state.viewedTopics).length; }
-  function uniqueSectionCount()   { return Object.keys(state.sectionVisits).length; }
-
-  function flashStatusLabel(val) {
-    if (val >= 2)  return "Mastered";
-    if (val === 1) return "Good";
-    if (val === -1)return "Hard";
-    return "New";
+  function sample(arr, n) {
+    return shuffle(arr).slice(0, Math.min(n, arr.length));
   }
 
-  function setStatus(text) {
-    if (els.statusLine) els.statusLine.textContent = text;
+  function calcLevel(xp) {
+    return Math.floor(xp / 100) + 1;
   }
 
-  function toast(message, type = "info", ms = 2600) {
+  function toast(msg, type = "success") {
     const div = document.createElement("div");
-    div.className = `toast ${type}`;
-    div.innerHTML = message;
-    els.toastStack.appendChild(div);
-    setTimeout(() => {
-      div.style.opacity = "0";
-      div.style.transform = "translateY(-4px)";
-      setTimeout(() => div.remove(), 240);
-    }, ms);
+    div.className = `toast toast-${type}`;
+    div.textContent = msg;
+    if (els.toastStack) {
+      els.toastStack.appendChild(div);
+      setTimeout(() => div.remove(), 3500);
+    }
   }
 
-  function openModal(title, html) {
-    els.modalTitle.textContent = title;
-    els.modalBody.innerHTML    = html;
-    els.modalOverlay.classList.remove("hidden");
-    els.modalOverlay.setAttribute("aria-hidden", "false");
+  function setStatus(msg) {
+    if (els.statusLine) els.statusLine.textContent = msg;
+  }
+
+  function showModal(title, bodyHtml) {
+    if (els.modalTitle) els.modalTitle.textContent = title;
+    if (els.modalBody) els.modalBody.innerHTML = bodyHtml;
+    if (els.modalOverlay) els.modalOverlay.classList.add("active");
   }
 
   function closeModal() {
-    els.modalOverlay.classList.add("hidden");
-    els.modalOverlay.setAttribute("aria-hidden", "true");
+    if (els.modalOverlay) els.modalOverlay.classList.remove("active");
   }
 
-  function award(xp, coins, reason) {
-    state.xp    += xp;
+  function award(xp, coins, msg) {
+    state.xp += xp;
     state.coins += coins;
     saveState();
     renderProgress();
-    renderAchievements();
-    renderDailyChallenge();
-    maybeUnlockAchievements();
-    setStatus(`+${xp} XP, +${coins} coins — ${reason}`);
-    toast(`<strong>${reason}</strong><br>+${xp} XP &bull; +${coins} coins`, "success");
+    if (msg) toast(`+${xp} XP  +${coins} coins — ${msg}`, "success");
+    checkAchievements();
   }
 
-  function incrementDailyProgress(type, amount = 1) {
-    ensureDailyChallengeState();
-    if (typeof state.daily.progress[type] === "number") {
-      state.daily.progress[type] += amount;
-      saveState();
-      renderDailyChallenge();
-      maybeClaimDailyChallenge();
-    }
-  }
-
-  function ensureDailyChallengeState() {
+  /* ── Streak ── */
+  function updateStreak() {
     const today = todayKey();
-    if (state.daily.date !== today) {
-      const ch = getTodayChallenge();
-      state.daily = {
-        date: today,
-        challengeId: ch.id,
-        progress: { flashMastered: 0, quizCorrect: 0, glossaryAdded: 0, mindmapOpened: 0, rapidWins: 0 },
-        claimed: false
-      };
+    if (state.lastStudyDay === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    state.streak = state.lastStudyDay === yesterday ? state.streak + 1 : 1;
+    state.lastStudyDay = today;
+    saveState();
+  }
+
+  /* ── Daily Challenge ── */
+  function ensureDailyChallenge() {
+    const today = todayKey();
+    if (state.dailyChallengeDay !== today) {
+      state.dailyChallengeDay = today;
+      state.dailyChallengeIndex =
+        (state.dailyChallengeIndex + 1) % (DATA.dailyChallenges || []).length;
+      state.dailyChallengeProgress = 0;
       saveState();
     }
   }
 
-  function touchStudyDay() {
-    const today = todayKey();
-    if (!state.lastStudyDate) {
-      state.streak = 1; state.lastStudyDate = today; saveState(); return;
-    }
-    if (state.lastStudyDate === today) return;
-    const last = new Date(state.lastStudyDate + "T00:00:00");
-    const now  = new Date(today + "T00:00:00");
-    const diff = Math.round((now - last) / 86400000);
-    state.streak = diff === 1 ? state.streak + 1 : 1;
-    state.lastStudyDate = today;
-    saveState();
-  }
-
-  function markSectionVisit(id) {
-    state.sectionVisits[id] = (state.sectionVisits[id] || 0) + 1;
-    saveState();
-    maybeUnlockAchievements();
-  }
-
-  function markTopicViewed(topicId) {
-    state.viewedTopics[topicId] = true;
-    saveState();
-    renderProgress();
-  }
-
-  function maybeUnlockAchievements(extra = {}) {
-    const unlocked = new Set(state.badges);
-    const unlock = (id) => {
-      if (!unlocked.has(id) && achievementById[id]) {
-        unlocked.add(id);
-        state.badges.push(id);
-        toast(`Badge unlocked: <strong>${escapeHtml(achievementById[id].label)}</strong>`, "success", 3200);
+  function incrementDailyChallenge() {
+    const ch = (DATA.dailyChallenges || [])[state.dailyChallengeIndex];
+    if (!ch) return;
+    if (state.dailyChallengeProgress < ch.target) {
+      state.dailyChallengeProgress++;
+      saveState();
+      if (state.dailyChallengeProgress >= ch.target) {
+        award(40, 15, "Daily Challenge complete!");
+        toast("🎯 Daily Challenge Complete!", "success");
       }
-    };
-    if (uniqueSectionCount() >= 3)                    unlock("explorer");
-    if (Object.keys(state.flashRatings).length >= 1)  unlock("flashStarter");
-    if (masteredCount() >= 5)                         unlock("flashMaster5");
-    if (masteredCount() >= 15)                        unlock("flashMaster15");
-    if (state.quizCorrect >= 1)                       unlock("quizStarter");
-    if (state.glossary.length >= 5)                   unlock("terminologist");
-    if (state.streak >= 3)                            unlock("streak3");
-    if (state.xp >= 500)                              unlock("scholar500");
-    if (extra.quizAce)                                unlock("quizAce");
-    if (extra.mindMapper)                             unlock("mindMapper");
-    saveState();
-    renderAchievements();
-    renderProgress();
+    }
+    renderDailyChallenge();
   }
 
-  function getTodayChallenge() {
-    const idx = new Date().getDate() % DATA.dailyChallenges.length;
-    return DATA.dailyChallenges[idx];
+  /* ── Achievements ── */
+  function checkAchievements() {
+    const achs = DATA.achievements || [];
+    achs.forEach((ach) => {
+      if (state.badges.includes(ach.id)) return;
+      let earned = false;
+      const visits = Object.values(state.sectionVisits || {}).reduce(
+        (a, b) => a + b,
+        0
+      );
+      const mastered = Object.values(state.fcRatings || {}).filter(
+        (v) => v === "mastered"
+      ).length;
+      if (ach.id === "explorer" && visits >= 3) earned = true;
+      if (ach.id === "flashStarter" && mastered >= 1) earned = true;
+      if (ach.id === "quizAce" && state.quizStats.correct >= 10) earned = true;
+      if (ach.id === "xpHunter" && state.xp >= 500) earned = true;
+      if (ach.id === "streakMaster" && state.streak >= 3) earned = true;
+      if (ach.id === "glossaryGuru" && state.glossary.length >= 5) earned = true;
+      if (ach.id === "topicTrailblazer" && state.topicsOpened.length >= 5)
+        earned = true;
+      if (ach.id === "rapidChamp" && state.rapidBest >= 5) earned = true;
+      if (ach.id === "masteryKing" && mastered >= 10) earned = true;
+      if (earned) {
+        state.badges.push(ach.id);
+        saveState();
+        toast(`🏆 Badge Unlocked: ${ach.title}`, "success");
+        renderBadges();
+      }
+    });
   }
 
-  function maybeClaimDailyChallenge() {
-    const ch       = getTodayChallenge();
-    const progress = state.daily.progress[ch.type] || 0;
-    if (progress >= ch.goal && !state.daily.claimed) {
-      state.daily.claimed = true;
-      saveState();
-      award(40, 15, "Daily challenge completed");
+  /* ================================================================
+     RENDER: Progress / Dashboard
+     ================================================================ */
+  function renderProgress() {
+    const level = calcLevel(state.xp);
+    if (els.statLevel) els.statLevel.textContent = level;
+    if (els.statXP) els.statXP.textContent = state.xp;
+    if (els.statCoins) els.statCoins.textContent = state.coins;
+    if (els.statStreak) els.statStreak.textContent = state.streak + "🔥";
+
+    const totalCards = (DATA.flashcards || []).length || 1;
+    const mastered = Object.values(state.fcRatings || {}).filter(
+      (v) => v === "mastered"
+    ).length;
+    const mastPct = Math.round((mastered / totalCards) * 100);
+
+    const totalTopics = (DATA.topics || []).length || 1;
+    const opened = (state.topicsOpened || []).length;
+    const compPct = Math.round((opened / totalTopics) * 100);
+
+    if (els.masteryMeter) {
+      els.masteryMeter.style.width = mastPct + "%";
+      els.masteryMeter.textContent = mastPct + "%";
+    }
+    if (els.completionMeter) {
+      els.completionMeter.style.width = compPct + "%";
+      els.completionMeter.textContent = compPct + "%";
     }
   }
 
-  function goToSection(sectionId) {
-    els.sections.forEach(sec => sec.classList.toggle("active", sec.id === sectionId));
-    els.navTabs.forEach(tab => tab.classList.toggle("active", tab.dataset.target === sectionId));
-    markSectionVisit(sectionId);
-    setStatus(`Opened: ${sectionId.replace("Section", "")}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  /* ══════════════════════════════════════════
-     RENDER — DASHBOARD
-  ══════════════════════════════════════════ */
-
-  function renderProgress() {
-    const level      = getLevelFromXP(state.xp);
-    const mastered   = masteredCount();
-    const masteryPct = DATA.flashcards.length
-      ? Math.round((mastered / DATA.flashcards.length) * 100) : 0;
-
-    const topicProg = DATA.topics.length   ? viewedTopicCount() / DATA.topics.length   : 0;
-    const flashProg = DATA.flashcards.length ? mastered / DATA.flashcards.length       : 0;
-    const quizProg  = DATA.quizzes.length  ? Math.min(state.quizAttempted / DATA.quizzes.length, 1) : 0;
-    const completion = Math.round(((topicProg + flashProg + quizProg) / 3) * 100);
-
-    els.statLevel.textContent  = level;
-    els.statXP.textContent     = state.xp;
-    els.statCoins.textContent  = state.coins;
-    els.statStreak.textContent = state.streak;
-
-    els.masteryText.textContent    = `${masteryPct}%`;
-    els.masteryBar.style.width     = `${masteryPct}%`;
-    els.completionText.textContent = `${completion}%`;
-    els.completionBar.style.width  = `${completion}%`;
-
-    els.dashboardBadges.innerHTML = state.badges.length
-      ? state.badges.map(id =>
-          `<span class="badge">${escapeHtml(achievementById[id]?.label || id)}</span>`
-        ).join("")
-      : `<span class="muted">No badges yet.</span>`;
+  function renderBadges() {
+    if (!els.badgesArea) return;
+    const achs = DATA.achievements || [];
+    els.badgesArea.innerHTML = achs
+      .map((a) => {
+        const earned = state.badges.includes(a.id);
+        return `<span class="badge ${earned ? "badge-earned" : "badge-locked"}" title="${escapeHtml(a.desc)}">
+          ${escapeHtml(a.icon || "🏅")} ${escapeHtml(a.title)}
+        </span>`;
+      })
+      .join("");
   }
 
   function renderSnapshot() {
-    els.snapshotList.innerHTML = DATA.snapshotPoints
-      .map(p => `<div class="bullet-item">${escapeHtml(p)}</div>`)
+    if (!els.snapshotList) return;
+    const pts = DATA.snapshotPoints || [];
+    els.snapshotList.innerHTML = pts
+      .map((p) => `<li>${escapeHtml(p)}</li>`)
       .join("");
   }
 
   function renderDailyChallenge() {
-    ensureDailyChallengeState();
-    const ch       = getTodayChallenge();
-    const progress = state.daily.progress[ch.type] || 0;
-    const done     = state.daily.claimed ? "✅ Completed" : `${progress} / ${ch.goal}`;
-    els.dailyChallengeCard.innerHTML = `
-      <div><strong>${escapeHtml(ch.text)}</strong></div>
-      <div class="muted" style="margin-top:8px">Progress: ${done}</div>
-      <div class="muted" style="margin-top:6px">Reward: 40 XP + 15 coins</div>`;
-  }
-
-  /* ══════════════════════════════════════════
-     RENDER — TOPICS
-  ══════════════════════════════════════════ */
-
-  function renderTopicCards(filter = "all") {
-    const topics = filter === "all"
-      ? DATA.topics
-      : DATA.topics.filter(t => t.category === filter);
-
-    els.topicCardGrid.innerHTML = topics.length
-      ? topics.map(topic => `
-          <article class="topic-card" data-topic-id="${topic.id}">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-              <span class="topic-code">${escapeHtml(topic.code)}</span>
-              <span class="meta-pill">${escapeHtml(topic.category)}</span>
-            </div>
-            <h3>${escapeHtml(topic.title)}</h3>
-            <p>${escapeHtml(topic.overview[0])}</p>
-            <div class="bullet-list">
-              ${topic.keyPoints.slice(0, 3).map(p =>
-                `<div class="bullet-item">${escapeHtml(p)}</div>`).join("")}
-            </div>
-            <div class="muted">${escapeHtml(topic.source.file)} &bull; ${escapeHtml(topic.source.pages)}</div>
-            <div class="toolbar">
-              <button class="btn btn-small btn-primary open-topic-btn"
-                data-topic-id="${topic.id}">Open Lesson</button>
-            </div>
-          </article>`).join("")
-      : `<p class="muted">No topics in this category.</p>`;
-  }
-
-  function renderTopicQuickList() {
-    els.topicQuickList.innerHTML = DATA.topics.map(t => `
-      <button class="quick-topic-btn" data-topic-id="${t.id}">
-        <strong>${escapeHtml(t.code)}</strong><br>
-        <span class="muted">${escapeHtml(t.title)}</span>
-      </button>`).join("");
-  }
-
-  function renderLesson(topicId) {
-    const topic = mapsById[topicId];
-    if (!topic) return;
-    currentTopicId = topicId;
-    markTopicViewed(topicId);
-
-    els.lessonCode.textContent  = topic.code;
-    els.lessonTitle.textContent = topic.title;
-    els.lessonMeta.textContent  = `${topic.source.file} \u2022 ${topic.source.pages}`;
-
-    els.lessonOverview.innerHTML = topic.overview
-      .map(x => `<div class="bullet-item">${escapeHtml(x)}</div>`).join("");
-
-    els.lessonDefinitions.innerHTML = topic.definitions.map(d => `
-      <div class="definition-item">
-        <div class="definition-term"><strong>${escapeHtml(d.term)}</strong></div>
-        <div class="muted">${escapeHtml(d.meaning)}</div>
-      </div>`).join("");
-
-    els.lessonKeyPoints.innerHTML = topic.keyPoints
-      .map(x => `<div class="bullet-item">${escapeHtml(x)}</div>`).join("");
-
-    els.lessonExamples.innerHTML = topic.examples
-      .map(x => `<div class="bullet-item">${escapeHtml(x)}</div>`).join("");
-
-    els.lessonProcess.innerHTML = topic.process.map(s => `
-      <div class="timeline-step">
-        <div class="timeline-marker">${escapeHtml(s.step)}</div>
-        <div class="timeline-content">
-          <strong>${escapeHtml(s.title)}</strong><br>
-          <span class="muted">${escapeHtml(s.detail)}</span>
-        </div>
-      </div>`).join("");
-
-    els.lessonCompare.innerHTML = `
-      <table class="compare-table">
-        <thead>
-          <tr>${topic.compare.headers.map(h => `<th>${escapeHtml(h)}</th>`).join("")}</tr>
-        </thead>
-        <tbody>
-          ${topic.compare.rows.map(row =>
-            `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`
-          ).join("")}
-        </tbody>
-      </table>`;
-
-    els.lessonExamTips.innerHTML = topic.examTips
-      .map(x => `<div class="bullet-item">${escapeHtml(x)}</div>`).join("");
-
-    els.lessonCitations.innerHTML = topic.citations.map(c => `
-      <div class="citation-item">
-        <div class="source-file"><strong>${escapeHtml(c.label)}</strong></div>
-        <div class="source-page">${escapeHtml(c.file)} &bull; ${escapeHtml(c.page)}</div>
-      </div>`).join("");
-
-    setStatus(`Loaded lesson: ${topic.title}`);
-  }
-
-  /* ══════════════════════════════════════════
-     RENDER — FLASHCARDS
-  ══════════════════════════════════════════ */
-
-  function fillTopicSelects() {
-    const opts = DATA.topics.map(t =>
-      `<option value="${t.id}">${escapeHtml(t.code)} — ${escapeHtml(t.title)}</option>`
-    ).join("");
-    els.flashTopicSelect.innerHTML   = `<option value="all">All Topics</option>${opts}`;
-    els.quizTopicSelect.innerHTML    = `<option value="all">All Topics</option>${opts}`;
-    els.mindmapTopicSelect.innerHTML = opts;
-  }
-
-  function buildFlashDeck() {
-    const topicFilter  = els.flashTopicSelect.value;
-    const statusFilter = els.flashDifficultySelect.value;
-
-    let deck = DATA.flashcards.filter(c =>
-      topicFilter === "all" ? true : c.topicId === topicFilter
-    );
-
-    if (statusFilter === "weak")     deck = deck.filter(c => (state.flashRatings[c.id] || 0) < 2);
-    if (statusFilter === "new")      deck = deck.filter(c => !state.flashSeen[c.id]);
-    if (statusFilter === "mastered") deck = deck.filter(c => (state.flashRatings[c.id] || 0) >= 2);
-
-    if (!deck.length)
-      deck = DATA.flashcards.filter(c => topicFilter === "all" ? true : c.topicId === topicFilter);
-
-    flashDeck  = deck;
-    flashIndex = 0;
-    renderFlashcard();
-  }
-
-  function renderFlashcard() {
-    if (!flashDeck.length) {
-      els.flashFrontText.textContent     = "No cards in this deck.";
-      els.flashBackText.textContent      = "Try another filter.";
-      els.flashPositionLabel.textContent = "Card 0 / 0";
-      els.flashStatusLabel.textContent   = "Status: —";
+    if (!els.dailyChallengeCard) return;
+    const ch = (DATA.dailyChallenges || [])[state.dailyChallengeIndex];
+    if (!ch) {
+      els.dailyChallengeCard.innerHTML = "<p>No challenge today.</p>";
       return;
     }
-
-    const card   = flashDeck[flashIndex];
-    const rating = state.flashRatings[card.id] || 0;
-
-    state.flashSeen[card.id] = true;
-    saveState();
-
-    els.flashcard.classList.remove("flipped");
-    els.flashFrontText.textContent     = card.front;
-    els.flashBackText.textContent      = card.back;
-    els.flashFrontMeta.textContent     = card.ref;
-    els.flashBackMeta.textContent      = card.ref;
-    els.flashDeckLabel.textContent     = `Deck: ${els.flashTopicSelect.selectedOptions[0]?.textContent || "All"}`;
-    els.flashPositionLabel.textContent = `Card ${flashIndex + 1} / ${flashDeck.length}`;
-    els.flashStatusLabel.textContent   = `Status: ${flashStatusLabel(rating)}`;
+    const prog = state.dailyChallengeProgress;
+    const pct = Math.min(Math.round((prog / ch.target) * 100), 100);
+    els.dailyChallengeCard.innerHTML = `
+      <h3>🎯 Daily Challenge</h3>
+      <p><strong>${escapeHtml(ch.title)}</strong> — ${escapeHtml(ch.desc)}</p>
+      <div class="meter-wrap">
+        <div class="meter" id="dcMeter" style="width:${pct}%">${pct}%</div>
+      </div>
+      <p>${prog} / ${ch.target} completed</p>`;
   }
 
-  function rateFlashcard(value) {
-    if (!flashDeck.length) return;
-    const card = flashDeck[flashIndex];
-    const old  = state.flashRatings[card.id] || 0;
-    state.flashRatings[card.id] = value;
-    saveState();
-
-    if (value === 1)  award(8,  2, "Good flashcard");
-    if (value >= 2) {
-      award(14, 4, "Mastered flashcard");
-      if (old < 2) incrementDailyProgress("flashMastered", 1);
-    }
-    maybeUnlockAchievements();
-
-    setTimeout(() => {
-      flashIndex = (flashIndex + 1) % flashDeck.length;
-      renderFlashcard();
-    }, 180);
+  /* ================================================================
+     RENDER: Topics
+     ================================================================ */
+  function renderTopicGrid(filter = "all") {
+    if (!els.topicGrid) return;
+    const topics = (DATA.topics || []).filter(
+      (t) => filter === "all" || t.category === filter
+    );
+    els.topicGrid.innerHTML = topics
+      .map(
+        (t) => `
+      <div class="card topic-card" data-id="${escapeHtml(t.id)}">
+        <span class="topic-code">${escapeHtml(t.code || "")}</span>
+        <h3>${escapeHtml(t.title)}</h3>
+        <p>${escapeHtml((t.overview || "").slice(0, 100))}…</p>
+        <button class="btn btn-primary open-lesson-btn" data-id="${escapeHtml(t.id)}">Open Lesson →</button>
+      </div>`
+      )
+      .join("");
   }
 
-  /* ══════════════════════════════════════════
-     RENDER — QUIZ
-  ══════════════════════════════════════════ */
+  function renderQuickTopicList() {
+    if (!els.quickTopicList) return;
+    els.quickTopicList.innerHTML = (DATA.topics || [])
+      .map(
+        (t) => `<button class="quick-topic-btn" data-id="${escapeHtml(t.id)}">${escapeHtml(t.code)}: ${escapeHtml(t.title)}</button>`
+      )
+      .join("");
+  }
 
-    function generateQuiz() {
-    const topicId = els.quizTopicSelect.value;
-    const mode    = els.quizModeSelect.value;
-    const length  = Number(els.quizLengthSelect.value);
+  function openLesson(topicId) {
+    const topic = (DATA.topics || []).find((t) => t.id === topicId);
+    if (!topic) return;
 
-    let pool = [...DATA.quizzes];
+    if (!state.topicsOpened.includes(topicId)) {
+      state.topicsOpened.push(topicId);
+      award(10, 3, `Opened: ${topic.title}`);
+      saveState();
+    }
+    incrementDailyChallenge();
 
-    if (mode === "topic") {
-      if (topicId !== "all") {
-        pool = DATA.quizzes.filter(q => q.topicId === topicId);
-      } else {
-        pool = [...DATA.quizzes];
-      }
+    let html = `<h2>${escapeHtml(topic.code)}: ${escapeHtml(topic.title)}</h2>`;
+
+    if (topic.overview)
+      html += `<h3>Overview</h3><p>${escapeHtml(topic.overview)}</p>`;
+
+    if (topic.definitions && topic.definitions.length) {
+      html += `<h3>Key Definitions</h3><ul>` +
+        topic.definitions.map((d) => `<li><strong>${escapeHtml(d.term)}</strong>: ${escapeHtml(d.def)}</li>`).join("") +
+        `</ul>`;
     }
 
-    if (mode === "mixed") {
-      pool = [...DATA.quizzes];
+    if (topic.keyPoints && topic.keyPoints.length) {
+      html += `<h3>Key Points</h3><ul>` +
+        topic.keyPoints.map((p) => `<li>${escapeHtml(p)}</li>`).join("") +
+        `</ul>`;
     }
 
+    if (topic.examples && topic.examples.length) {
+      html += `<h3>Examples</h3>` +
+        topic.examples.map((e) =>
+          `<div class="example-block"><strong>${escapeHtml(e.label || "")}:</strong> ${escapeHtml(e.text || "")}</div>`
+        ).join("");
+    }
+
+    if (topic.process && topic.process.length) {
+      html += `<h3>Process Steps</h3><ol>` +
+        topic.process.map((s) => `<li><strong>${escapeHtml(s.step || "")}:</strong> ${escapeHtml(s.desc || "")}</li>`).join("") +
+        `</ol>`;
+    }
+
+    if (topic.comparison) {
+      html += `<h3>Comparison</h3>
+        <table class="compare-table"><thead><tr>
+          <th>${escapeHtml(topic.comparison.colA || "A")}</th>
+          <th>${escapeHtml(topic.comparison.colB || "B")}</th>
+        </tr></thead><tbody>` +
+        (topic.comparison.rows || []).map((r) =>
+          `<tr><td>${escapeHtml(r[0] || "")}</td><td>${escapeHtml(r[1] || "")}</td></tr>`
+        ).join("") +
+        `</tbody></table>`;
+    }
+
+    if (topic.examTips && topic.examTips.length) {
+      html += `<h3>Exam Tips</h3><ul class="exam-tips">` +
+        topic.examTips.map((tip) => `<li>💡 ${escapeHtml(tip)}</li>`).join("") +
+        `</ul>`;
+    }
+
+    if (topic.citations && topic.citations.length) {
+      html += `<h3>Citations</h3><ul class="citations">` +
+        topic.citations.map((c) => `<li>${escapeHtml(c)}</li>`).join("") +
+        `</ul>`;
+    }
+
+    if (els.lessonContent) els.lessonContent.innerHTML = html;
+    if (els.lessonView) els.lessonView.classList.remove("hidden");
+    setStatus(`Lesson: ${topic.title}`);
+  }
+
+  /* ================================================================
+     RENDER: Flashcards
+     ================================================================ */
+  let fcDeck = [];
+  let fcIndex = 0;
+  let fcFlipped = false;
+
+  function buildFcDeck() {
+    const topicId = els.fcTopicSelect ? els.fcTopicSelect.value : "all";
+    const diff = els.fcDiffSelect ? els.fcDiffSelect.value : "all";
+    let cards = [...(DATA.flashcards || [])];
+    if (topicId !== "all") cards = cards.filter((c) => c.topicId === topicId);
+    if (diff !== "all") cards = cards.filter((c) => c.difficulty === diff);
+    fcDeck = shuffle(cards);
+    fcIndex = 0;
+    fcFlipped = false;
+    renderFcCard();
+  }
+
+  function renderFcCard() {
+    if (!fcDeck.length) {
+      if (els.fcFront) els.fcFront.textContent = "No flashcards match.";
+      if (els.fcBack) els.fcBack.textContent = "";
+      if (els.fcMeta) els.fcMeta.textContent = "";
+      return;
+    }
+    const card = fcDeck[fcIndex];
+    if (els.fcFront) els.fcFront.textContent = card.front || card.question || "";
+    if (els.fcBack) els.fcBack.textContent = card.back || card.answer || "";
+    if (els.fcMeta)
+      els.fcMeta.textContent = `Card ${fcIndex + 1} / ${fcDeck.length}  |  Topic: ${card.topicId || ""}`;
+    if (els.flashcardEl) els.flashcardEl.classList.remove("flipped");
+    fcFlipped = false;
+  }
+
+  /* ================================================================
+     RENDER: Quizzes  ← FIXED generateQuiz
+     ================================================================ */
+  let currentQuiz = { items: [], index: 0, score: 0, selected: null, locked: false, summary: [] };
+
+  function generateQuiz() {
+    const topicId = els.quizTopicSelect ? els.quizTopicSelect.value : "all";
+    const mode = els.quizModeSelect ? els.quizModeSelect.value : "mixed";
+    const length = Number(els.quizLengthSelect ? els.quizLengthSelect.value : 10);
+
+    // Always start with full pool
+    let pool = [...(DATA.quizzes || [])];
+
+    // Apply filter only for 'topic' mode
+    if (mode === "topic" && topicId !== "all") {
+      pool = pool.filter((q) => q.topicId === topicId);
+    }
+    // 'exam' mode: sort by difficulty
     if (mode === "exam") {
-      pool = [...DATA.quizzes].sort((a, b) =>
-        (a.difficulty || "").localeCompare(b.difficulty || ""));
+      pool = pool.sort((a, b) =>
+        (a.difficulty || "").localeCompare(b.difficulty || "")
+      );
     }
+    // 'mixed': full pool (already set above)
 
-    console.log("Pool size before sample:", pool.length);
-    console.log("Length requested:", length);
+    const count = Math.min(length, pool.length);
 
     currentQuiz = {
-      items:    sample(pool, Math.min(length, pool.length)),
-      index:    0,
-      score:    0,
+      items: sample(pool, count),
+      index: 0,
+      score: 0,
       selected: null,
-      locked:   false,
-      summary:  []
+      locked: false,
+      summary: [],
     };
 
-    console.log("Quiz items generated:", currentQuiz.items.length);
-
+    if (els.quizSummary) els.quizSummary.classList.add("hidden");
     renderQuizQuestion();
-    setStatus(`Quiz generated — ${currentQuiz.items.length} questions.`);
-  }
-
-      index:    0,
-      score:    0,
-      selected: null,
-      locked:   false,
-      summary:  []
-    };
-
-    renderQuizQuestion();
-    setStatus("Quiz generated.");
+    setStatus(`Quiz: ${currentQuiz.items.length} questions | Mode: ${mode}`);
   }
 
   function renderQuizQuestion() {
-    const q = currentQuiz.items[currentQuiz.index];
-    if (!q) {
-      els.quizQuestionText.textContent = "Generate a quiz to begin.";
-      els.quizOptions.innerHTML = "";
+    if (!currentQuiz.items.length) {
+      if (els.quizQuestionEl)
+        els.quizQuestionEl.textContent = "No questions available. Please generate a quiz.";
+      if (els.quizMeta) els.quizMeta.textContent = "";
       return;
     }
-
-    currentQuiz.selected = null;
-    currentQuiz.locked   = false;
-
-    const label = els.quizModeSelect.value === "mixed"
-      ? "Mixed Quiz"
-      : (els.quizTopicSelect.selectedOptions[0]?.textContent || "Quiz");
-
-    els.quizTopicLabel.textContent    = `Topic: ${label}`;
-    els.quizProgressLabel.textContent = `Question ${currentQuiz.index + 1} / ${currentQuiz.items.length}`;
-    els.quizScoreLabel.textContent    = `Score: ${currentQuiz.score}`;
-    els.quizQuestionText.textContent  = q.question;
-
-    els.quizOptions.innerHTML = q.options.map((opt, idx) =>
-      `<div class="quiz-option" data-index="${idx}">${escapeHtml(opt)}</div>`
-    ).join("");
-
-    els.quizFeedback.innerHTML =
-      `Select an answer and submit.<br><span class="muted">${escapeHtml(q.ref)}</span>`;
-
-
-    $$(".quiz-option", els.quizOptions).forEach(opt => {
-      opt.addEventListener("click", () => {
-        if (currentQuiz.locked) return;
-
-        $$(".quiz-option", els.quizOptions).forEach(x => x.classList.remove("selected"));
-        opt.classList.add("selected");
-        currentQuiz.selected = Number(opt.dataset.index);
-      });
-    });
-
-    renderQuizSummary();
-  }
-
-  function renderQuizSummary() {
-    els.quizSummaryPanel.innerHTML = currentQuiz.items.map((_, idx) => {
-      const result = currentQuiz.summary[idx];
-      const status = result === true ? "✅ Correct" : result === false ? "❌ Incorrect" : "Pending";
-      return `<div class="stack-item">
-        <strong>Q${idx + 1}</strong><br>
-        <span class="muted">${status}</span>
-      </div>`;
-    }).join("");
-  }
-
-  function submitQuizAnswer() {
-    if (currentQuiz.locked) return;
+    if (currentQuiz.index >= currentQuiz.items.length) {
+      showQuizSummary();
+      return;
+    }
     const q = currentQuiz.items[currentQuiz.index];
-    if (!q) return;
-    if (currentQuiz.selected === null) { toast("Select an answer first.", "warning"); return; }
+    if (els.quizMeta)
+      els.quizMeta.textContent = `Question ${currentQuiz.index + 1} / ${currentQuiz.items.length}  |  Score: ${currentQuiz.score}`;
+    if (els.quizQuestionEl) els.quizQuestionEl.textContent = q.question || "";
+    if (els.quizOptionsEl) {
+      els.quizOptionsEl.innerHTML = (q.options || [])
+        .map(
+          (opt, i) =>
+            `<button class="quiz-option btn btn-secondary" data-index="${i}">${escapeHtml(opt)}</button>`
+        )
+        .join("");
+    }
+    if (els.quizNextBtn) els.quizNextBtn.classList.add("hidden");
+    currentQuiz.selected = null;
+    currentQuiz.locked = false;
+  }
 
-    currentQuiz.locked    = true;
-    state.quizAttempted  += 1;
-
-    const options = $$(".quiz-option", els.quizOptions);
-    options.forEach((opt, idx) => {
-      if (idx === q.answer)                                opt.classList.add("correct");
-      if (idx === currentQuiz.selected && idx !== q.answer) opt.classList.add("wrong");
-    });
-
-    const correct = currentQuiz.selected === q.answer;
-    currentQuiz.summary[currentQuiz.index] = correct;
+  function answerQuiz(idx) {
+    if (currentQuiz.locked) return;
+    currentQuiz.locked = true;
+    currentQuiz.selected = idx;
+    const q = currentQuiz.items[currentQuiz.index];
+    const correct = q.answer === idx;
 
     if (correct) {
-      currentQuiz.score   += 1;
-      state.quizCorrect   += 1;
-      incrementDailyProgress("quizCorrect", 1);
-      award(20, 5, "Correct quiz answer");
-      els.quizFeedback.innerHTML =
-        `<strong>Correct.</strong> ${escapeHtml(q.explanation)}
-         <br><span class="muted">${escapeHtml(q.ref)}</span>`;
+      currentQuiz.score++;
+      state.quizStats.correct++;
+      award(20, 5, "Correct answer!");
+      toast("✅ Correct!", "success");
     } else {
-      els.quizFeedback.innerHTML =
-        `<strong>Incorrect.</strong> ${escapeHtml(q.explanation)}
-         <br><span class="muted">Correct: ${escapeHtml(q.options[q.answer])} &bull; ${escapeHtml(q.ref)}</span>`;
+      toast(`❌ Incorrect. Answer: ${escapeHtml(q.options[q.answer])}`, "error");
     }
-
+    state.quizStats.attempted++;
+    const tid = q.topicId || "general";
+    if (!state.quizStats.byTopic[tid]) state.quizStats.byTopic[tid] = { a: 0, c: 0 };
+    state.quizStats.byTopic[tid].a++;
+    if (correct) state.quizStats.byTopic[tid].c++;
     saveState();
-    renderQuizSummary();
-    els.quizScoreLabel.textContent = `Score: ${currentQuiz.score}`;
-    maybeUnlockAchievements();
+    incrementDailyChallenge();
+
+    // Highlight answers
+
+    $$(".quiz-option", els.quizOptionsEl).forEach((btn, i) => {
+      if (i === q.answer) btn.classList.add("quiz-correct");
+      else if (i === idx) btn.classList.add("quiz-wrong");
+      btn.disabled = true;
+    });
+
+    if (q.explanation && els.quizOptionsEl) {
+      const exp = document.createElement("p");
+      exp.className = "quiz-explanation";
+      exp.textContent = `💡 ${q.explanation}`;
+      els.quizOptionsEl.appendChild(exp);
+    }
+
+    currentQuiz.summary.push({ q: q.question, correct, yourAnswer: q.options[idx], rightAnswer: q.options[q.answer] });
+    if (els.quizNextBtn) els.quizNextBtn.classList.remove("hidden");
   }
 
-  function nextQuizQuestion() {
-    if (!currentQuiz.items.length) return;
-    if (currentQuiz.index < currentQuiz.items.length - 1) {
-      currentQuiz.index += 1;
-      renderQuizQuestion();
+  function showQuizSummary() {
+    const total = currentQuiz.items.length;
+    const score = currentQuiz.score;
+    const pct = total ? Math.round((score / total) * 100) : 0;
+    if (els.quizSummary) {
+      els.quizSummary.classList.remove("hidden");
+      els.quizSummary.innerHTML = `
+        <h3>Quiz Complete!</h3>
+        <p>Score: <strong>${score} / ${total}</strong> (${pct}%)</p>
+        <p>${pct >= 80 ? "🎉 Excellent!" : pct >= 60 ? "👍 Good effort!" : "📚 Keep studying!"}</p>
+        <h4>Review:</h4>
+        <ul>${currentQuiz.summary.map((s) =>
+          `<li>${s.correct ? "✅" : "❌"} ${escapeHtml(s.q)} — Your answer: <em>${escapeHtml(s.yourAnswer)}</em>${!s.correct ? ` (Correct: <strong>${escapeHtml(s.rightAnswer)}</strong>)` : ""}</li>`
+        ).join("")}</ul>
+        <button class="btn btn-primary" id="retakeQuizBtn">Retake Quiz</button>`;
+      $("#retakeQuizBtn") && $("#retakeQuizBtn").addEventListener("click", generateQuiz);
+    }
+    if (els.quizQuestionEl) els.quizQuestionEl.textContent = "";
+    if (els.quizOptionsEl) els.quizOptionsEl.innerHTML = "";
+    if (els.quizMeta) els.quizMeta.textContent = `Final score: ${score}/${total}`;
+  }
+
+  /* ================================================================
+     RENDER: Mind Map
+     ================================================================ */
+  let mmZoom = 1;
+  let mmMap = null;
+
+  function loadMindMap(topicId) {
+    mmMap = (DATA.mindmaps || []).find((m) => m.topicId === topicId);
+    mmZoom = 1;
+    drawMindMap();
+  }
+
+  function drawMindMap() {
+    if (!els.mmSvg || !els.mmNodesLayer) return;
+    els.mmNodesLayer.innerHTML = "";
+    if (!mmMap) {
+      els.mmNodesLayer.innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#888">No mind map for this topic.</text>`;
       return;
     }
-    const pct = Math.round((currentQuiz.score / currentQuiz.items.length) * 100);
-    if (pct >= 80) maybeUnlockAchievements({ quizAce: true });
-    els.quizFeedback.innerHTML =
-      `<strong>Quiz complete.</strong><br>
-       Final score: ${currentQuiz.score}/${currentQuiz.items.length} (${pct}%)`;
-    toast(`Quiz finished: ${currentQuiz.score}/${currentQuiz.items.length}`, "success", 3200);
-    setStatus(`Quiz finished: ${currentQuiz.score}/${currentQuiz.items.length}`);
+    const cx = 400, cy = 260;
+    els.mmNodesLayer.innerHTML = `
+      <g transform="scale(${mmZoom})">
+        <circle cx="${cx}" cy="${cy}" r="50" fill="var(--accent)" opacity="0.9"/>
+        <text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">${escapeHtml(mmMap.center || "")}</text>
+        ${(mmMap.branches || []).map((branch, bi) => {
+          const angle = (2 * Math.PI * bi) / (mmMap.branches.length);
+          const bx = cx + 180 * Math.cos(angle);
+          const by = cy + 130 * Math.sin(angle);
+          const childNodes = (branch.children || []).map((child, ci) => {
+            const ca = angle + (ci - (branch.children.length - 1) / 2) * 0.4;
+            const childX = bx + 110 * Math.cos(ca);
+            const childY = by + 80 * Math.sin(ca);
+            return `
+              <line x1="${bx}" y1="${by}" x2="${childX}" y2="${childY}" stroke="#aaa" stroke-width="1.5"/>
+              <rect x="${childX - 45}" y="${childY - 14}" width="90" height="28" rx="6" fill="#e8f9f6" stroke="var(--accent)" stroke-width="1"/>
+              <text x="${childX}" y="${childY + 5}" text-anchor="middle" font-size="10" fill="#333">${escapeHtml(child)}</text>`;
+          }).join("");
+          return `
+            <line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="var(--accent)" stroke-width="2"/>
+            <rect x="${bx - 55}" y="${by - 18}" width="110" height="36" rx="8" fill="var(--accent)" opacity="0.85"/>
+            <text x="${bx}" y="${by + 6}" text-anchor="middle" fill="#fff" font-size="12">${escapeHtml(branch.label || "")}</text>
+            ${childNodes}`;
+        }).join("")}
+      </g>`;
   }
 
-  /* ══════════════════════════════════════════
-     RENDER — MIND MAP
-  ══════════════════════════════════════════ */
-
-  function applyMindmapZoom() {
-    const s = `scale(${mindmapZoom})`;
-    els.mindmapNodesLayer.style.transform       = s;
-    els.mindmapNodesLayer.style.transformOrigin = "top left";
-    els.mindmapSvg.style.transform              = s;
-    els.mindmapSvg.style.transformOrigin        = "top left";
-  }
-
-  function renderMindmap(topicId) {
-    const map = DATA.mindmaps[topicId];
-    if (!map) {
-      els.mindmapNodeDetails.innerHTML =
-        "<p class='muted'>No mind map available for this topic yet.</p>";
-      return;
-    }
-
-    maybeUnlockAchievements({ mindMapper: true });
-    incrementDailyProgress("mindmapOpened", 1);
-
-    els.mindmapSvg.innerHTML        = "";
-    els.mindmapNodesLayer.innerHTML = "";
-    mindmapNodeRegistry             = [];
-
-    const cX = 800, cY = 500, branchR = 280, childR = 190;
-
-    const centerNode = {
-      id: `${topicId}-center`, x: cX, y: cY,
-      label: map.center.label, note: map.center.note, citation: map.center.citation,
-      type: "center", visible: true
-    };
-    mindmapNodeRegistry.push(centerNode);
-
-    const angleStep = (Math.PI * 2) / Math.max(map.branches.length, 1);
-
-    map.branches.forEach((branch, i) => {
-      const angle = -Math.PI / 2 + i * angleStep;
-      const bx    = cX + Math.cos(angle) * branchR;
-      const by    = cY + Math.sin(angle) * branchR;
-
-      const branchNode = {
-        id: `${topicId}-branch-${i}`, parentId: centerNode.id,
-        x: bx, y: by,
-        label: branch.label, note: branch.note, citation: branch.citation,
-        type: "primary", visible: true, expanded: false
-      };
-      mindmapNodeRegistry.push(branchNode);
-
-      const cStep = branch.children.length > 1 ? 0.5 / (branch.children.length - 1) : 0;
-      branch.children.forEach((child, j) => {
-        const ca = angle - 0.25 + j * cStep;
-        mindmapNodeRegistry.push({
-          id: `${topicId}-child-${i}-${j}`, parentId: branchNode.id,
-          x: bx + Math.cos(ca) * childR,
-          y: by + Math.sin(ca) * childR,
-          label: child.label, note: child.note, citation: child.citation,
-          type: "secondary", visible: false
-        });
-      });
-    });
-
-    drawMindmapNodes(topicId);
-    renderMindmapDetails(centerNode);
-    applyMindmapZoom();
-    setStatus(`Mind map loaded: ${mapsById[topicId]?.title || topicId}`);
-  }
-
-  function drawMindmapLinks() {
-    const svgNS = "http://www.w3.org/2000/svg";
-    const byId  = Object.fromEntries(mindmapNodeRegistry.map(n => [n.id, n]));
-    els.mindmapSvg.innerHTML = "";
-
-    mindmapNodeRegistry.forEach(node => {
-      if (!node.parentId || !node.visible) return;
-      const parent = byId[node.parentId];
-      if (!parent?.visible) return;
-
-      const line = document.createElementNS(svgNS, "line");
-      line.setAttribute("x1", parent.x);
-      line.setAttribute("y1", parent.y);
-      line.setAttribute("x2", node.x);
-      line.setAttribute("y2", node.y);
-      line.setAttribute("stroke", "rgba(97,139,255,0.25)");
-      line.setAttribute("stroke-width", "2");
-      els.mindmapSvg.appendChild(line);
-    });
-  }
-
-  function drawMindmapNodes(topicId) {
-    els.mindmapNodesLayer.innerHTML = "";
-    drawMindmapLinks();
-
-    mindmapNodeRegistry.forEach(node => {
-      if (!node.visible) return;
-
-      const btn = document.createElement("button");
-      btn.className = `mindmap-node ${node.type}`;
-      btn.style.left = `${node.x - (node.type === "center" ? 100 : 80)}px`;
-      btn.style.top  = `${node.y - 30}px`;
-      btn.innerHTML  = `
-        <div class="node-title">${escapeHtml(node.label)}</div>
-        <div class="node-mini">${escapeHtml(node.citation || "")}</div>`;
-
-      btn.addEventListener("click", () => {
-
-        $$(".mindmap-node", els.mindmapNodesLayer).forEach(n => n.classList.remove("active"));
-        btn.classList.add("active");
-
-        if (node.type === "primary") {
-          const children    = mindmapNodeRegistry.filter(n => n.parentId === node.id);
-          const anyVisible  = children.some(c => c.visible);
-          children.forEach(c => { c.visible = !anyVisible; });
-          drawMindmapNodes(topicId);
-        }
-        renderMindmapDetails(node);
-      });
-
-      els.mindmapNodesLayer.appendChild(btn);
-    });
-  }
-
-  function renderMindmapDetails(node) {
-    const children = mindmapNodeRegistry.filter(n => n.parentId === node.id);
-    els.mindmapNodeDetails.innerHTML = `
-      <h4>${escapeHtml(node.label)}</h4>
-      <p>${escapeHtml(node.note || "No note available.")}</p>
-      <div class="node-tags">
-        <span class="node-tag">${escapeHtml(node.type)}</span>
-        ${node.citation
-          ? `<span class="node-tag">${escapeHtml(node.citation)}</span>`
-          : ""}
-      </div>
-      ${children.length ? `
-        <h5>Connected Ideas</h5>
-        <div class="stack-list">
-          ${children.map(c => `
-            <div class="stack-item">
-              <strong>${escapeHtml(c.label)}</strong><br>
-              <span class="muted">${escapeHtml(c.note || "")}</span>
-            </div>`).join("")}
-        </div>` : ""}
-      <div class="toolbar" style="margin-top:12px">
-        <button class="btn btn-small" id="openNodeModalBtn">Open Detail View</button>
-      </div>`;
-
-    const modalBtn = $("#openNodeModalBtn");
-    if (modalBtn) {
-      modalBtn.addEventListener("click", () => {
-        openModal(node.label, `
-          <p>${escapeHtml(node.note || "")}</p>
-          <p><strong>Citation:</strong> ${escapeHtml(node.citation || "—")}</p>
-          ${children.length
-            ? `<hr><p><strong>Connected Ideas:</strong></p>
-               <ul>${children.map(c =>
-                 `<li><strong>${escapeHtml(c.label)}</strong> — ${escapeHtml(c.note || "")}</li>`
-               ).join("")}</ul>`
-            : ""}`);
-      });
-    }
-  }
-
-  /* ══════════════════════════════════════════
-     RENDER — RAPID MATCH
-  ══════════════════════════════════════════ */
-
-  function clearRapidTimer() {
-    if (rapidTimer) { clearInterval(rapidTimer); rapidTimer = null; }
-  }
+  /* ================================================================
+     RENDER: Rapid Match Game
+     ================================================================ */
+  let rmActive = false;
+  let rmTimer = null;
+  let rmTimeLeft = 15;
+  let rmCurrentStreak = 0;
 
   function startRapidMatch() {
-    if (!DATA.flashcards.length) { toast("No flashcards available.", "warning"); return; }
-    clearRapidTimer();
-
-    const card   = DATA.flashcards[Math.floor(Math.random() * DATA.flashcards.length)];
-    const wrongs = sample(DATA.flashcards.filter(c => c.id !== card.id), 3).map(c => c.back);
-    const options = shuffle([card.back, ...wrongs]);
-
-    rapidTimeLeft = 15;
-    els.rapidTimerLabel.textContent = `Time: ${rapidTimeLeft}s`;
-    els.rapidPrompt.textContent     = card.front;
-    els.rapidFeedback.textContent   = "Choose the correct answer before time runs out.";
-
-    els.rapidOptions.innerHTML = options.map(opt =>
-      `<div class="quiz-option rapid-option"
-        data-correct="${opt === card.back ? "1" : "0"}">${escapeHtml(opt)}</div>`
-    ).join("");
-
-
-    $$(".rapid-option", els.rapidOptions).forEach(opt => {
-      opt.addEventListener("click", () => {
-        if (!rapidTimer) return;
-        clearRapidTimer();
-        const correct = opt.dataset.correct === "1";
-
-
-        $$(".rapid-option", els.rapidOptions).forEach(o => {
-          if (o.dataset.correct === "1") o.classList.add("correct");
-          else if (o === opt)            o.classList.add("wrong");
-          o.style.pointerEvents = "none";
-        });
-
-        if (correct) {
-          rapidStreak += 1;
-          if (rapidStreak > (state.rapidBest || 0)) state.rapidBest = rapidStreak;
-          incrementDailyProgress("rapidWins", 1);
-          award(12, 3, "Rapid Match win");
-          els.rapidFeedback.innerHTML = `<strong>Correct!</strong> ${escapeHtml(card.ref)}`;
-        } else {
-          rapidStreak = 0;
-          els.rapidFeedback.innerHTML = `<strong>Incorrect.</strong> ${escapeHtml(card.ref)}`;
-        }
-
-        saveState();
-        renderRapidStats();
-        setTimeout(startRapidMatch, 900);
-      });
-    });
-
-    rapidTimer = setInterval(() => {
-      rapidTimeLeft -= 1;
-      els.rapidTimerLabel.textContent = `Time: ${rapidTimeLeft}s`;
-      if (rapidTimeLeft <= 0) {
-        clearRapidTimer();
-        rapidStreak = 0;
-        renderRapidStats();
-        els.rapidFeedback.innerHTML = `<strong>Time up!</strong> Correct answer highlighted.`;
-
-        $$(".rapid-option", els.rapidOptions).forEach(o => {
-          if (o.dataset.correct === "1") o.classList.add("correct");
-          o.style.pointerEvents = "none";
-        });
-        setTimeout(startRapidMatch, 1400);
-      }
+    rmActive = true;
+    rmCurrentStreak = 0;
+    rmTimeLeft = 15;
+    if (els.rmTimer) els.rmTimer.textContent = "15";
+    if (els.rmStreak) els.rmStreak.textContent = "0";
+    clearInterval(rmTimer);
+    rmTimer = setInterval(() => {
+      rmTimeLeft--;
+      if (els.rmTimer) els.rmTimer.textContent = rmTimeLeft;
+      if (rmTimeLeft <= 0) endRapidMatch();
     }, 1000);
-
-    renderRapidStats();
+    nextRapidQuestion();
   }
 
-  function renderRapidStats() {
-    els.rapidStreakLabel.textContent = `Streak: ${rapidStreak}`;
-    els.rapidBestLabel.textContent   = `Best: ${state.rapidBest || 0}`;
-  }
-
-  /* ══════════════════════════════════════════
-     TERM LAB
-  ══════════════════════════════════════════ */
-
-  function extractTerms(mode) {
-    const text = els.termLabInput.value.trim();
-    if (!text) { els.termLabOutput.textContent = "Paste text first."; return; }
-
-    const stop = new Set([
-      "the","a","an","and","or","but","to","of","in","on","for","with","by","as","is","are",
-      "was","were","be","been","this","that","these","those","it","its","their","they","we",
-      "you","i","at","from","into","over","under","than","then","which","who","whom","can",
-      "could","should","would","may","might","will","also","not","have","has","had","do","does"
-    ]);
-
-    const clean  = text.replace(/[^\w\s\-']/g, " ").replace(/\s+/g, " ").trim();
-    const tokens = clean.split(" ").filter(Boolean);
-    const uni    = new Map();
-    const bi     = new Map();
-
-    for (let i = 0; i < tokens.length; i++) {
-      const w = tokens[i].toLowerCase();
-      if (w.length > 3 && !stop.has(w)) uni.set(w, (uni.get(w) || 0) + 1);
-      if (i < tokens.length - 1) {
-        const a = tokens[i].toLowerCase();
-        const b = tokens[i + 1].toLowerCase();
-        if (a.length > 2 && b.length > 2 && !stop.has(a) && !stop.has(b)) {
-          const pair = `${a} ${b}`;
-          bi.set(pair, (bi.get(pair) || 0) + 1);
-        }
-      }
+  function endRapidMatch() {
+    clearInterval(rmTimer);
+    rmActive = false;
+    if (rmCurrentStreak > state.rapidBest) {
+      state.rapidBest = rmCurrentStreak;
+      saveState();
     }
-
-    const linguistic = new Set();
-    const caps = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2}\b/g) || [];
-    caps.forEach(x => linguistic.add(x));
-    const hyphenated = text.match(/\b\w+(?:-\w+)+\b/g) || [];
-    hyphenated.forEach(x => linguistic.add(x));
-
-    [
-      "translation memory","computer-assisted translation","machine translation",
-      "minority language","post-editing","term bank","termbase","sublanguage",
-      "localization","internationalisation","globalisation","controlled language",
-      "parallel corpus","comparable corpus","term extraction","fuzzy match",
-      "exact match","translation quality","quality assurance"
-    ].forEach(phrase => {
-      if (text.toLowerCase().includes(phrase)) linguistic.add(phrase);
-    });
-
-    const statistical = new Set();
-    for (const [term, count] of uni.entries()) if (count >= 2) statistical.add(term);
-    for (const [term, count] of bi.entries())  if (count >= 2) statistical.add(term);
-
-    let out = [];
-    if (mode === "pattern") out = [...linguistic];
-    if (mode === "stat")    out = [...statistical];
-    if (mode === "hybrid")  out = [...new Set([...linguistic, ...statistical])];
-    out = out.slice(0, 30);
-
-    const modeLabel = mode === "pattern" ? "Pattern-Based"
-      : mode === "stat" ? "Frequency-Based" : "Hybrid";
-
-    els.termLabOutput.innerHTML = out.length
-      ? `<div><strong>${modeLabel} Results</strong></div>
-         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-           ${out.map(t => `<span class="meta-pill">${escapeHtml(t)}</span>`).join("")}
-         </div>`
-      : "No candidate terms found. Try a longer or more technical text.";
+    if (els.rmBest) els.rmBest.textContent = state.rapidBest;
+    if (els.rmQuestion) els.rmQuestion.textContent = "Time's up!";
+    if (els.rmOptions) els.rmOptions.innerHTML = "";
+    award(12, 3, `Rapid Match! Streak: ${rmCurrentStreak}`);
+    toast(`⚡ Rapid Match ended! Streak: ${rmCurrentStreak}`, "success");
+    checkAchievements();
   }
 
-  /* ══════════════════════════════════════════
-     GLOSSARY
-  ══════════════════════════════════════════ */
-
-  function renderGlossary() {
-    if (!state.glossary.length) {
-      els.glossaryOutput.textContent = "No glossary entries yet."; return;
+  function nextRapidQuestion() {
+    if (!rmActive) return;
+    const fc = DATA.flashcards || [];
+    if (!fc.length) return;
+    const card = fc[Math.floor(Math.random() * fc.length)];
+    if (els.rmQuestion)
+      els.rmQuestion.textContent = card.front || card.question || "?";
+    const wrongAnswers = shuffle(fc.filter((c) => c !== card)).slice(0, 3);
+    const choices = shuffle([card, ...wrongAnswers]);
+    if (els.rmOptions) {
+      els.rmOptions.innerHTML = choices
+        .map(
+          (c) =>
+            `<button class="btn btn-secondary rm-option" data-correct="${c === card}">${escapeHtml(c.back || c.answer || "")}</button>`
+        )
+        .join("");
     }
-    els.glossaryOutput.innerHTML = [...state.glossary].reverse().map(g => `
-      <div class="stack-item">
-        <strong>${escapeHtml(g.term)}</strong> &rarr; ${escapeHtml(g.equivalent)}<br>
-        <span class="muted">${escapeHtml(g.note || "—")}</span>
-      </div>`).join("");
   }
 
-  function addGlossaryEntry() {
-    const term       = els.glossaryTermInput.value.trim();
-    const equivalent = els.glossaryEquivalentInput.value.trim();
-    const note       = els.glossaryNoteInput.value.trim();
+  /* ================================================================
+     RENDER: Term Lab / Glossary
+     ================================================================ */
+  function extractTerms() {
+    const text = els.tlText ? els.tlText.value.trim() : "";
+    const mode = els.tlModeSelect ? els.tlModeSelect.value : "pattern";
+    if (!text) { toast("Please paste text to extract from.", "warning"); return; }
+    let results = [];
 
-    if (!term || !equivalent) { toast("Enter both term and equivalent.", "warning"); return; }
-
-    state.glossary.push({ term, equivalent, note });
-    saveState();
-    renderGlossary();
-    incrementDailyProgress("glossaryAdded", 1);
-    award(6, 2, "Glossary entry added");
-    maybeUnlockAchievements();
-
-    els.glossaryTermInput.value       = "";
-    els.glossaryEquivalentInput.value = "";
-    els.glossaryNoteInput.value       = "";
-  }
-
-  /* ══════════════════════════════════════════
-     SEARCH
-  ══════════════════════════════════════════ */
-
-  function searchAll(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-      els.searchResultsPanel.innerHTML = `<p class="muted">Enter a search term.</p>`; return;
-    }
-
-    const hits = [];
-
-    DATA.topics.forEach(topic => {
-      const hay = [
-        topic.code, topic.title,
-        ...topic.overview, ...topic.keyPoints,
-        ...topic.examples, ...topic.examTips
-      ].join(" ").toLowerCase();
-      if (hay.includes(q)) {
-        hits.push({
-          type: "Topic", title: topic.title,
-          extra: `${topic.source.file} \u2022 ${topic.source.pages}`,
-          action: () => { goToSection("topicsSection"); renderLesson(topic.id); }
-        });
-      }
-    });
-
-    DATA.flashcards.forEach(card => {
-      if (`${card.front} ${card.back} ${card.ref}`.toLowerCase().includes(q)) {
-        hits.push({
-          type: "Flashcard", title: card.front, extra: card.ref,
-          action: () => {
-            goToSection("flashcardsSection");
-            els.flashTopicSelect.value      = card.topicId;
-            els.flashDifficultySelect.value = "all";
-            buildFlashDeck();
-            const idx = flashDeck.findIndex(c => c.id === card.id);
-            if (idx >= 0) { flashIndex = idx; renderFlashcard(); }
-          }
-        });
-      }
-    });
-
-    DATA.quizzes.forEach(qz => {
-      const hay = `${qz.question} ${qz.options.join(" ")} ${qz.explanation} ${qz.ref}`.toLowerCase();
-      if (hay.includes(q)) {
-        hits.push({
-          type: "Quiz", title: qz.question, extra: qz.ref,
-          action: () => {
-            goToSection("quizzesSection");
-            els.quizTopicSelect.value = qz.topicId;
-            els.quizModeSelect.value  = "topic";
-            generateQuiz();
-          }
-        });
-      }
-    });
-
-    DATA.topics.forEach(topic => {
-      topic.citations.forEach(c => {
-        if (`${c.label} ${c.file} ${c.page}`.toLowerCase().includes(q)) {
-          hits.push({
-            type: "Citation", title: c.label,
-            extra: `${c.file} \u2022 ${c.page}`,
-            action: () => { goToSection("topicsSection"); renderLesson(topic.id); }
-          });
-        }
+    if (mode === "pattern" || mode === "hybrid") {
+      const patterns = [
+        /\b[A-Z]{2,}\b/g,
+        /\b\w+(?:tion|ment|ology|ware|base|file|data|system|process|tool|memory|engine|module)\b/gi,
+        /\b(?:translation memory|term base|CAT tool|machine translation|quality assurance|post.?editing|localization|terminology|workflow|alignment)\b/gi,
+      ];
+      patterns.forEach((pat) => {
+        const matches = text.match(pat) || [];
+        matches.forEach((m) => { if (!results.includes(m)) results.push(m); });
       });
-    });
-
-    if (!hits.length) {
-      els.searchResultsPanel.innerHTML =
-        `<p>No results for <strong>${escapeHtml(q)}</strong>.</p>`; return;
+    }
+    if (mode === "frequency" || mode === "hybrid") {
+      const words = text.toLowerCase().match(/\b\w{4,}\b/g) || [];
+      const freq = {};
+      words.forEach((w) => (freq[w] = (freq[w] || 0) + 1));
+      const topWords = Object.entries(freq)
+        .filter(([, c]) => c >= 2)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 20)
+        .map(([w]) => w);
+      topWords.forEach((w) => { if (!results.includes(w)) results.push(w); });
     }
 
-    els.searchResultsPanel.innerHTML = hits.slice(0, 14).map((hit, idx) => `
-      <div class="stack-item search-hit" data-hit-index="${idx}"
-           style="cursor:pointer">
-        <strong>${escapeHtml(hit.type)}</strong> — ${escapeHtml(hit.title)}<br>
-        <span class="muted">${escapeHtml(hit.extra)}</span>
-      </div>`).join("");
-
-
-    $$(".search-hit", els.searchResultsPanel).forEach((el, idx) => {
-      el.addEventListener("click", () => hits[idx].action());
-    });
+    if (!results.length) { toast("No terms found.", "warning"); return; }
+    if (els.tlResults) {
+      els.tlResults.innerHTML = `<h4>Extracted Terms (${results.length})</h4>` +
+        results.map((r) => `<span class="term-chip">${escapeHtml(r)}</span>`).join(" ");
+    }
+    award(6, 2, "Term extraction done!");
+    incrementDailyChallenge();
   }
 
-  /* ══════════════════════════════════════════
-     RENDER — SOURCES / REVIEW
-  ══════════════════════════════════════════ */
+  function renderGlossList() {
+    if (!els.glossList) return;
+    if (!state.glossary.length) {
+      els.glossList.innerHTML = "<em>No glossary entries yet.</em>";
+      return;
+    }
+    els.glossList.innerHTML = state.glossary
+      .map((e, i) =>
+        `<div class="gloss-entry"><strong>${escapeHtml(e.term)}</strong> → ${escapeHtml(e.equiv)}
+        ${e.note ? `<span class="gloss-note">(${escapeHtml(e.note)})</span>` : ""}
+        <button class="btn btn-ghost btn-xs gloss-del" data-i="${i}">✕</button></div>`
+      )
+      .join("");
+  }
 
+  function addGlossEntry() {
+    const term = els.glossTermInput ? els.glossTermInput.value.trim() : "";
+    const equiv = els.glossEquivInput ? els.glossEquivInput.value.trim() : "";
+    if (!term || !equiv) { toast("Enter both term and equivalent.", "warning"); return; }
+    state.glossary.push({ term, equiv, note: els.glossNoteInput ? els.glossNoteInput.value.trim() : "" });
+    saveState();
+    if (els.glossTermInput) els.glossTermInput.value = "";
+    if (els.glossEquivInput) els.glossEquivInput.value = "";
+    if (els.glossNoteInput) els.glossNoteInput.value = "";
+    renderGlossList();
+    award(6, 2, "Glossary entry added!");
+    checkAchievements();
+    incrementDailyChallenge();
+  }
+
+  function exportGloss() {
+    if (!state.glossary.length) { toast("Nothing to export.", "warning"); return; }
+    const lines = state.glossary.map((e) => `${e.term}\t${e.equiv}\t${e.note || ""}`);
+    const blob = new Blob(["Term\tEquivalent\tNote\n" + lines.join("\n")], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "catalyst_glossary.txt";
+    a.click();
+    toast("Glossary exported!", "success");
+  }
+
+  /* ================================================================
+     RENDER: Sources
+     ================================================================ */
   function renderSources() {
-    els.sourceFileGrid.innerHTML = DATA.topics.map(topic => `
-      <div class="topic-card">
-        <span class="topic-code">${escapeHtml(topic.code)}</span>
-        <h3>${escapeHtml(topic.title)}</h3>
-        <p>${escapeHtml(topic.source.file)} &bull; ${escapeHtml(topic.source.pages)}</p>
-        <div class="toolbar">
-          <a class="btn btn-small btn-primary"
-             href="${escapeHtml(topic.source.path)}"
-             target="_blank" rel="noopener">Open PDF</a>
-        </div>
-      </div>`).join("");
+    if (!els.sourceGrid) return;
+    const topics = DATA.topics || [];
+    els.sourceGrid.innerHTML = topics
+      .map(
+        (t) => `
+      <div class="card source-card">
+        <h4>${escapeHtml(t.code)}</h4>
+        <p>${escapeHtml(t.title)}</p>
+        ${t.sourcePdf ? `<a class="btn btn-ghost" href="${escapeHtml(t.sourcePdf)}" target="_blank">📄 Open PDF</a>` : "<em>PDF not linked</em>"}
+      </div>`
+      )
+      .join("");
 
-    const allCitations = DATA.topics.flatMap(topic =>
-      topic.citations.map(c => ({ topic: topic.title, ...c }))
-    );
+    if (!els.citationsList) return;
+    const allCites = [];
+    topics.forEach((t) => (t.citations || []).forEach((c) => allCites.push(`[${t.code}] ${c}`)));
+    els.citationsList.innerHTML = allCites.map((c) => `<li>${escapeHtml(c)}</li>`).join("") || "<li>No citations.</li>";
+  }
 
-    els.allCitationsPanel.innerHTML = allCitations.map(c => `
-      <div class="citation-item">
-        <div class="source-file">
-          <strong>${escapeHtml(c.topic)}</strong> — ${escapeHtml(c.label)}
-        </div>
-        <div class="source-page">${escapeHtml(c.file)} &bull; ${escapeHtml(c.page)}</div>
-      </div>`).join("");
+  /* ================================================================
+     RENDER: Review
+     ================================================================ */
+  function renderReview() {
+    renderWeakAreas();
+    renderChecklist();
+    renderRevisionPlan();
   }
 
   function renderWeakAreas() {
-    const weak = DATA.flashcards.filter(c => (state.flashRatings[c.id] || 0) < 2);
-    els.weakAreasPanel.innerHTML = weak.length
-      ? weak.slice(0, 20).map(card => `
-          <div class="stack-item">
-            <strong>${escapeHtml(card.front)}</strong><br>
-            <span class="muted">
-              ${escapeHtml(card.ref)} &bull;
-              ${escapeHtml(flashStatusLabel(state.flashRatings[card.id] || 0))}
-            </span>
-          </div>`).join("")
-      : `<p><strong>Excellent.</strong> All flashcards are currently mastered.</p>`;
+    if (!els.weakAreasList) return;
+    const byTopic = state.quizStats.byTopic || {};
+    const topics = DATA.topics || [];
+    const weak = topics.filter((t) => {
+      const s = byTopic[t.id];
+      return s && s.a > 0 && s.c / s.a < 0.6;
+    });
+    els.weakAreasList.innerHTML = weak.length
+      ? weak.map((t) => {
+          const s = byTopic[t.id];
+          const pct = Math.round((s.c / s.a) * 100);
+          return `<li>${escapeHtml(t.title)} — ${pct}% correct</li>`;
+        }).join("")
+      : "<li>No weak areas detected yet. Complete some quizzes!</li>";
   }
 
-  function renderReviewChecklist() {
-    els.reviewChecklist.innerHTML = DATA.reviewChecklist
-      .map(item => `<div class="bullet-item">${escapeHtml(item)}</div>`).join("");
+  function renderChecklist() {
+    if (!els.reviewChecklist) return;
+    const items = DATA.reviewChecklist || [];
+    els.reviewChecklist.innerHTML = items
+      .map(
+        (item, i) => `
+      <label class="checklist-item">
+        <input type="checkbox" data-i="${i}" ${state.checkedItems.includes(i) ? "checked" : ""}/>
+        ${escapeHtml(item)}
+      </label>`
+      )
+      .join("");
   }
 
   function renderRevisionPlan() {
-    els.revisionPlanPanel.innerHTML = DATA.revisionPlan.map(step => `
-      <div class="timeline-step">
-        <div class="timeline-marker">${escapeHtml(step.step)}</div>
-        <div class="timeline-content">
-          <strong>${escapeHtml(step.title)}</strong><br>
-          <span class="muted">${escapeHtml(step.detail)}</span>
-        </div>
-      </div>`).join("");
+    if (!els.revisionPlan) return;
+    const plan = DATA.revisionPlan || [];
+    els.revisionPlan.innerHTML = plan
+      .map(
+        (step, i) => `
+      <div class="card revision-step">
+        <h4>Day ${i + 1}: ${escapeHtml(step.title)}</h4>
+        <p>${escapeHtml(step.detail)}</p>
+      </div>`
+      )
+      .join("");
   }
 
+  /* ================================================================
+     RENDER: Achievements
+     ================================================================ */
   function renderAchievements() {
-    els.achievementPanel.innerHTML = state.badges.length
-      ? state.badges.map(id =>
-          `<span class="badge">${escapeHtml(achievementById[id]?.label || id)}</span>`
-        ).join("")
-      : `<span class="muted">No badges unlocked yet.</span>`;
+    if (!els.achievementsPanel) return;
+    const achs = DATA.achievements || [];
+    els.achievementsPanel.innerHTML = `
+      <h3>🏆 Achievements</h3>
+      <div class="achievements-grid">
+        ${achs.map((a) => {
+          const earned = state.badges.includes(a.id);
+          return `<div class="achievement-card ${earned ? "earned" : "locked"}">
+            <span class="ach-icon">${escapeHtml(a.icon || "🏅")}</span>
+            <strong>${escapeHtml(a.title)}</strong>
+            <p>${escapeHtml(a.desc)}</p>
+            ${earned ? '<span class="ach-badge">✅ Earned</span>' : '<span class="ach-badge locked">🔒 Locked</span>'}
+          </div>`;
+        }).join("")}
+      </div>`;
   }
 
-  /* ══════════════════════════════════════════
-     MUSIC
-  ══════════════════════════════════════════ */
-
-  function loadTrack(index) {
-    if (!DATA.musicPlaylist.length) return;
-    musicTrackIndex = (index + DATA.musicPlaylist.length) % DATA.musicPlaylist.length;
-    const track = DATA.musicPlaylist[musicTrackIndex];
-    els.bgAudio.src              = track.file;
-    els.bgAudio.dataset.title    = track.title;
-    state.currentTrackIndex      = musicTrackIndex;
-    saveState();
-    setStatus(`Track loaded: ${track.title}`);
-  }
-
-  async function playMusic() {
-    if (!DATA.musicPlaylist.length) {
-      toast("No music playlist configured.", "warning"); return;
+  /* ================================================================
+     RENDER: Global Search
+     ================================================================ */
+  function runSearch(query) {
+    if (!query.trim()) {
+      if (els.searchResultsSection) els.searchResultsSection.classList.add("hidden");
+      return;
     }
-    if (!els.bgAudio.src || els.bgAudio.src === window.location.href) loadTrack(musicTrackIndex);
-    els.bgAudio.volume = Number(els.musicVolume.value) / 100;
-    try {
-      await els.bgAudio.play();
-      state.musicEnabled          = true;
-      saveState();
-      els.musicToggleBtn.textContent = "❚❚ Music";
-      setStatus(`Playing: ${els.bgAudio.dataset.title || "Track"}`);
-    } catch {
-      toast("Could not play audio. Ensure files exist in /audio.", "warning", 3600);
+    const q = query.toLowerCase();
+    const results = [];
+    (DATA.topics || []).forEach((t) => {
+      if ((t.title || "").toLowerCase().includes(q) || (t.overview || "").toLowerCase().includes(q))
+        results.push({ type: "Topic", text: t.title, id: t.id });
+    });
+    (DATA.flashcards || []).forEach((f) => {
+      if ((f.front || f.question || "").toLowerCase().includes(q))
+        results.push({ type: "Flashcard", text: f.front || f.question });
+    });
+    (DATA.quizzes || []).forEach((qz) => {
+      if ((qz.question || "").toLowerCase().includes(q))
+        results.push({ type: "Quiz", text: qz.question });
+    });
+
+    if (els.searchResults) {
+      els.searchResults.innerHTML = results.length
+        ? results.map((r) => `<div class="search-result-item"><strong>[${escapeHtml(r.type)}]</strong> ${escapeHtml(r.text)}</div>`).join("")
+        : "<p>No results found.</p>";
     }
+    if (els.searchResultsSection) els.searchResultsSection.classList.remove("hidden");
   }
 
-  function pauseMusic() {
-    els.bgAudio.pause();
-    state.musicEnabled             = false;
+  /* ================================================================
+     NAVIGATION
+     ================================================================ */
+  function showSection(id) {
+    els.sections.forEach((s) => s.classList.add("hidden"));
+    const target = document.getElementById(id);
+    if (target) target.classList.remove("hidden");
+    els.navTabs.forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.section === id);
+    });
+    state.currentSection = id;
+    state.sectionVisits[id] = (state.sectionVisits[id] || 0) + 1;
     saveState();
-    els.musicToggleBtn.textContent = "♪ Music";
-    setStatus("Music paused.");
+    checkAchievements();
+    setStatus(`Section: ${id}`);
+
+    // Lazy renders
+    if (id === "sources") renderSources();
+    if (id === "review") renderReview();
+    if (id === "gamelab") renderAchievements();
   }
 
-  function toggleMusic() {
-    if (els.bgAudio.paused) playMusic(); else pauseMusic();
-  }
-
-  /* ══════════════════════════════════════════
+  /* ================================================================
      BACKGROUND CANVAS
-  ══════════════════════════════════════════ */
-
-  function initCatalystBackground() {
+     ================================================================ */
+  function startCanvas() {
     const canvas = els.catalystCanvas;
-    const ctx    = canvas.getContext("2d");
-    let particles = [];
-
-    function resize() {
-      canvas.width  = window.innerWidth  * devicePixelRatio;
-      canvas.height = window.innerHeight * devicePixelRatio;
-      canvas.style.width  = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-
-      const count = Math.max(34, Math.floor(window.innerWidth / 28));
-      particles = Array.from({ length: count }, () => ({
-        x:  Math.random() * window.innerWidth,
-        y:  Math.random() * window.innerHeight,
-        vx: (Math.random() - 0.5) * 0.55,
-        vy: (Math.random() - 0.5) * 0.55,
-        r:  1.2 + Math.random() * 2.4
-      }));
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const particles = [];
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 3 + 1,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5,
+        alpha: Math.random() * 0.4 + 0.1,
+      });
     }
-
     function draw() {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-      for (const p of particles) {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > window.innerWidth)  p.vx *= -1;
-        if (p.y < 0 || p.y > window.innerHeight)  p.vy *= -1;
-
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
-        grad.addColorStop(0,   "rgba(23,181,156,0.26)");
-        grad.addColorStop(0.6, "rgba(97,139,255,0.10)");
-        grad.addColorStop(1,   "rgba(97,139,255,0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "rgba(23,181,156,0.28)";
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(23,181,156,${p.alpha})`;
         ctx.fill();
-      }
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i], b = particles[j];
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < 120) {
-            ctx.strokeStyle = `rgba(97,139,255,${0.1 * (1 - d / 120)})`;
-            ctx.lineWidth   = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
       requestAnimationFrame(draw);
     }
-
-    resize();
     draw();
-    window.addEventListener("resize", resize);
   }
 
-  /* ══════════════════════════════════════════
-     EVENT BINDINGS
-  ══════════════════════════════════════════ */
+  /* ================================================================
+     MUSIC (disabled — no playlist)
+     ================================================================ */
+  function initMusic() {
+    if (!DATA.musicPlaylist || !DATA.musicPlaylist.length) {
+      // Hide all music controls gracefully
 
+      $$(".music-controls, #musicToggleBtn, #prevTrackBtn, #nextTrackBtn, .range-wrap").forEach(
+        (el) => (el.style.display = "none")
+      );
+      return;
+    }
+    // Future: full music init if playlist added
+  }
+
+  /* ================================================================
+     EVENT BINDING
+     ================================================================ */
   function bindEvents() {
+    // Welcome screen
+    if (els.startBtn) {
+      els.startBtn.addEventListener("click", () => {
+        if (els.welcomeScreen) els.welcomeScreen.classList.add("hidden");
+        showSection("dashboard");
+      });
+    }
 
-    /* Modal */
-    els.closeModalBtn.addEventListener("click", closeModal);
-    els.modalOverlay.addEventListener("click", e => {
-      if (e.target === els.modalOverlay) closeModal();
-    });
+    // Modal
+    if (els.modalClose) els.modalClose.addEventListener("click", closeModal);
+    if (els.modalOverlay)
+      els.modalOverlay.addEventListener("click", (e) => {
+        if (e.target === els.modalOverlay) closeModal();
+      });
 
-    /* Nav */
-    els.navTabs.forEach(tab => {
-      tab.addEventListener("click", () => goToSection(tab.dataset.target));
-    });
-
-    /* Welcome */
-    els.enterWithMusicBtn.addEventListener("click", async () => {
-      touchStudyDay();
-      els.welcomeScreen.classList.add("hidden");
-      loadTrack(musicTrackIndex);
-      await playMusic();
-      renderProgress();
-    });
-
-    els.enterMutedBtn.addEventListener("click", () => {
-      touchStudyDay();
-      els.welcomeScreen.classList.add("hidden");
-      pauseMusic();
-      renderProgress();
+    // Navigation
+    els.navTabs.forEach((tab) => {
+      tab.addEventListener("click", () => showSection(tab.dataset.section));
     });
 
-    /* Music */
-    els.musicToggleBtn.addEventListener("click", toggleMusic);
-    els.prevTrackBtn.addEventListener("click", async () => {
-      loadTrack(musicTrackIndex - 1); await playMusic();
-    });
-    els.nextTrackBtn.addEventListener("click", async () => {
-      loadTrack(musicTrackIndex + 1); await playMusic();
-    });
-    els.musicVolume.addEventListener("input", () => {
-      els.bgAudio.volume = Number(els.musicVolume.value) / 100;
-    });
-    els.bgAudio.addEventListener("ended", async () => {
-      loadTrack(musicTrackIndex + 1); await playMusic();
-    });
-    els.bgAudio.addEventListener("error", () => {
-      toast("Audio file missing or could not be loaded.", "warning", 3600);
-      pauseMusic();
-    });
+    // Global search
+    if (els.globalSearch) {
+      els.globalSearch.addEventListener("input", (e) => runSearch(e.target.value));
+    }
 
-    /* Search */
-    els.globalSearchBtn.addEventListener("click", () => searchAll(els.globalSearchInput.value));
-    els.globalSearchInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") searchAll(els.globalSearchInput.value);
-    });
+    // Reset progress
+    if (els.resetProgressBtn) {
+      els.resetProgressBtn.addEventListener("click", () => {
+        if (confirm("Reset all progress? This cannot be undone.")) {
+          localStorage.removeItem(STORAGE_KEY);
+          state = createDefaultState();
+          saveState();
+          renderAll();
+          toast("Progress reset.", "warning");
+        }
+      });
+    }
 
-    /* Dashboard quick actions */
-    els.startFlashcardsBtn.addEventListener("click", () => goToSection("flashcardsSection"));
-    els.startMixedQuizBtn.addEventListener("click", () => {
-      goToSection("quizzesSection");
-      els.quizModeSelect.value = "mixed";
-      generateQuiz();
-    });
-    els.browseTopicsBtn.addEventListener("click", () => goToSection("topicsSection"));
+    // Daily challenge button
+    if (els.dailyChallengeBtn) {
+      els.dailyChallengeBtn.addEventListener("click", () => {
+        showSection("dashboard");
+        toast("📅 Daily Challenge loaded!", "success");
+      });
+    }
 
-    /* Daily challenge */
-    els.dailyChallengeBtn.addEventListener("click", () => {
-      goToSection(getTodayChallenge().route);
-    });
-    els.openDailyChallengeBtn.addEventListener("click", () => {
-      goToSection(getTodayChallenge().route);
-    });
-
-    /* Topic filters */
-    els.topicFilters.forEach(btn => {
+    // Topic filters
+    els.topicFilter.forEach((btn) => {
       btn.addEventListener("click", () => {
-        els.topicFilters.forEach(b => b.classList.remove("active"));
+        els.topicFilter.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        renderTopicCards(btn.dataset.filter);
+        renderTopicGrid(btn.dataset.filter || "all");
       });
     });
 
-    /* Topic card grid — open lesson */
-    els.topicCardGrid.addEventListener("click", e => {
-      const btn     = e.target.closest(".open-topic-btn");
-      const card    = e.target.closest("[data-topic-id]");
-      const topicId = btn?.dataset.topicId || card?.dataset.topicId;
-      if (!topicId) return;
-      renderLesson(topicId);
-      goToSection("topicsSection");
-    });
+    // Open lesson (delegated)
+    if (els.topicGrid) {
+      els.topicGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest(".open-lesson-btn");
+        if (btn) openLesson(btn.dataset.id);
+      });
+    }
 
-    /* Quick topic list */
-    els.topicQuickList.addEventListener("click", e => {
-      const btn = e.target.closest(".quick-topic-btn");
-      if (!btn) return;
-      renderLesson(btn.dataset.topicId);
-    });
+    // Close lesson
+    if (els.closeLessonBtn) {
+      els.closeLessonBtn.addEventListener("click", () => {
+        if (els.lessonView) els.lessonView.classList.add("hidden");
+      });
+    }
 
-    /* Lesson action buttons */
-    els.lessonToFlashcardsBtn.addEventListener("click", () => {
-      els.flashTopicSelect.value      = currentTopicId;
-      els.flashDifficultySelect.value = "all";
-      buildFlashDeck();
-      goToSection("flashcardsSection");
-    });
-    els.lessonToQuizBtn.addEventListener("click", () => {
-      els.quizTopicSelect.value = currentTopicId;
-      els.quizModeSelect.value  = "topic";
-      generateQuiz();
-      goToSection("quizzesSection");
-    });
-    els.lessonToMindmapBtn.addEventListener("click", () => {
-      els.mindmapTopicSelect.value = currentTopicId;
-      renderMindmap(currentTopicId);
-      goToSection("mindmapsSection");
-    });
+    // Quick topic list (delegated)
+    if (els.quickTopicList) {
+      els.quickTopicList.addEventListener("click", (e) => {
+        const btn = e.target.closest(".quick-topic-btn");
+        if (btn) openLesson(btn.dataset.id);
+      });
+    }
 
-    /* Flashcards */
-    els.flashTopicSelect.addEventListener("change", buildFlashDeck);
-    els.flashDifficultySelect.addEventListener("change", buildFlashDeck);
-    els.shuffleFlashcardsBtn.addEventListener("click", () => {
-      flashDeck  = shuffle(flashDeck);
-      flashIndex = 0;
-      renderFlashcard();
-      setStatus("Flashcards shuffled.");
-    });
-    els.resetFlashDeckBtn.addEventListener("click", buildFlashDeck);
-    els.flipFlashcardBtn.addEventListener("click", () => {
-      els.flashcard.classList.toggle("flipped");
-    });
-    els.flashcard.addEventListener("click", e => {
-      if (e.target.closest("button")) return;
-      els.flashcard.classList.toggle("flipped");
-    });
-    els.prevFlashcardBtn.addEventListener("click", () => {
-      if (!flashDeck.length) return;
-      flashIndex = (flashIndex - 1 + flashDeck.length) % flashDeck.length;
-      renderFlashcard();
-    });
-    els.nextFlashcardBtn.addEventListener("click", () => {
-      if (!flashDeck.length) return;
-      flashIndex = (flashIndex + 1) % flashDeck.length;
-      renderFlashcard();
-    });
-    els.flashHardBtn.addEventListener("click",     () => rateFlashcard(-1));
-    els.flashGoodBtn.addEventListener("click",     () => rateFlashcard(1));
-    els.flashMasteredBtn.addEventListener("click", () => rateFlashcard(2));
+    // Flashcard controls
+    if (els.fcTopicSelect) els.fcTopicSelect.addEventListener("change", buildFcDeck);
+    if (els.fcDiffSelect) els.fcDiffSelect.addEventListener("change", buildFcDeck);
+    if (els.flashcardEl) {
+      els.flashcardEl.addEventListener("click", () => {
+        els.flashcardEl.classList.toggle("flipped");
+        fcFlipped = !fcFlipped;
+      });
+    }
+    if (els.fcPrevBtn) {
+      els.fcPrevBtn.addEventListener("click", () => {
+        if (fcIndex > 0) { fcIndex--; renderFcCard(); }
+      });
+    }
+    if (els.fcNextBtn) {
+      els.fcNextBtn.addEventListener("click", () => {
+        if (fcIndex < fcDeck.length - 1) { fcIndex++; renderFcCard(); }
+      });
+    }
+    if (els.fcShuffleBtn) els.fcShuffleBtn.addEventListener("click", buildFcDeck);
+    if (els.fcRestartBtn) {
+      els.fcRestartBtn.addEventListener("click", () => {
+        fcIndex = 0;
+        renderFcCard();
+      });
+    }
+    if (els.fcHardBtn) {
+      els.fcHardBtn.addEventListener("click", () => {
+        if (!fcDeck.length) return;
+        state.fcRatings[fcDeck[fcIndex].id] = "hard";
+        saveState();
+        toast("Marked: Hard", "warning");
+        if (fcIndex < fcDeck.length - 1) { fcIndex++; renderFcCard(); }
+      });
+    }
+    if (els.fcGoodBtn) {
+      els.fcGoodBtn.addEventListener("click", () => {
+        if (!fcDeck.length) return;
+        state.fcRatings[fcDeck[fcIndex].id] = "good";
+        saveState();
+        award(8, 2, "Flashcard: Good");
+        if (fcIndex < fcDeck.length - 1) { fcIndex++; renderFcCard(); }
+      });
+    }
+    if (els.fcMasteredBtn) {
+      els.fcMasteredBtn.addEventListener("click", () => {
+        if (!fcDeck.length) return;
+        state.fcRatings[fcDeck[fcIndex].id] = "mastered";
+        saveState();
+        award(14, 4, "Flashcard: Mastered!");
+        checkAchievements();
+        if (fcIndex < fcDeck.length - 1) { fcIndex++; renderFcCard(); }
+      });
+    }
 
-    /* Quiz */
-    els.generateQuizBtn.addEventListener("click",      generateQuiz);
-    els.submitQuizAnswerBtn.addEventListener("click",  submitQuizAnswer);
-    els.nextQuizQuestionBtn.addEventListener("click",  nextQuizQuestion);
+    // Quiz controls
+    if (els.generateQuizBtn) els.generateQuizBtn.addEventListener("click", generateQuiz);
+    if (els.quizOptionsEl) {
+      els.quizOptionsEl.addEventListener("click", (e) => {
+        const btn = e.target.closest(".quiz-option");
+        if (btn) answerQuiz(Number(btn.dataset.index));
+      });
+    }
+    if (els.quizNextBtn) {
+      els.quizNextBtn.addEventListener("click", () => {
+        currentQuiz.index++;
+        renderQuizQuestion();
+      });
+    }
 
-    /* Mind Map */
-    els.loadMindmapBtn.addEventListener("click", () => {
-      renderMindmap(els.mindmapTopicSelect.value);
-    });
-    els.resetMindmapBtn.addEventListener("click", () => {
-      mindmapZoom = 1;
-      applyMindmapZoom();
-      renderMindmap(els.mindmapTopicSelect.value);
-    });
-    els.zoomInMindmapBtn.addEventListener("click", () => {
-      mindmapZoom = Math.min(2.2, mindmapZoom + 0.15);
-      applyMindmapZoom();
-    });
-    els.zoomOutMindmapBtn.addEventListener("click", () => {
-      mindmapZoom = Math.max(0.4, mindmapZoom - 0.15);
-      applyMindmapZoom();
-    });
+    // Mind map
+    if (els.mmLoadBtn) {
+      els.mmLoadBtn.addEventListener("click", () => {
+        if (els.mmTopicSelect) loadMindMap(els.mmTopicSelect.value);
+      });
+    }
+    if (els.mmResetBtn) {
+      els.mmResetBtn.addEventListener("click", () => {
+        mmZoom = 1;
+        drawMindMap();
+      });
+    }
+    if (els.mmZoomInBtn) {
+      els.mmZoomInBtn.addEventListener("click", () => {
+        mmZoom = Math.min(mmZoom + 0.2, 3);
+        drawMindMap();
+      });
+    }
+    if (els.mmZoomOutBtn) {
+      els.mmZoomOutBtn.addEventListener("click", () => {
+        mmZoom = Math.max(mmZoom - 0.2, 0.3);
+        drawMindMap();
+      });
+    }
 
-    /* Rapid Match */
-    els.startRapidMatchBtn.addEventListener("click", startRapidMatch);
+    // Rapid Match
+    if (els.rmStartBtn) els.rmStartBtn.addEventListener("click", startRapidMatch);
+    if (els.rmOptions) {
+      els.rmOptions.addEventListener("click", (e) => {
+        const btn = e.target.closest(".rm-option");
+        if (!btn || !rmActive) return;
+        if (btn.dataset.correct === "true") {
+          rmCurrentStreak++;
+          if (els.rmStreak) els.rmStreak.textContent = rmCurrentStreak;
+          toast("⚡ Correct!", "success");
+          nextRapidQuestion();
+        } else {
+          toast("❌ Wrong!", "error");
+          endRapidMatch();
+        }
+      });
+    }
 
-    /* Term Lab */
-    els.extractPatternBtn.addEventListener("click", () => extractTerms("pattern"));
-    els.extractStatBtn.addEventListener("click",    () => extractTerms("stat"));
-    els.extractHybridBtn.addEventListener("click",  () => extractTerms("hybrid"));
-    els.clearTermLabBtn.addEventListener("click",   () => {
-      els.termLabInput.value       = "";
-      els.termLabOutput.textContent = "Candidate terms will appear here.";
-    });
+    // Term Lab
+    if (els.tlExtractBtn) els.tlExtractBtn.addEventListener("click", extractTerms);
 
-    /* Glossary */
-    els.addGlossaryEntryBtn.addEventListener("click", addGlossaryEntry);
-    els.exportGlossaryBtn.addEventListener("click", () => {
-      if (!state.glossary.length) { toast("No glossary entries to export.", "warning"); return; }
-      const rows = [
-        "TERM\tEQUIVALENT\tNOTE",
-        ...state.glossary.map(g => `${g.term}\t${g.equivalent}\t${g.note || ""}`)
-      ];
-      openModal("Glossary Export",
-        `<pre style="white-space:pre-wrap;margin:0">${escapeHtml(rows.join("\n"))}</pre>`);
-    });
-    els.clearGlossaryBtn.addEventListener("click", () => {
-      state.glossary = [];
-      saveState();
-      renderGlossary();
-      toast("Glossary cleared.", "warning");
-    });
+    // Glossary
+    if (els.glossAddBtn) els.glossAddBtn.addEventListener("click", addGlossEntry);
+    if (els.glossExportBtn) els.glossExportBtn.addEventListener("click", exportGloss);
+    if (els.glossClearBtn) {
+      els.glossClearBtn.addEventListener("click", () => {
+        if (confirm("Clear entire glossary?")) {
+          state.glossary = [];
+          saveState();
+          renderGlossList();
+          toast("Glossary cleared.", "warning");
+        }
+      });
+    }
+    if (els.glossList) {
+      els.glossList.addEventListener("click", (e) => {
+        const btn = e.target.closest(".gloss-del");
+        if (btn) {
+          state.glossary.splice(Number(btn.dataset.i), 1);
+          saveState();
+          renderGlossList();
+        }
+      });
+    }
 
-    /* Reset progress */
-    els.resetProgressBtn.addEventListener("click", () => {
-      if (!window.confirm("Reset all saved progress on this device?")) return;
-      state = createDefaultState();
-      saveState();
-      ensureDailyChallengeState();
-      rapidStreak = 0;
-      renderAll();
-      toast("Progress reset.", "warning");
-      setStatus("Progress reset.");
-    });
+    // Checklist (delegated)
+    if (els.reviewChecklist) {
+      els.reviewChecklist.addEventListener("change", (e) => {
+        if (e.target.type === "checkbox") {
+          const i = Number(e.target.dataset.i);
+          if (e.target.checked) {
+            if (!state.checkedItems.includes(i)) {
+              state.checkedItems.push(i);
+              award(5, 1, "Checklist item done!");
+            }
+          } else {
+            state.checkedItems = state.checkedItems.filter((x) => x !== i);
+          }
+          saveState();
+        }
+      });
+    }
   }
 
-  /* ══════════════════════════════════════════
-     RENDER ALL
-  ══════════════════════════════════════════ */
-
+  /* ================================================================
+     INITIAL RENDER (all sections)
+     ================================================================ */
   function renderAll() {
-    ensureDailyChallengeState();
     renderProgress();
+    renderBadges();
     renderSnapshot();
     renderDailyChallenge();
-    fillTopicSelects();
-    renderTopicCards("all");
-    renderTopicQuickList();
-    renderLesson(currentTopicId);
-    buildFlashDeck();
-    generateQuiz();
-    renderMindmap(els.mindmapTopicSelect.value || DATA.topics[0]?.id);
-    renderRapidStats();
-    renderGlossary();
-    renderSources();
-    renderWeakAreas();
-    renderReviewChecklist();
-    renderRevisionPlan();
+    renderTopicGrid("all");
+    renderQuickTopicList();
+    buildFcDeck();
+    renderGlossList();
     renderAchievements();
+    if (els.mmTopicSelect && DATA.mindmaps && DATA.mindmaps.length) {
+      loadMindMap(els.mmTopicSelect.value || DATA.mindmaps[0].topicId);
+    }
+
+    // Populate flashcard topic select
+    if (els.fcTopicSelect) {
+      els.fcTopicSelect.innerHTML =
+        `<option value="all">All Topics</option>` +
+        (DATA.topics || []).map((t) => `<option value="${t.id}">${escapeHtml(t.code)}: ${escapeHtml(t.title)}</option>`).join("");
+    }
+
+    // Populate quiz topic select
+    if (els.quizTopicSelect) {
+      els.quizTopicSelect.innerHTML =
+        `<option value="all">All Topics</option>` +
+        (DATA.topics || []).map((t) => `<option value="${t.id}">${escapeHtml(t.code)}: ${escapeHtml(t.title)}</option>`).join("");
+    }
+
+    // Populate mind map topic select
+    if (els.mmTopicSelect) {
+      els.mmTopicSelect.innerHTML = (DATA.mindmaps || [])
+        .map((m) => {
+          const t = (DATA.topics || []).find((x) => x.id === m.topicId);
+          return `<option value="${m.topicId}">${escapeHtml(t ? t.title : m.topicId)}</option>`;
+        })
+        .join("");
+    }
   }
 
-  /* ══════════════════════════════════════════
+  /* ================================================================
      BOOT
-  ══════════════════════════════════════════ */
-
+     ================================================================ */
   function init() {
-    ensureDailyChallengeState();
-    touchStudyDay();
+    loadState();
+    updateStreak();
+    ensureDailyChallenge();
     bindEvents();
     renderAll();
-    initCatalystBackground();
-    if (state.musicEnabled) loadTrack(musicTrackIndex);
-    setStatus("Ready.");
+    startCanvas();
+    initMusic();
+
+    // Hide all sections except welcome initially
+    els.sections.forEach((s) => s.classList.add("hidden"));
+    if (els.welcomeScreen) els.welcomeScreen.classList.remove("hidden");
+
+    setStatus("CATalyst Academy ready. Click Start to begin.");
+    console.log(
+      `%cCATalyst Academy loaded ✓ | Quizzes: ${(DATA.quizzes || []).length} | Flashcards: ${(DATA.flashcards || []).length} | Topics: ${(DATA.topics || []).length}`,
+      "color:#17b59c;font-weight:bold"
+    );
   }
 
   init();
-
 })();
