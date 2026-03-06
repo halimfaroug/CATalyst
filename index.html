@@ -1,1 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="CATalyst Academy — ENGL465 interactive learning platform for Computer-Assisted Translation."
+  />
+  <title>CATalyst Academy — ENGL465 Interactive CAT Platform</title>
+  <link rel="preload" href="./fonts/Kermit-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
 
+<!-- Animated background canvas -->
+<canvas id="catalystCanvas" aria-hidden="true"></canvas>
+
+<!-- Background audio -->
+<audio id="bgAudio" preload="none"></audio>
+
+<!-- Toast notifications -->
+<div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Modal -->
+<div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h3 id="modalTitle">Details</h3>
+      <button class="icon-btn" id="closeModalBtn" aria-label="Close modal">✕</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- Welcome screen -->
+<section id="welcomeScreen" class="welcome-screen">
+  <div class="welcome-card">
+    <div class="welcome-badge">✦ ENGL465 / Computer-Assisted Translation</div>
+    <h1>CATalyst Academy</h1>
+    <p class="welcome-subtitle">
+      A comprehensive interactive platform built from your ENGL465 course topics:
+      study, revise, test, map concepts, build glossaries, and track your mastery.
+    </p>
+    <div class="welcome-points">
+      <span>11 interactive topic lessons</span>
+      <span>31 source-based flashcards</span>
+      <span>17 topic and mixed quizzes</span>
+      <span>Interactive mind maps</span>
+      <span>Gamified XP and badges</span>
+      <span>Glossary and term lab</span>
+    </div>
+    <div class="welcome-actions">
+      <button id="enterWithMusicBtn" class="btn btn-primary">Enter with Music</button>
+      <button id="enterMutedBtn" class="btn btn-ghost">Enter Muted</button>
+    </div>
+    <p class="mini-note">
+      Optional folders:
+      <code>/fonts</code>
+      <code>/audio</code>
+      <code>/pdf</code>
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     HEADER
+═══════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-top container">
+
+    <div class="brand-wrap">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <h1>CATalyst Academy</h1>
+        <p>ENGL465 — Interactive Computer-Assisted Translation Learning Platform</p>
+      </div>
+    </div>
+
+    <div class="header-tools">
+      <label class="search-box" aria-label="Search all content">
+        <span>⌕</span>
+        <input
+          id="globalSearchInput"
+          type="text"
+          placeholder="Search topics, flashcards, quizzes, citations..."
+        />
+      </label>
+      <button id="globalSearchBtn" class="btn btn-small">Search</button>
+
+      <div class="music-controls compact">
+        <button id="musicToggleBtn" class="btn btn-small">♪ Music</button>
+        <button id="prevTrackBtn"   class="btn btn-small" title="Previous track">⏮</button>
+        <button id="nextTrackBtn"   class="btn btn-small" title="Next track">⏭</button>
+        <label class="range-wrap" title="Volume">
+          <span>Vol</span>
+          <input id="musicVolume" type="range" min="0" max="100" value="35" />
+        </label>
+      </div>
+
+      <button id="dailyChallengeBtn" class="btn btn-small btn-gold">Daily Challenge</button>
+      <button id="resetProgressBtn"  class="btn btn-small">Reset Progress</button>
+    </div>
+  </div>
+
+  <nav class="main-nav container" aria-label="Main navigation">
+    <button class="nav-tab active" data-target="dashboardSection">Dashboard</button>
+    <button class="nav-tab" data-target="topicsSection">Topics</button>
+    <button class="nav-tab" data-target="flashcardsSection">Flashcards</button>
+    <button class="nav-tab" data-target="quizzesSection">Quizzes</button>
+    <button class="nav-tab" data-target="mindmapsSection">Mind Maps</button>
+    <button class="nav-tab" data-target="gamesSection">Game Lab</button>
+    <button class="nav-tab" data-target="labSection">Glossary Lab</button>
+    <button class="nav-tab" data-target="sourcesSection">Sources</button>
+    <button class="nav-tab" data-target="reviewSection">Review</button>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+═══════════════════════════════════════ -->
+<main class="container page-main">
+
+  <!-- ─────────────────────────────────────
+       DASHBOARD
+  ───────────────────────────────────── -->
+  <section id="dashboardSection" class="page-section active">
+
+    <div class="grid grid-hero">
+
+      <article class="card hero-card">
+        <div class="hero-card-inner">
+          <span class="eyebrow">Interactive revision + practice + gamified mastery</span>
+          <h2>Study CAT in a structured, visual, and active way.</h2>
+          <p>
+            This platform is built from the attached ENGL465 materials and turns them into a
+            comprehensive learning experience — topic lessons, interactive flashcards, quizzes,
+            mind maps, glossary building, and full progress tracking.
+          </p>
+          <div class="hero-actions">
+            <button id="startFlashcardsBtn" class="btn btn-primary">Start Flashcards</button>
+            <button id="startMixedQuizBtn"  class="btn btn-secondary">Start Mixed Quiz</button>
+            <button id="browseTopicsBtn"    class="btn btn-ghost">Browse Topics</button>
+          </div>
+          <div class="hero-highlights">
+            <div class="highlight-pill">11 topic modules</div>
+            <div class="highlight-pill">31 flashcards</div>
+            <div class="highlight-pill">17 quiz questions</div>
+            <div class="highlight-pill">XP / Levels / Streaks / Badges</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card">
+        <div class="card-head">
+          <h3>Your Progress</h3>
+          <p>Stored locally in your browser.</p>
+        </div>
+        <div class="card-body">
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">Level</div>
+              <div class="stat-value" id="statLevel">1</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">XP</div>
+              <div class="stat-value" id="statXP">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Coins</div>
+              <div class="stat-value" id="statCoins">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Streak</div>
+              <div class="stat-value" id="statStreak">0</div>
+            </div>
+          </div>
+
+          <div class="meter-block">
+            <div class="meter-top">
+              <span>Flashcard Mastery</span>
+              <span id="masteryText">0%</span>
+            </div>
+            <div class="meter"><span id="masteryBar"></span></div>
+          </div>
+
+          <div class="meter-block">
+            <div class="meter-top">
+              <span>Course Completion</span>
+              <span id="completionText">0%</span>
+            </div>
+            <div class="meter meter-alt"><span id="completionBar"></span></div>
+          </div>
+
+          <div class="badges-area">
+            <h4>Badges</h4>
+            <div id="dashboardBadges" class="badge-wrap"></div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <div class="grid grid-2">
+
+      <article class="card">
+        <div class="card-head">
+          <h3>Daily Challenge</h3>
+          <p>Complete the mission for bonus XP and coins.</p>
+        </div>
+        <div class="card-body">
+          <div id="dailyChallengeCard" class="challenge-card"></div>
+          <div class="toolbar" style="margin-top:12px">
+            <button id="openDailyChallengeBtn" class="btn btn-primary">Open Challenge</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>Course Snapshot</h3>
+          <p>High-yield overview of all included ENGL465 material.</p>
+        </div>
+        <div class="card-body">
+          <div id="snapshotList" class="bullet-list"></div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Search Results</h3>
+        <p>Use the global search bar to jump instantly across all content.</p>
+      </div>
+      <div class="card-body">
+        <div id="searchResultsPanel" class="results-panel">
+          <p class="muted">No search yet — type above and press Search or Enter.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       TOPICS
+  ───────────────────────────────────── -->
+  <section id="topicsSection" class="page-section">
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Topic Explorer</h2>
+        <p>
+          All 11 ENGL465 topic modules with full lesson detail — definitions, key points,
+          examples, process timelines, comparison tables, exam tips, and citations.
+        </p>
+      </div>
+      <div class="card-body">
+        <div class="toolbar" style="margin-bottom:16px">
+          <button class="btn btn-small topic-filter active" data-filter="all">All</button>
+          <button class="btn btn-small topic-filter" data-filter="foundation">Foundation</button>
+          <button class="btn btn-small topic-filter" data-filter="tools">Tools</button>
+          <button class="btn btn-small topic-filter" data-filter="technology">Technology</button>
+          <button class="btn btn-small topic-filter" data-filter="practice">Practice</button>
+        </div>
+        <div id="topicCardGrid" class="topic-grid"></div>
+      </div>
+    </div>
+
+    <div class="grid-topic-detail">
+
+      <article class="card">
+        <div class="card-head">
+          <h3>Selected Lesson</h3>
+          <p>Click any topic card above to load its full lesson here.</p>
+        </div>
+        <div class="card-body">
+
+          <div class="lesson-header">
+            <div>
+              <div id="lessonCode" class="topic-code">Topic</div>
+              <h2 id="lessonTitle">Select a topic</h2>
+              <p id="lessonMeta" class="muted">Source file and page range will appear here.</p>
+            </div>
+            <div class="lesson-actions">
+              <button id="lessonToFlashcardsBtn" class="btn btn-small btn-primary">Flashcards</button>
+              <button id="lessonToQuizBtn"       class="btn btn-small btn-secondary">Quiz</button>
+              <button id="lessonToMindmapBtn"    class="btn btn-small">Mind Map</button>
+            </div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Overview</h4>
+            <div id="lessonOverview" class="bullet-list"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Key Definitions</h4>
+            <div id="lessonDefinitions" class="definition-list"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Major Points</h4>
+            <div id="lessonKeyPoints" class="bullet-list"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Examples / Cases</h4>
+            <div id="lessonExamples" class="bullet-list"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Processes / Workflows</h4>
+            <div id="lessonProcess" class="timeline-list"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Compare / Distinguish</h4>
+            <div id="lessonCompare" class="compare-table-wrap"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Exam Tips</h4>
+            <div id="lessonExamTips" class="bullet-list"></div>
+          </div>
+
+          <div class="lesson-block">
+            <h4>Source Citations</h4>
+            <div id="lessonCitations" class="citation-list"></div>
+          </div>
+
+        </div>
+      </article>
+
+      <aside class="card">
+        <div class="card-head">
+          <h3>Quick Topic Navigator</h3>
+          <p>Jump directly to any of the 11 included topics.</p>
+        </div>
+        <div class="card-body">
+          <div id="topicQuickList" class="stack-list"></div>
+        </div>
+      </aside>
+
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       FLASHCARDS
+  ───────────────────────────────────── -->
+  <section id="flashcardsSection" class="page-section">
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Flashcards</h2>
+        <p>
+          31 source-based recall cards covering all 11 topics.
+          Rate each card to track mastery and focus on weak areas.
+        </p>
+      </div>
+      <div class="card-body">
+
+        <div class="toolbar" style="margin-bottom:14px">
+          <select id="flashTopicSelect"      class="input-select" style="max-width:280px"></select>
+          <select id="flashDifficultySelect" class="input-select" style="max-width:180px">
+            <option value="all">All Cards</option>
+            <option value="weak">Weak Only</option>
+            <option value="new">New Only</option>
+            <option value="mastered">Mastered Only</option>
+          </select>
+          <button id="shuffleFlashcardsBtn" class="btn btn-small">Shuffle</button>
+          <button id="resetFlashDeckBtn"    class="btn btn-small">Restart Deck</button>
+        </div>
+
+        <div class="flash-meta">
+          <span class="meta-pill" id="flashDeckLabel">Deck: All Topics</span>
+          <span class="meta-pill" id="flashPositionLabel">Card 1 / 1</span>
+          <span class="meta-pill" id="flashStatusLabel">Status: New</span>
+        </div>
+
+        <div class="flashcard-shell">
+          <div id="flashcard" class="flashcard">
+            <div class="flashcard-inner">
+
+              <div class="flash-face flash-front">
+                <div>
+                  <div class="flash-label">Question / Prompt</div>
+                  <div id="flashFrontText" class="flash-main-text">Loading...</div>
+                </div>
+                <div>
+                  <div id="flashFrontMeta" class="flash-meta-text"></div>
+                  <div class="toolbar">
+                    <button id="flipFlashcardBtn" class="btn btn-primary">Flip Card</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flash-face flash-back">
+                <div>
+                  <div class="flash-label">Answer / Explanation</div>
+                  <div id="flashBackText" class="flash-main-text">Loading...</div>
+                </div>
+                <div>
+                  <div id="flashBackMeta" class="flash-meta-text"></div>
+                  <div class="toolbar">
+                    <button id="flashHardBtn"     class="btn">Hard</button>
+                    <button id="flashGoodBtn"     class="btn btn-secondary">Good</button>
+                    <button id="flashMasteredBtn" class="btn btn-primary">Mastered</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="prevFlashcardBtn" class="btn">◀ Previous</button>
+          <button id="nextFlashcardBtn" class="btn">Next ▶</button>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       QUIZZES
+  ───────────────────────────────────── -->
+  <section id="quizzesSection" class="page-section">
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Quiz Arena</h2>
+        <p>
+          17 topic-based and mixed quiz questions with full explanations and source citations.
+          Choose topic, mode, and length then generate your quiz.
+        </p>
+      </div>
+      <div class="card-body">
+
+        <div class="toolbar" style="margin-bottom:14px">
+          <select id="quizTopicSelect"  class="input-select" style="max-width:280px"></select>
+          <select id="quizModeSelect"   class="input-select" style="max-width:180px">
+            <option value="topic">Topic Quiz</option>
+            <option value="mixed">Mixed Quiz</option>
+            <option value="exam">Exam Mode</option>
+          </select>
+          <select id="quizLengthSelect" class="input-select" style="max-width:160px">
+            <option value="5">5 Questions</option>
+            <option value="10">10 Questions</option>
+            <option value="15">15 Questions</option>
+          </select>
+          <button id="generateQuizBtn" class="btn btn-primary">Generate Quiz</button>
+        </div>
+
+        <div class="quiz-meta">
+          <span class="meta-pill" id="quizTopicLabel">Topic: —</span>
+          <span class="meta-pill" id="quizProgressLabel">Question 0 / 0</span>
+          <span class="meta-pill" id="quizScoreLabel">Score: 0</span>
+        </div>
+
+        <div class="quiz-layout">
+
+          <article class="quiz-main">
+            <div id="quizQuestionText" class="quiz-question">
+              Generate a quiz to begin.
+            </div>
+            <div id="quizOptions" class="quiz-options"></div>
+            <div class="toolbar">
+              <button id="submitQuizAnswerBtn" class="btn btn-secondary">Submit Answer</button>
+              <button id="nextQuizQuestionBtn" class="btn">Next Question</button>
+            </div>
+            <div id="quizFeedback" class="feedback-box" style="margin-top:14px">
+              Select an answer and press Submit to see feedback and explanation.
+            </div>
+          </article>
+
+          <aside class="quiz-side">
+            <div class="side-panel">
+              <h4>Quiz Summary</h4>
+              <div id="quizSummaryPanel" class="stack-list"></div>
+            </div>
+          </aside>
+
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       MIND MAPS
+  ───────────────────────────────────── -->
+  <section id="mindmapsSection" class="page-section">
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Interactive Mind Maps</h2>
+        <p>
+          Click branch nodes to expand child ideas. Select any node to view
+          its explanation, connected ideas, and source citation.
+        </p>
+      </div>
+      <div class="card-body">
+
+        <div class="toolbar" style="margin-bottom:14px">
+          <select id="mindmapTopicSelect" class="input-select" style="max-width:280px"></select>
+          <button id="loadMindmapBtn"    class="btn btn-primary">Load Mind Map</button>
+          <button id="resetMindmapBtn"   class="btn btn-small">Reset View</button>
+          <button id="zoomInMindmapBtn"  class="btn btn-small">Zoom +</button>
+          <button id="zoomOutMindmapBtn" class="btn btn-small">Zoom −</button>
+        </div>
+
+        <div class="mindmap-layout">
+
+          <div class="mindmap-stage-wrap">
+            <div id="mindmapStage" class="mindmap-stage"
+                 aria-label="Interactive mind map stage">
+              <svg id="mindmapSvg" class="mindmap-svg" aria-hidden="true"></svg>
+              <div id="mindmapNodesLayer" class="mindmap-nodes-layer"></div>
+            </div>
+          </div>
+
+          <aside class="mindmap-sidebar">
+            <div class="side-panel">
+              <h4>Node Details</h4>
+              <div id="mindmapNodeDetails" class="details-panel">
+                Select a node to view its explanation, connected ideas, and citation.
+              </div>
+            </div>
+          </aside>
+
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       GAME LAB
+  ───────────────────────────────────── -->
+  <section id="gamesSection" class="page-section">
+
+    <div class="grid grid-2">
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Rapid Match</h2>
+          <p>
+            Fast-paced recall challenge. Match the term to its correct definition
+            before the 15-second timer runs out. Build your streak for bonus XP.
+          </p>
+        </div>
+        <div class="card-body">
+
+          <div class="toolbar">
+            <button id="startRapidMatchBtn" class="btn btn-primary">Start Challenge</button>
+          </div>
+
+          <div class="rapid-meta" style="margin-top:12px">
+            <span class="meta-pill" id="rapidStreakLabel">Streak: 0</span>
+            <span class="meta-pill" id="rapidBestLabel">Best: 0</span>
+            <span class="meta-pill" id="rapidTimerLabel">Time: —</span>
+          </div>
+
+          <div id="rapidPrompt" class="quiz-question" style="margin-top:14px">
+            Press "Start Challenge" to begin.
+          </div>
+          <div id="rapidOptions"  class="quiz-options"></div>
+          <div id="rapidFeedback" class="feedback-box">Challenge ready.</div>
+
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Achievements</h2>
+          <p>Your unlocked badges and study milestones.</p>
+        </div>
+        <div class="card-body">
+
+          <div id="achievementPanel" class="badge-wrap"></div>
+
+          <details class="info-box">
+            <summary><strong>XP Reward Rules</strong></summary>
+            <div class="details-content">
+              <ul>
+                <li>Good flashcard rating = +8 XP, +2 coins</li>
+                <li>Mastered flashcard = +14 XP, +4 coins</li>
+                <li>Correct quiz answer = +20 XP, +5 coins</li>
+                <li>Rapid Match win = +12 XP, +3 coins</li>
+                <li>Glossary entry added = +6 XP, +2 coins</li>
+                <li>Daily challenge completion = +40 XP, +15 coins</li>
+              </ul>
+            </div>
+          </details>
+
+        </div>
+      </article>
+
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       GLOSSARY LAB
+  ───────────────────────────────────── -->
+  <section id="labSection" class="page-section">
+
+    <div class="grid grid-2">
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Term Extraction Lab</h2>
+          <p>
+            Paste any source text to extract candidate terms using
+            pattern-based, frequency-based, or hybrid methods.
+          </p>
+        </div>
+        <div class="card-body">
+
+          <textarea
+            id="termLabInput"
+            class="text-area"
+            placeholder="Paste source text here — try a paragraph from your ENGL465 materials..."
+          ></textarea>
+
+          <div class="toolbar" style="margin-top:10px">
+            <button id="extractPatternBtn" class="btn btn-primary">Pattern-Based</button>
+            <button id="extractStatBtn"    class="btn btn-secondary">Frequency-Based</button>
+            <button id="extractHybridBtn"  class="btn btn-gold">Hybrid</button>
+            <button id="clearTermLabBtn"   class="btn">Clear</button>
+          </div>
+
+          <div id="termLabOutput" class="results-panel" style="margin-top:14px">
+            Candidate terms will appear here.
+          </div>
+
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Quick Glossary Builder</h2>
+          <p>
+            Build a personal bilingual mini-termbase while studying.
+            Export as tab-separated text when ready.
+          </p>
+        </div>
+        <div class="card-body">
+
+          <div class="form-grid">
+            <input
+              id="glossaryTermInput"
+              type="text"
+              class="text-input"
+              placeholder="Source term (e.g. Translation Memory)"
+            />
+            <input
+              id="glossaryEquivalentInput"
+              type="text"
+              class="text-input"
+              placeholder="Target equivalent"
+            />
+            <input
+              id="glossaryNoteInput"
+              type="text"
+              class="text-input"
+              placeholder="Note / domain / usage context"
+            />
+          </div>
+
+          <div class="toolbar" style="margin-top:10px">
+            <button id="addGlossaryEntryBtn" class="btn btn-primary">Add Entry</button>
+            <button id="exportGlossaryBtn"   class="btn">Export TSV</button>
+            <button id="clearGlossaryBtn"    class="btn">Clear All</button>
+          </div>
+
+          <div id="glossaryOutput" class="results-panel" style="margin-top:14px">
+            No glossary entries yet.
+          </div>
+
+        </div>
+      </article>
+
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       SOURCES
+  ───────────────────────────────────── -->
+  <section id="sourcesSection" class="page-section">
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Source Explorer</h2>
+        <p>
+          All 11 ENGL465 source files and every lesson citation used
+          to build the platform content.
+        </p>
+      </div>
+      <div class="card-body">
+
+        <div class="notice-box" style="margin-bottom:18px">
+          For PDF links to work, place the course PDF files inside the
+          <code>/pdf</code> folder and serve the project through a local
+          server such as VS Code Live Server or any HTTP server.
+        </div>
+
+        <div id="sourceFileGrid" class="topic-grid"></div>
+
+        <div style="margin-top:22px">
+          <h4 style="margin:0 0 12px">All Citations</h4>
+          <div id="allCitationsPanel" class="citation-list"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────
+       REVIEW
+  ───────────────────────────────────── -->
+  <section id="reviewSection" class="page-section">
+
+    <div class="grid grid-2">
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Weak Areas</h2>
+          <p>
+            Flashcards rated Hard or not yet mastered — your priority revision list.
+          </p>
+        </div>
+        <div class="card-body">
+          <div id="weakAreasPanel" class="results-panel"></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>High-Yield Review Checklist</h2>
+          <p>
+            Key revision points drawn from all 11 included topics —
+            ideal for final exam preparation.
+          </p>
+        </div>
+        <div class="card-body">
+          <div id="reviewChecklist" class="bullet-list"></div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="card-head">
+        <h3>7-Day Revision Planner</h3>
+        <p>A structured day-by-day guide to cover all 11 topics efficiently.</p>
+      </div>
+      <div class="card-body">
+        <div id="revisionPlanPanel" class="timeline-list"></div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <strong>CATalyst Academy</strong> —
+      ENGL465 Interactive CAT Learning Platform &nbsp;|&nbsp;
+      Developed by Halim Faroug A. Elhag (BA Hons, MA),
+      Lecturer of English Language, UHB / UofK
+    </div>
+    <div id="statusLine">Ready.</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════
+     SCRIPTS — data first, then app
+═══════════════════════════════════════ -->
+<script src="./data.js"></script>
+<script src="./app.js"></script>
+
+</body>
+</html>
