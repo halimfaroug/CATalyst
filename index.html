@@ -16,32 +16,6 @@
   <link rel="stylesheet" href="./styles.css" />
 
   <!-- Data and App -->
-  <script>
-  window.addEventListener("error", function (e) {
-    const box = document.createElement("pre");
-    box.style.cssText = `
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      z-index: 99999;
-      background: #fff1f1;
-      color: #8b0000;
-      border: 1px solid #f2aaaa;
-      padding: 12px;
-      border-radius: 12px;
-      font: 14px/1.5 monospace;
-      white-space: pre-wrap;
-      box-shadow: 0 12px 30px rgba(0,0,0,.15);
-    `;
-    box.textContent =
-      "JavaScript Error:\\n" +
-      e.message +
-      "\\nFile: " + e.filename +
-      "\\nLine: " + e.lineno +
-      "\\nColumn: " + e.colno;
-    document.body.appendChild(box);
-  });
 </script>
   <script src="./data.js" defer></script>
   <script src="./app.js" defer></script>
