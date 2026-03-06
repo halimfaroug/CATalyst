@@ -626,20 +626,48 @@
      RENDER — QUIZ
   ══════════════════════════════════════════ */
 
-  function generateQuiz() {
+    function generateQuiz() {
     const topicId = els.quizTopicSelect.value;
     const mode    = els.quizModeSelect.value;
     const length  = Number(els.quizLengthSelect.value);
 
     let pool = [...DATA.quizzes];
-    if (mode === "topic" && topicId !== "all")
-      pool = pool.filter(q => q.topicId === topicId);
-    if (mode === "exam")
-      pool = shuffle(DATA.quizzes).sort((a, b) =>
+
+    if (mode === "topic") {
+      if (topicId !== "all") {
+        pool = DATA.quizzes.filter(q => q.topicId === topicId);
+      } else {
+        pool = [...DATA.quizzes];
+      }
+    }
+
+    if (mode === "mixed") {
+      pool = [...DATA.quizzes];
+    }
+
+    if (mode === "exam") {
+      pool = [...DATA.quizzes].sort((a, b) =>
         (a.difficulty || "").localeCompare(b.difficulty || ""));
+    }
+
+    console.log("Pool size before sample:", pool.length);
+    console.log("Length requested:", length);
 
     currentQuiz = {
       items:    sample(pool, Math.min(length, pool.length)),
+      index:    0,
+      score:    0,
+      selected: null,
+      locked:   false,
+      summary:  []
+    };
+
+    console.log("Quiz items generated:", currentQuiz.items.length);
+
+    renderQuizQuestion();
+    setStatus(`Quiz generated — ${currentQuiz.items.length} questions.`);
+  }
+
       index:    0,
       score:    0,
       selected: null,
